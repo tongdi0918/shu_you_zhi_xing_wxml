@@ -1,0 +1,17 @@
+<view class="register-container">
+  <view class="register-box">
+    <text class="title">用户注册</text>
+    <text class="subtitle">加入蜀游智行，开启四川之旅</text>
+    
+    <input class="input" placeholder="请输入用户名" bindinput="onInputUsername" value="{{username}}" />
+    <input class="input" placeholder="请输入密码" password bindinput="onInputPassword" value="{{password}}" />
+    <input class="input" placeholder="确认密码" password bindinput="onInputConfirmPassword" value="{{confirmPassword}}" />
+    
+    <button class="register-btn" bindtap="doRegister" disabled="{{isLoading}}">注 册</button>
+    
+    <view class="login-link">
+      <text>已有账号？</text>
+      <navigator url="/pages/login/login">去登录</navigator>
+    </view>
+  </view>
+</view>

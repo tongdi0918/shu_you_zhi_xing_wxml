@@ -1,0 +1,38 @@
+<view class="container">
+  <!-- 景区图片 -->
+  <image class="banner" src="{{scenic.image}}" mode="aspectFill"></image>
+
+  <!-- 基本信息 -->
+  <view class="info-card">
+    <text class="name">{{scenic.name}}</text>
+    <text class="level">{{scenic.level}}</text>
+    <text class="city">📍 {{scenic.city}}</text>
+    <text class="price">🎫 ¥{{scenic.ticket_price}} / 人</text>
+    <text class="rating">⭐ {{scenic.rating}} 分</text>
+  </view>
+
+  <!-- 描述 -->
+  <view class="desc-card">
+    <text class="title">📖 景区介绍</text>
+    <text class="desc">{{scenic.description}}</text>
+  </view>
+
+  <!-- 故事（吸引点） -->
+  <view class="story-card" wx:if="{{scenic.story}}">
+    <text class="title">📜 背后的故事</text>
+    <text class="story">{{scenic.story}}</text>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="actions">
+    <button class="btn-like" bindtap="toggleFavorite">
+      {{isFavorite ? '❤️ 已收藏' : '🤍 收藏'}}
+    </button>
+    <button class="btn-route" bindtap="goToRoute">🗺️ 去路线规划</button>
+  </view>
+
+  <!-- 携程预订入口 -->
+  <view class="ctrip-entry" bindtap="goToCtrip">
+    <text>🎫 在携程预订门票 →</text>
+  </view>
+</view>

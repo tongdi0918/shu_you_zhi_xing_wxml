@@ -1,0 +1,39 @@
+<view class="route-container">
+  <view class="nav-header">
+    <text class="back" bindtap="goBack">← 返回首页</text>
+    <text class="title">🗺️ 路程规划</text>
+  </view>
+
+  <view class="input-area">
+    <input class="input" placeholder="请输入出发地" bindinput="onInputOrigin" value="{{origin}}" />
+<input class="input" placeholder="请输入目的地" bindinput="onInputDestination" value="{{destination}}" />
+    <view class="btn-group">
+      <button class="plan-btn" bindtap="planRoute">🚀 规划路线</button>
+      <button class="location-btn" bindtap="getMyLocation">📍 我的位置</button>
+    </view>
+  </view>
+
+  <map id="routeMap" longitude="{{mapCenter.longitude}}" latitude="{{mapCenter.latitude}}" 
+       scale="12" markers="{{markers}}" polyline="{{polyline}}" show-location="true"
+       style="width:100%;height:400rpx;">
+  </map>
+
+  <view class="result" wx:if="{{routeResult}}">
+    <text class="summary">📊 {{routeSummary}}</text>
+    <view class="stats">
+      <text>总公里数：{{routeDistance}}</text>
+      <text>预估时间：{{routeTime}}</text>
+      <text>过路费：{{routeTolls}}</text>
+    </view>
+    <view class="steps">
+      <view wx:for="{{routeSteps}}" wx:key="index" class="step">
+        <text>{{index + 1}} {{item.distance}}km</text>
+        <text>{{item.instruction}}</text>
+        <text>道路：{{item.road}}</text>
+        <text>动作：{{item.action}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!routeResult}}" class="placeholder">请输入出发地和目的地，然后点击"规划路线"</view>
+</view>

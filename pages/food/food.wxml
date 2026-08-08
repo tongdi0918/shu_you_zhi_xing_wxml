@@ -1,0 +1,28 @@
+<view class="container">
+  <image class="banner" src="{{food.image}}" mode="aspectFill"></image>
+
+  <view class="info-card">
+    <text class="name">{{food.name}}</text>
+    <text class="category">{{food.category}}</text>
+    <text class="city">📍 {{food.city}}</text>
+    <text class="price">💰 人均 ¥{{food.avg_price}}</text>
+    <text class="rating">⭐ {{food.rating}} 分</text>
+  </view>
+
+  <view class="desc-card">
+    <text class="title">🍽️ 菜品介绍</text>
+    <text class="desc">{{food.description}}</text>
+  </view>
+
+  <view class="story-card" wx:if="{{food.story}}">
+    <text class="title">📜 美食故事</text>
+    <text class="story">{{food.story}}</text>
+  </view>
+
+  <view class="actions">
+    <button class="btn-like" bindtap="toggleFavorite">
+      {{isFavorite ? '❤️ 已收藏' : '🤍 收藏'}}
+    </button>
+    <button class="btn-route" bindtap="goToRoute">🗺️ 去路线规划</button>
+  </view>
+</view>

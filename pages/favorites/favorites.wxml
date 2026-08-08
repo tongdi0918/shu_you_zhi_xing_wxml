@@ -1,0 +1,16 @@
+<view class="container">
+  <view class="tabs">
+    <view class="tab {{tab === 'scenic' ? 'active' : ''}}" bindtap="switchTab" data-tab="scenic">🏔️ 景区</view>
+    <view class="tab {{tab === 'food' ? 'active' : ''}}" bindtap="switchTab" data-tab="food">🍜 美食</view>
+  </view>
+
+  <view wx:for="{{list}}" wx:key="id" class="item" bindtap="goToDetail" data-type="{{tab}}" data-id="{{item.id}}">
+    <image src="{{item.image}}" mode="aspectFill"></image>
+    <view class="info">
+      <text class="name">{{item.name}}</text>
+      <text class="desc">{{item.description}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{list.length === 0}}" class="empty">暂无收藏，去发现美好吧</view>
+</view>

@@ -1,0 +1,30 @@
+<view class="recommend-container">
+  <text class="title">?? 个性化推荐</text>
+  <text class="subtitle">基于你的偏好，为你精选四川美景与美食</text>
+
+  <view class="section">
+    <text class="section-title">??? 为你推荐景区</text>
+    <view wx:for="{{recommendScenery}}" wx:key="id" class="scenic-card" bindtap="goToScenic" data-id="{{item.id}}">
+      <image src="{{item.image}}" mode="aspectFill"></image>
+      <view class="card-info">
+        <text class="name">{{item.name}}</text>
+        <text class="desc">{{item.description}}</text>
+      </view>
+    </view>
+    <view wx:if="{{recommendScenery.length === 0}}" class="empty">暂无推荐，先去浏览一些景区吧</view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">?? 为你推荐美食</text>
+    <view wx:for="{{recommendFood}}" wx:key="id" class="food-card" bindtap="goToFood" data-id="{{item.id}}">
+      <image src="{{item.image}}" mode="aspectFill"></image>
+      <view class="card-info">
+        <text class="name">{{item.name}}</text>
+        <text class="desc">{{item.description}}</text>
+      </view>
+    </view>
+    <view wx:if="{{recommendFood.length === 0}}" class="empty">暂无推荐，先去品尝一些美食吧</view>
+  </view>
+
+  <view class="refresh-btn" bindtap="refreshRecommend">?? 刷新推荐</view>
+</view>

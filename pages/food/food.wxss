@@ -1,0 +1,14 @@
+/* 与 scenic 样式基本一致，可复用 */
+.container { padding-bottom: 40rpx; background: #f8f8f8; }
+.banner { width: 100%; height: 400rpx; }
+.info-card { background: white; margin: 20rpx 30rpx; padding: 30rpx; border-radius: 16rpx; }
+.name { font-size: 40rpx; font-weight: 700; color: #333; }
+.category { display: inline-block; background: #FF6B35; color: white; padding: 4rpx 20rpx; border-radius: 20rpx; font-size: 24rpx; margin-left: 16rpx; }
+.city, .price, .rating { display: block; font-size: 28rpx; color: #666; margin-top: 12rpx; }
+.desc-card, .story-card { background: white; margin: 20rpx 30rpx; padding: 30rpx; border-radius: 16rpx; }
+.title { font-size: 32rpx; font-weight: 600; color: #333; display: block; margin-bottom: 16rpx; }
+.desc, .story { font-size: 28rpx; color: #444; line-height: 1.6; }
+.actions { display: flex; gap: 20rpx; padding: 0 30rpx; margin: 30rpx 0; }
+.actions button { flex: 1; height: 80rpx; border-radius: 40rpx; font-size: 28rpx; display: flex; align-items: center; justify-content: center; }
+.btn-like { background: #fff; color: #FF6B35; border: 2rpx solid #FF6B35; }
+.btn-route { background: #FF6B35; color: white; border: none; }

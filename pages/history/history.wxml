@@ -1,0 +1,62 @@
+<!-- 首页 - 对应原项目 HomeView.vue -->
+<view class="container">
+  <!-- 顶部导航 -->
+  <view class="header">
+    <text class="title">蜀游智行</text>
+    <view class="header-actions">
+      <navigator url="/pages/login/login" wx:if="{{!isLogin}}">登录</navigator>
+      <navigator url="/pages/register/register" wx:if="{{!isLogin}}">注册</navigator>
+      <navigator url="/pages/profile/profile" wx:if="{{isLogin}}">个人中心</navigator>
+    </view>
+  </view>
+
+  <!-- 标语 -->
+  <view class="slogan">探秘蜀地山水，品味川味人间</view>
+
+  <!-- 快捷入口 -->
+  <view class="quick-entry">
+    <view class="entry-item" bindtap="goToRecommend">智能推荐</view>
+    <view class="entry-item" bindtap="goToFavorites">⭐ 我的收藏</view>
+    <view class="entry-item" bindtap="goToHistory">浏览历史</view>
+  </view>
+
+  <!-- 景区列表 -->
+  <view class="section">
+    <view class="section-header">
+      <text>🏔️ 四川景区</text>
+      <text class="refresh" bindtap="refreshSceneries">🔄 刷新</text>
+    </view>
+    <view wx:for="{{sceneries}}" wx:key="id" class="scenic-card" bindtap="goToScenic" data-id="{{item.id}}">
+      <image src="{{item.image}}" mode="aspectFill"></image>
+      <view class="card-info">
+        <text class="name">{{item.name}}</text>
+        <text class="level">{{item.level}}</text>
+        <text class="city">{{item.city}}</text>
+        <text class="desc">{{item.description}}</text>
+        <text class="price">¥{{item.ticket_price}} ⭐ {{item.rating}}</text>
+      </view>
+    </view>
+    <view wx:if="{{sceneries.length === 0}}" class="empty">正在加载景区...</view>
+  </view>
+
+  <!-- 美食列表 -->
+  <view class="section">
+    <view class="section-header">
+      <text>🍜 天府名菜</text>
+      <text class="refresh" bindtap="refreshFoods">🔄 刷新</text>
+    </view>
+    <view wx:for="{{foods}}" wx:key="id" class="food-card" bindtap="goToFood" data-id="{{item.id}}">
+      <image src="{{item.image}}" mode="aspectFill"></image>
+      <view class="card-info">
+        <text class="name">{{item.name}}</text>
+        <text class="category">{{item.category}}</text>
+        <text class="city">{{item.city}}</text>
+        <text class="desc">{{item.description}}</text>
+        <text class="price">¥{{item.avg_price}} ⭐ {{item.rating}}</text>
+      </view>
+    </view>
+    <view wx:if="{{foods.length === 0}}" class="empty">正在加载美食...</view>
+  </view>
+
+  <view class="footer">© 李字雄 For 2026 蜀游智行</view>
+</view>

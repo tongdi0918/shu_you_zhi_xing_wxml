@@ -1,0 +1,10 @@
+<view class="login-container">
+  <view class="login-box">
+    <text class="title">🔐 管理员登录</text>
+    <text class="subtitle">请使用管理员账号登录</text>
+    <input class="input" placeholder="管理员账号" bindinput="setUsername" value="{{username}}" />
+    <input class="input" placeholder="密码" password bindinput="setPassword" value="{{password}}" />
+    <button class="login-btn" bindtap="doLogin">登 录</button>
+    <view class="back-link" bindtap="goBack">← 返回用户端</view>
+  </view>
+</view>

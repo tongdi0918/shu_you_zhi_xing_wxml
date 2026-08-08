@@ -1,0 +1,36 @@
+<!-- 个人中心页面 -->
+<view class="profile-container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <image class="avatar" src="{{user.avatar || '/images/default.png'}}" mode="aspectFill"></image>
+    <text class="name">{{user.nickname || '游客'}}</text>
+    <text class="bio">蜀游智行 · 四川旅行家</text>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-group">
+    <view class="menu-item" bindtap="goToFavorites">⭐ 我的收藏</view>
+    <view class="menu-item" bindtap="goToHistory">🕐 浏览历史</view>
+    <view class="menu-item" bindtap="goToRecommend">🎯 个性化推荐</view>
+  </view>
+
+  <!-- 管理员入口（仅管理员可见） -->
+  <view class="menu-group" wx:if="{{user.role === 'admin'}}">
+    <view class="menu-item" bindtap="goToDashboard">⚙️ 管理后台</view>
+  </view>
+
+  <!-- 其他 -->
+  <view class="menu-group">
+    <view class="menu-item" bindtap="showAbout">ℹ️ 关于我们</view>
+    <view class="menu-item logout" bindtap="doLogout" wx:if="{{isLogin}}">🚪 退出登录</view>
+  </view>
+
+  <view class="checkin-area">
+    <button class="checkin-btn" bindtap="doCheckin" disabled="{{hasCheckedIn}}">
+      {{hasCheckedIn ? '✅ 已打卡' : '📌 打卡点亮'}}
+    </button>
+    <text class="checkin-days">已连续打卡 {{checkinDays}} 天</text>
+  </view>
+
+  <view class="version">蜀游智行 v1.0.0</view>
+</view>
