@@ -1,0 +1,59 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/login/login",
+    "pages/register/register",
+    "pages/scenic/scenic",
+    "pages/food/food",
+    "pages/recommend/recommend",
+    "pages/route/route",
+    "pages/profile/profile",
+    "pages/favorites/favorites",
+    "pages/history/history",
+    "pages/admin/admin",
+    "pages/dashboard/dashboard",
+    "pages/scenic-mgr/scenic-mgr",
+    "pages/food-mgr/food-mgr"
+  ],
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#FF6B35",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home_active.png"
+      },
+      {
+        "pagePath": "pages/recommend/recommend",
+        "text": "推荐",
+        "iconPath": "images/recommend.png",
+        "selectedIconPath": "images/recommend_active.png"
+      },
+      {
+        "pagePath": "pages/route/route",
+        "text": "路线",
+        "iconPath": "images/route.png",
+        "selectedIconPath": "images/route_active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/profile.png",
+        "selectedIconPath": "images/profile_active.png"
+      }
+    ]
+  },
+  "window": {
+    "navigationBarBackgroundColor": "#FF6B35",
+    "navigationBarTitleText": "蜀游智行",
+    "navigationBarTextStyle": "white"
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于路线规划"
+    }
+  },
+  "lazyCodeLoading": "requiredComponents"
+}

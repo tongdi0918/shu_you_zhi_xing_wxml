@@ -1,0 +1,19 @@
+{
+  "description": "项目配置文件",
+  "packOptions": {
+    "ignore": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "postcss": true,
+    "minified": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.17.1",
+  "appid": "wxbea4baae5b72b934",
+  "projectname": "蜀游智行2",
+  "miniprogramRoot": ".",
+  "condition": {},
+  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
+}
