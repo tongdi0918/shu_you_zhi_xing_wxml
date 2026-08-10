@@ -1,29 +1,25 @@
-.recommend-container {
-  padding: 30rpx;
-  background: #f5f5f5;
-  min-height: 100vh;
+/* 首页样式 */
+.container {
+  padding-bottom: 40rpx;
+  background: #f8f8f8;
 }
-.title {
-  display: block;
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #333;
-}
-.subtitle {
-  display: block;
-  font-size: 26rpx;
-  color: #999;
-  margin: 10rpx 0 30rpx;
-}
+
 .section {
-  margin-bottom: 30rpx;
+  margin: 20rpx 30rpx;
 }
-.section-title {
-  display: block;
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+.section-header text:first-child {
   font-size: 32rpx;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 20rpx;
+}
+.refresh {
+  color: #FF6B35;
+  font-size: 26rpx;
 }
 .scenic-card, .food-card {
   background: white;
@@ -34,19 +30,40 @@
 }
 .scenic-card image, .food-card image {
   width: 100%;
-  height: 300rpx;
+  height: 360rpx;
 }
 .card-info {
   padding: 20rpx;
 }
 .card-info .name {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 600;
 }
-.card-info .desc {
-  font-size: 26rpx;
-  color: #666;
+.card-info .level, .card-info .category {
+  display: inline-block;
+  background: #FF6B35;
+  color: white;
+  padding: 2rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  margin-left: 12rpx;
+}
+.card-info .city {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
   margin-top: 6rpx;
+}
+.card-info .desc {
+  display: block;
+  font-size: 26rpx;
+  color: #444;
+  margin: 8rpx 0;
+}
+.card-info .price {
+  display: block;
+  font-size: 26rpx;
+  color: #FF6B35;
 }
 .empty {
   text-align: center;
@@ -54,13 +71,6 @@
   color: #ccc;
   font-size: 26rpx;
 }
-.refresh-btn {
-  display: inline-block;
-  padding: 20rpx 50rpx;
-  background: #FF6B35;
-  color: white;
-  border-radius: 40rpx;
-  font-size: 28rpx;
-  text-align: center;
-  margin-top: 20rpx;
-}
+.header { text-align: center; padding: 40rpx 30rpx 20rpx; background: white; }
+.header .title { font-size: 40rpx; font-weight: 700; color: #333; }
+.header .subtitle { font-size: 26rpx; color: #999; margin-top: 10rpx; display: block; }

@@ -1,52 +1,35 @@
 const app = getApp();
 
 Page({
-  data: {
-    tab: 'scenic',
-    list: []
-  },
-
-  onLoad() {
-    this.loadData();
-  },
-
-  onPullDownRefresh() {
-    this.loadData();
-  },
-
-  switchTab(e) {
-    const tab = e.currentTarget.dataset.tab;
-    this.setData({ tab });
-    this.loadData();
-  },
-
-  async loadData() {
-    const { tab } = this.data;
-    if (!app.globalData.token) {
-      wx.navigateTo({ url: '/pages/login/login' });
-      return;
-    }
-    wx.showLoading({ title: '加载中...' });
+  data: { favorites: [], loading: false },
+  onShow() { this.loadFavorites(); },
+  async loadFavorites() {
+    if (!app.globalData.token) { wx.navigateTo({ url: '/pages/login/login' }); return; }
+    this.setData({ loading: true });
     try {
-      const res = await wx.request({
-        url: `${app.globalData.apiBase}/api/favorites?type=${tab}`,
-        method: 'GET',
-        header: { 'Authorization': `Bearer ${app.globalData.token}` }
-      });
-      wx.hideLoading();
-      wx.stopPullDownRefresh();
-      if (res.data.code === 0) {
-        this.setData({ list: res.data.data || [] });
+      const db = wx.cloud.database();
+      const res = await db.collection('favorites').where({ userId: app.globalData.token }).get();
+      const ids = res.data || [];
+      const sceneries = [], foods = [];
+      for (const item of ids) {
+        if (item.type === 'scenic') {
+          const s = await db.collection('sceneries').doc(item.targetId).get();
+          if (s.data) sceneries.push({ ...s.data, favId: item._id });
+        } else if (item.type === 'food') {
+          const f = await db.collection('foods').doc(item.targetId).get();
+          if (f.data) foods.push({ ...f.data, favId: item._id });
+        }
       }
-    } catch (e) {
-      wx.hideLoading();
-      wx.stopPullDownRefresh();
-      wx.showToast({ title: '加载失败', icon: 'none' });
+      this.setData({ favorites: [...sceneries, ...foods] });
+    } catch (err) {
+      console.error('加载收藏失败', err);
+    } finally {
+      this.setData({ loading: false });
     }
   },
-
   goToDetail(e) {
-    const { type, id } = e.currentTarget.dataset;
-    wx.navigateTo({ url: `/pages/${type}/${type}?id=${id}` });
+    const item = e.currentTarget.dataset.item;
+    const url = item.level ? `/pages/scenic/scenic?id=${item._id}` : `/pages/food/food?id=${item._id}`;
+    wx.navigateTo({ url });
   }
 });

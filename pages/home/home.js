@@ -27,14 +27,8 @@ Page({
       const db = wx.cloud.database();
       // 获取尽可能多的数据（如果数据量很大，可分批获取，这里取前50条）
       const res = await db.collection('sceneries')
-        .limit(60).get();
-      
-      let list = res.data || [];
-      if (list.length === 0) {
-        // 若数据库无数据，使用模拟数据
-        list = this.getMockSceneries();
-      }
-      
+        .limit(60).get();      
+      let list = res.data || [];      
       // 随机打乱数组
       const shuffled = this.shuffleArray(list);
       // 截取前 DISPLAY_COUNT 条
@@ -61,12 +55,8 @@ Page({
     try {
       const db = wx.cloud.database();
       const res = await db.collection('foods')
-        .limit(50).get();
-      
-      let list = res.data || [];
-      if (list.length === 0) {
-        list = this.getMockFoods();
-      }
+        .limit(50).get();      
+      let list = res.data || [];      
       
       const shuffled = this.shuffleArray(list);
       const selected = shuffled.slice(0, DISPLAY_COUNT);

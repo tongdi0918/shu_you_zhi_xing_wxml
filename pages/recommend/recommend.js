@@ -1,50 +1,31 @@
 const app = getApp();
 
 Page({
-  data: {
-    recommendScenery: [],
-    recommendFood: []
-  },
-
-  onShow() {
-    this.loadRecommend();
-  },
-
-  async loadRecommend() {
-    wx.showLoading({ title: '加载推荐...' });
-
+  data: { recommendedSceneries: [], recommendedFoods: [], loading: false },
+  onShow() { this.loadRecommendations(); },
+  async loadRecommendations() {
+    this.setData({ loading: true });
     try {
-      const res = await wx.request({
-        url: `${app.globalData.apiBase}/api/recommend`,
-        method: 'GET',
-        header: {
-          'Authorization': `Bearer ${wx.getStorageSync('token') || ''}`
-        }
+      const db = wx.cloud.database();
+      const [scenicRes, foodRes] = await Promise.all([
+        db.collection('sceneries').limit(6).get(),
+        db.collection('foods').limit(6).get()
+      ]);
+      this.setData({
+        recommendedSceneries: scenicRes.data || [],
+        recommendedFoods: foodRes.data || []
       });
-
-      wx.hideLoading();
-
-      if (res.data.code === 0) {
-        this.setData({
-          recommendScenery: res.data.data.scenery || [],
-          recommendFood: res.data.data.food || []
-        });
-      }
-    } catch (e) {
-      wx.hideLoading();
-      console.error('加载推荐失败', e);
+    } catch (err) {
+      console.error('加载推荐失败', err);
+    } finally {
+      this.setData({ loading: false });
     }
   },
-
-  refreshRecommend() {
-    this.loadRecommend();
-  },
-
+  refreshRecommend() { this.loadRecommendations(); },
   goToScenic(e) {
     const id = e.currentTarget.dataset.id;
     wx.navigateTo({ url: `/pages/scenic/scenic?id=${id}` });
   },
-
   goToFood(e) {
     const id = e.currentTarget.dataset.id;
     wx.navigateTo({ url: `/pages/food/food?id=${id}` });
