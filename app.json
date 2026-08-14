@@ -50,10 +50,12 @@
     "navigationBarTitleText": "蜀游智行",
     "navigationBarTextStyle": "white"
   },
+  
   "permission": {
     "scope.userLocation": {
-      "desc": "用于路线规划"
+      "desc": "您的位置信息将用于推荐您所在城市的景区和美食"
     }
   },
+  "requiredPrivateInfos": [    "getLocation"  ],  
   "lazyCodeLoading": "requiredComponents"
 } 
