@@ -1,6 +1,12 @@
+// pages/webview/webview.js
 Page({
-  data: { url: '' },
+  data: {
+    url: ''
+  },
   onLoad(options) {
-    this.setData({ url: decodeURIComponent(options.url || 'https://m.ctrip.com') });
+    const url = decodeURIComponent(options.url || '');
+    const title = options.title || '详情';
+    wx.setNavigationBarTitle({ title });
+    this.setData({ url });
   }
 });

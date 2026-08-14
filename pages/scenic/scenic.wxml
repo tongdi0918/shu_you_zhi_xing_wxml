@@ -1,23 +1,59 @@
-<view class="container">
-  <image class="banner" src="{{scenic.image || '/images/default.jpg'}}" mode="aspectFill"></image>
+<!-- pages/scenic/scenic.wxml -->
+<view class="scenic-container" wx:if="{{scenic.id}}">
+  <!-- 头图 -->
+  <image class="hero-image" src="{{scenic.image || '/images/default_scenic.jpg'}}" mode="aspectFill"></image>
+
+  <!-- 主信息卡片 -->
   <view class="info-card">
     <text class="name">{{scenic.name}}</text>
-    <text class="level">{{scenic.level}}</text>
-    <text class="city">{{scenic.city}}</text>
-    <text class="price">¥{{scenic.ticket_price}} / 人</text>
-    <text class="rating">⭐ {{scenic.rating}} 分</text>
+    <view class="meta-row">
+      <text class="level">{{scenic.level || '景区'}}</text>
+      <text class="city">📍 {{scenic.city || '四川'}}</text>
+    </view>
+    <view class="rating-row">
+      <text class="rating">⭐ {{scenic.rating || '4.5'}} 分</text>
+      <text class="ticket">🎫 ¥{{scenic.ticket_price || '0'}} / 人</text>
+    </view>
   </view>
-  <view class="desc-card">
-    <text class="title">景区介绍</text>
-    <text class="desc">{{scenic.description}}</text>
+
+  <!-- 开放时间卡片 -->
+  <view class="detail-card">
+    <text class="detail-title">🕐 开放时间</text>
+    <text class="detail-content">{{scenic.open_time || '08:00 - 18:00'}}</text>
   </view>
-  <view class="story-card">
-    <text class="title">背后的故事</text>
-    <text class="story">{{scenic.story}}</text>
+
+  <!-- 景区介绍卡片 -->
+  <view class="detail-card">
+    <text class="detail-title">📖 景区介绍</text>
+    <text class="detail-content">{{scenic.description || '暂无介绍'}}</text>
   </view>
-  <view class="actions">
-    <button class="btn-like" bindtap="toggleFavorite">{{isFavorite ? '❤️ 已收藏' : '🤍 收藏'}}</button>
-    <button class="btn-route" bindtap="goToRoute">🗺️ 去路线规划</button>
+
+  <!-- 景区故事卡片 -->
+  <view class="detail-card">
+    <text class="detail-title">📜 背后的故事</text>
+    <text class="detail-content">{{scenic.story || '暂无故事'}}</text>
   </view>
-  <view class="ctrip-entry" bindtap="goToCtrip">在携程预订门票 →</view>
+
+  <!-- 标签卡片 -->
+  <view class="detail-card">
+    <text class="detail-title">🏷️ 标签</text>
+    <view class="tags-wrap">
+      <text class="tag-item" wx:for="{{scenic.tags || ['自然风光', '人文历史', '摄影圣地']}}" wx:key="index">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="action-bar">
+    <view class="action-btn favorite {{isFavorite ? 'active' : ''}}" bindtap="toggleFavorite">
+      <text>{{isFavorite ? '❤️ 已收藏' : '🤍 收藏'}}</text>
+    </view>
+    <view class="action-btn route" bindtap="goToRoute">
+      <text>🗺️ 路线规划</text>
+    </view>
+    <view class="action-btn ctrip" bindtap="goToCtrip">
+      <text>🎫 携程订票</text>
+    </view>
+  </view>
 </view>
+
+<view wx:else class="empty-tip">加载中...</view>

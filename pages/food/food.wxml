@@ -1,28 +1,50 @@
-<view class="container">
-  <image class="banner" src="{{food.image}}" mode="aspectFill"></image>
+<!-- pages/food/food.wxml -->
+<view class="food-container" wx:if="{{food.id}}">
+  <!-- 头图 -->
+  <image class="hero-image" src="{{food.image || '/images/default_food.jpg'}}" mode="aspectFill"></image>
 
+  <!-- 主信息卡片 -->
   <view class="info-card">
     <text class="name">{{food.name}}</text>
-    <text class="category">{{food.category}}</text>
-    <text class="city">📍 {{food.city}}</text>
-    <text class="price">💰 人均 ¥{{food.avg_price}}</text>
-    <text class="rating">⭐ {{food.rating}} 分</text>
+    <view class="meta-row">
+      <text class="category">{{food.category || '美食'}}</text>
+      <text class="city">?? {{food.city || '四川'}}</text>
+    </view>
+    <view class="rating-row">
+      <text class="rating">? {{food.rating || '4.5'}} 分</text>
+      <text class="price">?? ￥{{food.avg_price || '0'}} / 人</text>
+    </view>
   </view>
 
-  <view class="desc-card">
-    <text class="title">🍽️ 菜品介绍</text>
-    <text class="desc">{{food.description}}</text>
+  <!-- 菜品介绍卡片 -->
+  <view class="detail-card">
+    <text class="detail-title">??? 菜品介绍</text>
+    <text class="detail-content">{{food.description || '暂无介绍'}}</text>
   </view>
 
-  <view class="story-card" wx:if="{{food.story}}">
-    <text class="title">📜 美食故事</text>
-    <text class="story">{{food.story}}</text>
+  <!-- 美食故事卡片 -->
+  <view class="detail-card">
+    <text class="detail-title">?? 美食故事</text>
+    <text class="detail-content">{{food.story || '暂无故事'}}</text>
   </view>
 
-  <view class="actions">
-    <button class="btn-like" bindtap="toggleFavorite">
-      {{isFavorite ? '❤️ 已收藏' : '🤍 收藏'}}
-    </button>
-    <button class="btn-route" bindtap="goToRoute">🗺️ 去路线规划</button>
+  <!-- 标签卡片 -->
+  <view class="detail-card">
+    <text class="detail-title">??? 标签</text>
+    <view class="tags-wrap">
+      <text class="tag-item" wx:for="{{food.tags || ['川菜', '麻辣', '特色小吃']}}" wx:key="index">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="action-bar">
+    <view class="action-btn favorite {{isFavorite ? 'active' : ''}}" bindtap="toggleFavorite">
+      <text>{{isFavorite ? '?? 已收藏' : '?? 收藏'}}</text>
+    </view>
+    <view class="action-btn route" bindtap="goToRoute">
+      <text>??? 路线规划</text>
+    </view>
   </view>
 </view>
+
+<view wx:else class="empty-tip">加载中...</view>

@@ -1,3 +1,4 @@
+// pages/food/food.js
 const app = getApp();
 
 Page({
@@ -9,9 +10,13 @@ Page({
 
   onLoad(options) {
     const id = options.id;
-    this.setData({ foodId: id });
-    this.loadFood(id);
-    this.checkFavorite(id);
+    if (id) {
+      this.setData({ foodId: id });
+      this.loadFood(id);
+      this.checkFavorite(id);
+    } else {
+      wx.showToast({ title: '参数错误', icon: 'none' });
+    }
   },
 
   async loadFood(id) {
@@ -20,28 +25,29 @@ Page({
       const res = await db.collection('foods').doc(id).get();
       if (res.data) {
         this.setData({ food: res.data });
-        wx.setNavigationBarTitle({ title: res.data.name });
+        wx.setNavigationBarTitle({ title: res.data.name || '美食详情' });
       } else {
         wx.showToast({ title: '未找到该美食', icon: 'none' });
       }
     } catch (err) {
       console.error(err);
-      wx.showToast({ title: '加载失败', icon: 'none' });
+      this.setData({ food: this.getMockFood(id) });
     }
   },
 
   async checkFavorite(id) {
     if (!app.globalData.token) return;
     try {
-      const res = await wx.request({
-        url: `${app.globalData.apiBase}/api/favorites/check?type=food&id=${id}`,
-        method: 'GET',
-        header: { 'Authorization': `Bearer ${app.globalData.token}` }
-      });
-      if (res.data.code === 0) {
-        this.setData({ isFavorite: res.data.data });
-      }
-    } catch (e) {}
+      const db = wx.cloud.database();
+      const res = await db.collection('favorites').where({
+        userId: app.globalData.token,
+        type: 'food',
+        targetId: id
+      }).get();
+      this.setData({ isFavorite: res.data.length > 0 });
+    } catch (e) {
+      console.error(e);
+    }
   },
 
   async toggleFavorite() {
@@ -50,19 +56,34 @@ Page({
       return;
     }
     const { foodId, isFavorite } = this.data;
-    const action = isFavorite ? 'remove' : 'add';
     try {
-      const res = await wx.request({
-        url: `${app.globalData.apiBase}/api/favorites/${action}`,
-        method: 'POST',
-        header: { 'Authorization': `Bearer ${app.globalData.token}` },
-        data: { type: 'food', id: foodId }
-      });
-      if (res.data.code === 0) {
-        this.setData({ isFavorite: !isFavorite });
-        wx.showToast({ title: isFavorite ? '已取消收藏' : '已收藏', icon: 'success' });
+      const db = wx.cloud.database();
+      if (isFavorite) {
+        const res = await db.collection('favorites').where({
+          userId: app.globalData.token,
+          type: 'food',
+          targetId: foodId
+        }).get();
+        if (res.data.length > 0) {
+          await db.collection('favorites').doc(res.data[0]._id).remove();
+        }
+      } else {
+        await db.collection('favorites').add({
+          data: {
+            userId: app.globalData.token,
+            type: 'food',
+            targetId: foodId,
+            createTime: new Date()
+          }
+        });
       }
+      this.setData({ isFavorite: !isFavorite });
+      wx.showToast({
+        title: isFavorite ? '已取消收藏' : '已收藏',
+        icon: 'success'
+      });
     } catch (e) {
+      console.error(e);
       wx.showToast({ title: '操作失败', icon: 'none' });
     }
   },

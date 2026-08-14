@@ -1,36 +1,114 @@
-<view class="container">
-  <view class="header">
-    <text class="title">🎯 个性化推荐</text>
-    <text class="subtitle">基于你的偏好，为你精选四川美景与美食</text>
+<!-- pages/recommend/recommend.wxml -->
+<view class="recommend-container">
+  <!-- 当前位置 -->
+  <view class="location-card">
+    <text class="location-icon">📍</text>
+    <text class="location-text">您的当前位置：</text>
+    <text class="location-name">{{currentCity || '定位中...'}}</text>
+    <text class="location-refresh" bindtap="getLocation">🔄</text>
   </view>
 
-  <view class="section">
-    <view class="section-header">
-      <text>🏔️ 为你推荐景区</text>
-      <text class="refresh" bindtap="refreshRecommend">刷新推荐</text>
-    </view>
-    <view wx:for="{{recommendedSceneries}}" wx:key="_id" class="card" bindtap="goToScenic" data-id="{{item._id}}">
-      <image src="{{item.image || '/images/default.jpg'}}" mode="aspectFill"></image>
-      <view class="card-info">
-        <text class="name">{{item.name}}</text>
-        <text class="desc">{{item.description}}</text>
+  <!-- 市州分类筛选 -->
+  <view class="filter-section">
+    <text class="filter-title">按城市筛选</text>
+    <scroll-view class="filter-scroll" scroll-x="true" show-scrollbar="false">
+      <view class="filter-group">
+        <view class="filter-item {{selectedCity === item ? 'active' : ''}}" 
+              wx:for="{{cityList}}" wx:key="index" 
+              bindtap="selectCity" data-city="{{item}}">
+          {{item}}
+        </view>
       </view>
-    </view>
-    <view wx:if="{{recommendedSceneries.length === 0 && !loading}}" class="empty">暂无推荐，先去浏览一些景区吧</view>
+    </scroll-view>
   </view>
 
-  <view class="section">
-    <view class="section-header">
-      <text>🍜 为你推荐美食</text>
-      <text class="refresh" bindtap="refreshRecommend">刷新推荐</text>
+  <!-- 类型切换 -->
+  <view class="type-tabs">
+    <view class="tab {{activeTab === 'scenic' ? 'active' : ''}}" bindtap="switchTab" data-tab="scenic">
+      🏛️ 景区
     </view>
-    <view wx:for="{{recommendedFoods}}" wx:key="_id" class="card" bindtap="goToFood" data-id="{{item._id}}">
-      <image src="{{item.image || '/images/default.jpg'}}" mode="aspectFill"></image>
-      <view class="card-info">
-        <text class="name">{{item.name}}</text>
-        <text class="desc">{{item.description}}</text>
+    <view class="tab {{activeTab === 'food' ? 'active' : ''}}" bindtap="switchTab" data-tab="food">
+      🍜 美食
+    </view>
+  </view>
+
+  <!-- 推荐列表 -->
+  <view class="recommend-list">
+    <!-- 景区推荐 -->
+    <block wx:if="{{activeTab === 'scenic'}}">
+      <view class="section-header">
+        <text class="section-title">🏛️ 推荐景区</text>
+        <text class="section-more" bindtap="refreshRecommend">🔄 换一批</text>
+      </view>
+      <view class="card-grid">
+        <view class="card" wx:for="{{filteredSceneries}}" wx:key="id" 
+              bindtap="goToScenic" data-id="{{item.id}}">
+          <image class="card-image" src="{{item.image || '/images/default_scenic.jpg'}}" mode="aspectFill"></image>
+          <view class="card-body">
+            <text class="card-name">{{item.name}}</text>
+            <view class="card-tags">
+              <text class="tag">{{item.level || '景区'}}</text>
+              <text class="tag city">{{item.city}}</text>
+            </view>
+            <view class="card-footer">
+              <text class="price">¥{{item.ticket_price || '0'}}</text>
+              <text class="rating">⭐ {{item.rating || '4.5'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{filteredSceneries.length === 0}}" class="empty-tip">暂无匹配的景区</view>
+    </block>
+
+    <!-- 美食推荐 -->
+    <block wx:if="{{activeTab === 'food'}}">
+      <view class="section-header">
+        <text class="section-title">🍜 推荐美食</text>
+        <text class="section-more" bindtap="refreshRecommend">🔄 换一批</text>
+      </view>
+      <view class="card-grid">
+        <view class="card" wx:for="{{filteredFoods}}" wx:key="id" 
+              bindtap="goToFood" data-id="{{item.id}}">
+          <image class="card-image" src="{{item.image || '/images/default_food.jpg'}}" mode="aspectFill"></image>
+          <view class="card-body">
+            <text class="card-name">{{item.name}}</text>
+            <view class="card-tags">
+              <text class="tag">{{item.category || '美食'}}</text>
+              <text class="tag city">{{item.city}}</text>
+            </view>
+            <view class="card-footer">
+              <text class="price">¥{{item.avg_price || '0'}}</text>
+              <text class="rating">⭐ {{item.rating || '4.5'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{filteredFoods.length === 0}}" class="empty-tip">暂无匹配的美食</view>
+    </block>
+  </view>
+
+  <!-- 专属行程规划（按城市分组） -->
+  <view class="itinerary-section" wx:if="{{itineraryData.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">🗺️ 专属行程规划</text>
+    </view>
+    <view class="itinerary-card" wx:for="{{itineraryData}}" wx:key="city">
+      <view class="itinerary-header">
+        <text class="itinerary-city">📍 {{item.city}}</text>
+        <text class="itinerary-count">{{item.items.length}} 个推荐</text>
+      </view>
+      <view class="itinerary-items">
+        <view class="itinerary-item" wx:for="{{item.items}}" wx:key="id" 
+              bindtap="{{item.type === 'scenic' ? 'goToScenic' : 'goToFood'}}" 
+              data-id="{{item.id}}">
+          <text class="item-icon">{{item.type === 'scenic' ? '🏛️' : '🍜'}}</text>
+          <view class="item-info">
+            <text class="item-name">{{item.name}}</text>
+            <text class="item-desc">{{item.city}} · {{item.type === 'scenic' ? item.level : item.category}}</text>
+          </view>
+          <text class="item-arrow">›</text>
+        </view>
       </view>
     </view>
-    <view wx:if="{{recommendedFoods.length === 0 && !loading}}" class="empty">暂无推荐，先去品尝一些美食吧</view>
   </view>
 </view>
