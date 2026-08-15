@@ -5,7 +5,11 @@ Page({
   data: {
     food: {},
     isFavorite: false,
-    foodId: null
+    foodId: null,
+    defaultImages: [
+      'https://picsum.photos/800/400?random=26',
+      '../../images/bg.jpg'     
+    ]
   },
 
   onLoad(options) {
@@ -19,22 +23,27 @@ Page({
     }
   },
 
+  // ===== 加载美食数据 =====
   async loadFood(id) {
     try {
       const db = wx.cloud.database();
       const res = await db.collection('foods').doc(id).get();
       if (res.data) {
-        this.setData({ food: res.data });
-        wx.setNavigationBarTitle({ title: res.data.name || '美食详情' });
+        const data = res.data;
+        if (!data.images || data.images.length === 0) {
+          data.images = this.data.defaultImages;
+        }
+        this.setData({ food: data });
+        wx.setNavigationBarTitle({ title: data.name || '美食详情' });
       } else {
         wx.showToast({ title: '未找到该美食', icon: 'none' });
       }
     } catch (err) {
-      console.error(err);
-      this.setData({ food: this.getMockFood(id) });
+      console.error('加载美食失败', err);
     }
   },
 
+  // ===== 检查收藏状态 =====
   async checkFavorite(id) {
     if (!app.globalData.token) return;
     try {
@@ -50,6 +59,7 @@ Page({
     }
   },
 
+  // ===== 切换收藏 =====
   async toggleFavorite() {
     if (!app.globalData.token) {
       wx.navigateTo({ url: '/pages/login/login' });
@@ -88,7 +98,15 @@ Page({
     }
   },
 
+  // ===== 跳转路线规划 =====
   goToRoute() {
     wx.switchTab({ url: '/pages/route/route' });
+  },
+
+  // ===== 跳转携程订餐 =====
+  goToCtrip() {
+    wx.navigateTo({
+      url: `/pages/webview/webview?url=https://m.ctrip.com`
+    });
   }
 });

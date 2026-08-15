@@ -39,7 +39,7 @@ Page({
     this.setData({ loadingSceneries: true });
     try {
       const db = wx.cloud.database();
-      const res = await db.collection('sceneries').limit(60).get();
+      const res = await db.collection('sceneries').limit(100).get();
       let list = res.data || [];
       const shuffled = this.shuffleArray(list);
       const selected = shuffled.slice(0, DISPLAY_COUNT);
@@ -60,7 +60,7 @@ Page({
     this.setData({ loadingFoods: true });
     try {
       const db = wx.cloud.database();
-      const res = await db.collection('foods').limit(50).get();
+      const res = await db.collection('foods').limit(100).get();
       let list = res.data || [];
       const shuffled = this.shuffleArray(list);
       const selected = shuffled.slice(0, DISPLAY_COUNT);
@@ -75,7 +75,7 @@ Page({
     }
   },
 
-  shuffleArray(arr) {
+  shuffleArray(arr) {       //随机打乱顺序
     const copy = [...arr];
     for (let i = copy.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));

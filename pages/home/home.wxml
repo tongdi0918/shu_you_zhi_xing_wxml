@@ -13,9 +13,8 @@
       <text class="section-more" bindtap="refreshSceneries">🔄 换一批</text>
     </view>
     <view class="card-grid">
-      <view class="card" wx:for="{{sceneries}}" wx:key="id" bindtap="goToScenic" data-id="{{item.id}}">
+      <view class="card" wx:for="{{sceneries}}" wx:key="id" bindtap="goToScenic" data-id="{{item._id || item.id}}">
         <image class="card-image" src="bg.jpg" mode="aspectFill"></image>
-        <!--"{{item.image || '/images/default_scenic.jpg'}}"-->
         <view class="card-body">
           <text class="card-name">{{item.name}}</text>
           <view class="card-tags">
@@ -39,7 +38,7 @@
       <text class="section-more" bindtap="refreshFoods">🔄 换一批</text>
     </view>
     <view class="card-grid">
-      <view class="card" wx:for="{{foods}}" wx:key="id" bindtap="goToFood" data-id="{{item.id}}">
+      <view class="card" wx:for="{{foods}}" wx:key="id" bindtap="goToFood" data-id="{{item._id || item.id}}">
         <image class="card-image" src="bg.jpg" mode="aspectFill"></image>
         <view class="card-body">
           <text class="card-name">{{item.name}}</text>
