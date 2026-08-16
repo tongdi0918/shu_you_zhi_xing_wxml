@@ -3,7 +3,7 @@
   <!-- 用户信息卡片 -->
   <view class="user-card">
     <image class="avatar" src="{{user.avatar || '/images/default.png'}}" mode="aspectFill"></image>
-    <text class="name">{{user.nickname || '游客'}}</text>
+    <text class="name">{{user.username}}</text>
     <text class="bio">蜀游智行 · 四川旅行家</text>
   </view>
 
