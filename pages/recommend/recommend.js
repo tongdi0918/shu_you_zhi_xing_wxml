@@ -6,9 +6,9 @@ Page({
     // 用户位置
     userLocation: { city: '未设置', latitude: 0, longitude: 0 },
     // 四川城市列表
-    cityList: ['全部', '成都', '乐山', '阿坝', '绵阳', '宜宾', '自贡', '泸州', '德阳', '广元', '遂宁', '内江', '资阳', '眉山', '雅安', '巴中', '达州', '南充', '广安', '攀枝花', '凉山'],
+    cityList: ['全部', '成都市', '乐山市',  '绵阳市', '宜宾市', '自贡市', '泸州市', '德阳市', '广元市', '遂宁市', '内江市', '资阳市', '眉山市', '雅安市', '巴中市', '达州市', '南充市', '广安市', '攀枝花市', '凉山州','甘孜州','阿坝州'],
     selectedCityIndex: 0,
-    selectedCity: '全部',
+    //selectedCity: '全部',
     // Tab切换
     activeTab: 'scenic', // 'scenic' | 'food'
     // 数据源
@@ -52,7 +52,6 @@ Page({
       this.fetchUserLocationFromDB();
     }
   },
-
   // ===== 从云数据库获取用户位置 =====
   async fetchUserLocationFromDB() {
     try {
@@ -80,18 +79,19 @@ Page({
     }
   },
 
+
   // ===== 加载全部数据（仅云数据库） =====
   async loadAllData() {
     this.setData({ loading: true });
     try {
       const db = wx.cloud.database();
       const [scenicRes, foodRes] = await Promise.all([
-        db.collection('sceneries').limit(200).get(),
-        db.collection('foods').limit(200).get()
+        db.collection('sceneries').limit(100).get(),
+        db.collection('foods').limit(100).get()
       ]);
       this.setData({
-        allSceneries: scenicRes.data || [],
-        allFoods: foodRes.data || []
+        allSceneries: scenicRes.data ,
+        allFoods: foodRes.data 
       });
       this.filterData();
     } catch (err) {
