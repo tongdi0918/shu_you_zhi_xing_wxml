@@ -27,13 +27,13 @@
       },
       {
         "pagePath": "pages/recommend/recommend",
-        "text": "推荐",
+        "text": "智能推荐",
         "iconPath": "images/recommend.png",
         "selectedIconPath": "images/recommend_active.png"
       },
       {
         "pagePath": "pages/route/route",
-        "text": "路线",
+        "text": "路线规划",
         "iconPath": "images/route.png",
         "selectedIconPath": "images/route_active.png"
       },
