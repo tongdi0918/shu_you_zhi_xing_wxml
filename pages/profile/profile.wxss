@@ -71,3 +71,40 @@
   color: #ccc;
   margin-top: 40rpx;
 }
+
+/* ===== 位置卡片 ===== */
+.location-card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx 28rpx;
+  box-shadow: 0 4rpx 20rpx rgba(255, 255, 255, 0);
+}
+.location-picker {
+  margin-bottom: 12rpx;
+}
+.picker-display {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #27e791;
+}
+.picker-label {
+  flex: 1;
+  font-size: 38rpx;
+  color: hsl(213, 94%, 51%);
+}
+.picker-value {
+  font-size: 30rpx;
+  color: #e83c3c;
+  font-weight: 500;
+  margin-right: 12rpx;
+}
+.picker-arrow {
+  font-size: 22rpx;
+  color: #bbb;
+}
+.location-tip {
+  font-size: 24rpx;
+  color: #aaa;
+  padding-top: 10rpx;
+}

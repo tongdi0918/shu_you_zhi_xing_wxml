@@ -1,114 +1,75 @@
 <!-- pages/recommend/recommend.wxml -->
-<view class="recommend-container">
-  <!-- 当前位置 -->
-  <view class="location-card">
-    <text class="location-icon">📍</text>
-    <text class="location-text">您的当前位置：</text>
-    <text class="location-name">{{currentCity || '定位中...'}}</text>
-    <text class="location-refresh" bindtap="getLocation">🔄</text>
-  </view>
+<view class="container">
 
-  <!-- 市州分类筛选 -->
-  <view class="filter-section">
-    <text class="filter-title">按城市筛选</text>
-    <scroll-view class="filter-scroll" scroll-x="true" show-scrollbar="false">
-      <view class="filter-group">
-        <view class="filter-item {{selectedCity === item ? 'active' : ''}}" 
-              wx:for="{{cityList}}" wx:key="index" 
-              bindtap="selectCity" data-city="{{item}}">
-          {{item}}
-        </view>
-      </view>
-    </scroll-view>
-  </view>
+<!-- 当前位置 -->
+<view class="location-bar">
+  <text class="location-label">📍 当前位置</text>
+  <text class="location-text">{{userLocation.city || '未设置'}}</text>
+</view>
 
-  <!-- 类型切换 -->
-  <view class="type-tabs">
-    <view class="tab {{activeTab === 'scenic' ? 'active' : ''}}" bindtap="switchTab" data-tab="scenic">
-      🏛️ 景区
+<!-- 城市筛选下拉 -->
+<view class="filter-bar">
+  <picker mode="selector" range="{{cityList}}" value="{{selectedCityIndex}}" bindchange="onCityChange">
+    <view class="picker-display">
+      <text class="picker-icon">🌆</text>
+      <text class="picker-text">{{cityList[selectedCityIndex] || '选择城市'}}</text>
+      <text class="picker-arrow">▼</text>
     </view>
-    <view class="tab {{activeTab === 'food' ? 'active' : ''}}" bindtap="switchTab" data-tab="food">
-      🍜 美食
+  </picker>
+</view>
+
+<!-- Tab切换 -->
+<view class="tab-bar">
+  <view class="tab-item {{activeTab === 'scenic' ? 'active' : ''}}" bindtap="switchTab" data-tab="scenic">
+    🏞️ 景区
+  </view>
+  <view class="tab-item {{activeTab === 'food' ? 'active' : ''}}" bindtap="switchTab" data-tab="food">
+    🍜 美食
+  </view>
+</view>
+
+<!-- 卡片列表 -->
+<view class="card-list">
+  <view wx:for="{{displayList}}" wx:key="_id" class="card-item {{item.checked ? 'checked' : ''}}" bindtap="toggleCard" data-id="{{item._id}}">
+    <view class="card-check">
+      <view class="checkbox {{item.checked ? 'checked' : ''}}">
+        <text wx:if="{{item.checked}}">✓</text>
+      </view>
+    </view>
+    <view class="card-content">
+      <text class="card-name">{{item.name}}</text>
+      <text class="card-desc">{{item.city}} · {{item.type === 'scenic' ? item.level : item.category}}</text>
+      <text class="card-price">{{item.type === 'scenic' ? '¥' + item.ticket_price : '¥' + item.avg_price}}</text>
     </view>
   </view>
+  <view wx:if="{{displayList.length === 0 && !loading}}" class="empty-tip">暂无数据</view>
+  <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+</view>
 
-  <!-- 推荐列表 -->
-  <view class="recommend-list">
-    <!-- 景区推荐 -->
-    <block wx:if="{{activeTab === 'scenic'}}">
-      <view class="section-header">
-        <text class="section-title">🏛️ 推荐景区</text>
-        <text class="section-more" bindtap="refreshRecommend">🔄 换一批</text>
-      </view>
-      <view class="card-grid">
-        <view class="card" wx:for="{{filteredSceneries}}" wx:key="id" 
-              bindtap="goToScenic" data-id="{{item.id}}">
-          <image class="card-image" src="{{item.image || '/images/default_scenic.jpg'}}" mode="aspectFill"></image>
-          <view class="card-body">
-            <text class="card-name">{{item.name}}</text>
-            <view class="card-tags">
-              <text class="tag">{{item.level || '景区'}}</text>
-              <text class="tag city">{{item.city}}</text>
-            </view>
-            <view class="card-footer">
-              <text class="price">¥{{item.ticket_price || '0'}}</text>
-              <text class="rating">⭐ {{item.rating || '4.5'}}</text>
-            </view>
-          </view>
-        </view>
-      </view>
-      <view wx:if="{{filteredSceneries.length === 0}}" class="empty-tip">暂无匹配的景区</view>
-    </block>
+<!-- 已选数量 -->
+<view class="selected-info" wx:if="{{selectedList.length > 0}}">
+  <text>已选 {{selectedList.length}} 项</text>
+</view>
 
-    <!-- 美食推荐 -->
-    <block wx:if="{{activeTab === 'food'}}">
-      <view class="section-header">
-        <text class="section-title">🍜 推荐美食</text>
-        <text class="section-more" bindtap="refreshRecommend">🔄 换一批</text>
-      </view>
-      <view class="card-grid">
-        <view class="card" wx:for="{{filteredFoods}}" wx:key="id" 
-              bindtap="goToFood" data-id="{{item.id}}">
-          <image class="card-image" src="{{item.image || '/images/default_food.jpg'}}" mode="aspectFill"></image>
-          <view class="card-body">
-            <text class="card-name">{{item.name}}</text>
-            <view class="card-tags">
-              <text class="tag">{{item.category || '美食'}}</text>
-              <text class="tag city">{{item.city}}</text>
-            </view>
-            <view class="card-footer">
-              <text class="price">¥{{item.avg_price || '0'}}</text>
-              <text class="rating">⭐ {{item.rating || '4.5'}}</text>
-            </view>
-          </view>
-        </view>
-      </view>
-      <view wx:if="{{filteredFoods.length === 0}}" class="empty-tip">暂无匹配的美食</view>
-    </block>
-  </view>
+<!-- 操作按钮 -->
+<view class="action-bar">
+  <button class="btn-primary" bindtap="generatePlan">🚀 生成行程方案</button>
+  <button class="btn-danger" bindtap="clearAll">🗑️ 清空所有选择</button>
+</view>
 
-  <!-- 专属行程规划（按城市分组） -->
-  <view class="itinerary-section" wx:if="{{itineraryData.length > 0}}">
-    <view class="section-header">
-      <text class="section-title">🗺️ 专属行程规划</text>
-    </view>
-    <view class="itinerary-card" wx:for="{{itineraryData}}" wx:key="city">
-      <view class="itinerary-header">
-        <text class="itinerary-city">📍 {{item.city}}</text>
-        <text class="itinerary-count">{{item.items.length}} 个推荐</text>
-      </view>
-      <view class="itinerary-items">
-        <view class="itinerary-item" wx:for="{{item.items}}" wx:key="id" 
-              bindtap="{{item.type === 'scenic' ? 'goToScenic' : 'goToFood'}}" 
-              data-id="{{item.id}}">
-          <text class="item-icon">{{item.type === 'scenic' ? '🏛️' : '🍜'}}</text>
-          <view class="item-info">
-            <text class="item-name">{{item.name}}</text>
-            <text class="item-desc">{{item.city}} · {{item.type === 'scenic' ? item.level : item.category}}</text>
-          </view>
-          <text class="item-arrow">›</text>
+<!-- 行程方案展示（按城市分类小矩形） -->
+<view class="plan-section" wx:if="{{planData.length > 0}}">
+  <view class="plan-title">📋 我的行程方案</view>
+  <view class="plan-list">
+    <view wx:for="{{planData}}" wx:key="city" class="plan-group">
+      <view class="plan-group-title">📍 {{item.city}}</view>
+      <view class="plan-items">
+        <view wx:for="{{item.items}}" wx:key="_id" class="plan-item">
+          <text class="plan-item-name">{{item.name}}</text>
+          <text class="plan-item-type {{item.type === 'scenic' ? 'type-scenic' : 'type-food'}}">{{item.type === 'scenic' ? '景区' : '美食'}}</text>
         </view>
       </view>
     </view>
   </view>
+</view>
 </view>
