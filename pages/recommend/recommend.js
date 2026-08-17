@@ -1,7 +1,7 @@
 // pages/recommend/recommend.js
 const app = getApp();
 
-// 四川省21个地级市标准全称 -> 数据库city字段可能出现的简称/别名
+// 四川省21个地级市标准全称（用于筛选时的别名匹配）
 const CITY_ALIAS_MAP = {
   '成都市': ['成都市', '成都'],
   '自贡市': ['自贡市', '自贡'],
@@ -26,7 +26,7 @@ const CITY_ALIAS_MAP = {
   '凉山彝族自治州': ['凉山州', '凉山彝族自治州', '凉山']
 };
 
-// 反向映射：简称 -> 标准全称（用于用户位置匹配）
+// 反向映射：简称 -> 标准全称
 const SHORT_TO_FULL = {};
 Object.keys(CITY_ALIAS_MAP).forEach(full => {
   CITY_ALIAS_MAP[full].forEach(short => {
@@ -37,23 +37,17 @@ Object.keys(CITY_ALIAS_MAP).forEach(full => {
 Page({
   data: {
     userLocation: { city: '未设置', latitude: 0, longitude: 0 },
-    // 下拉选项：标准全称列表（仅包含有数据的城市）
-    cityList: [],
+    cityList: [],           // 下拉选项：从数据库提取的有数据的城市列表
     selectedCityIndex: 0,
-    selectedCity: '',      // 选中的标准全称
-
+    selectedCity: '',       // 选中的标准全称
     activeTab: 'scenic',
-
     allSceneries: [],
     allFoods: [],
-
     filteredSceneries: [],
     filteredFoods: [],
     displayList: [],
-
     selectedList: [],
     planData: [],
-
     loading: false
   },
 
@@ -67,7 +61,6 @@ Page({
     const location = app.globalData.userLocation;
     if (location && location.city && location.city !== '未设置') {
       this.setData({ userLocation: location });
-      // 城市列表加载后会自动匹配
     } else {
       this.fetchUserLocationFromDB();
     }
@@ -93,32 +86,46 @@ Page({
     try {
       const db = wx.cloud.database();
       const [scenicRes, foodRes] = await Promise.all([
-        db.collection('sceneries').limit(200).get(),
-        db.collection('foods').limit(200).get()
+        db.collection('sceneries').limit(500).get(),
+        db.collection('foods').limit(500).get()
       ]);
 
       const allSceneries = scenicRes.data;
       const allFoods = foodRes.data;
       this.setData({ allSceneries, allFoods });
 
-      // 从数据中提取所有出现的 city 字段，映射到标准全称，收集有数据的城市
+      // 【核心修改】直接从数据中提取所有不重复的 city 字段
+      // 因为数据库中 city 字段统一为 "成都市" 格式，直接去重即可
       const citySet = new Set();
       [...allSceneries, ...allFoods].forEach(item => {
-        if (item.city) {
-          const full = SHORT_TO_FULL[item.city];
+        if (item.city && typeof item.city === 'string') {
+          // 去除首尾空格，统一格式
+          const city = item.city.trim();
+          // 尝试通过映射表将简称转为标准全称
+          const full = SHORT_TO_FULL[city];
           if (full) {
             citySet.add(full);
+          } else if (CITY_ALIAS_MAP[city]) {
+            // 如果本身就是标准全称，直接加入
+            citySet.add(city);
           } else {
-            // 如果 city 无法映射，但本身就是标准全称，也加入
-            if (CITY_ALIAS_MAP[item.city]) {
-              citySet.add(item.city);
-            }
+            // 兜底：如果无法映射，但 city 看起来像 "XX市"，也直接加入
+            // 这样可以兼容数据库中的任何合法城市名
+            citySet.add(city);
           }
         }
       });
 
       // 转为数组并排序
       const cityList = Array.from(citySet).sort();
+      console.log('✅ 提取到的城市列表:', cityList);
+
+      if (cityList.length === 0) {
+        wx.showToast({ title: '未获取到任何城市数据，请检查数据库', icon: 'none' });
+        this.setData({ loading: false });
+        return;
+      }
+
       this.setData({ cityList });
 
       // 自动匹配用户位置
@@ -127,6 +134,8 @@ Page({
         const userFull = SHORT_TO_FULL[this.data.userLocation.city];
         if (userFull && cityList.includes(userFull)) {
           defaultCity = userFull;
+        } else if (cityList.includes(this.data.userLocation.city)) {
+          defaultCity = this.data.userLocation.city;
         }
       }
       if (!defaultCity && cityList.length > 0) {
@@ -141,8 +150,9 @@ Page({
         });
         this.filterData();
       } else {
-        wx.showToast({ title: '未获取到任何城市数据', icon: 'none' });
+        wx.showToast({ title: '未匹配到有效城市', icon: 'none' });
       }
+
     } catch (err) {
       console.error('加载失败', err);
       wx.showToast({ title: '加载数据失败，请检查网络', icon: 'none' });
@@ -158,13 +168,13 @@ Page({
 
     // 获取该城市对应的所有可能city值（别名）
     const aliases = CITY_ALIAS_MAP[selectedCity] || [selectedCity];
-    // 筛选时，检查 item.city 是否在别名列表中
+
     let filteredSceneries = allSceneries
-      .filter(item => item.city && aliases.includes(item.city))
+      .filter(item => item.city && aliases.includes(item.city.trim()))
       .map(item => ({ ...item, type: 'scenic' }));
 
     let filteredFoods = allFoods
-      .filter(item => item.city && aliases.includes(item.city))
+      .filter(item => item.city && aliases.includes(item.city.trim()))
       .map(item => ({ ...item, type: 'food' }));
 
     this.setData({ filteredSceneries, filteredFoods });
@@ -175,20 +185,19 @@ Page({
   updateDisplayList() {
     const { activeTab, filteredSceneries, filteredFoods, selectedList } = this.data;
     const selectedIds = new Set(selectedList.map(item => item._id));
-
     let list = activeTab === 'scenic' ? filteredSceneries : filteredFoods;
     list = list.map(item => ({
       ...item,
       checked: selectedIds.has(item._id)
     }));
-
     this.setData({ displayList: list });
   },
 
   // ===== 城市下拉选择 =====
   onCityChange(e) {
-    const index = e.detail.value;
+    const index = parseInt(e.detail.value);
     const city = this.data.cityList[index];
+    if (!city) return;
     this.setData({
       selectedCityIndex: index,
       selectedCity: city
@@ -207,12 +216,10 @@ Page({
   toggleCard(e) {
     const id = e.currentTarget.dataset.id;
     const { displayList, selectedList } = this.data;
-
     const card = displayList.find(item => item._id === id);
     if (!card) return;
 
     const newChecked = !card.checked;
-
     const newDisplayList = displayList.map(item => {
       if (item._id === id) {
         return { ...item, checked: newChecked };
@@ -222,16 +229,10 @@ Page({
 
     let newSelectedList = [...selectedList];
     if (newChecked) {
-      newSelectedList.push({
-        _id: card._id,
-        name: card.name,
-        city: card.city,
-        type: card.type,
-        level: card.level || '',
-        category: card.category || '',
-        price: card.type === 'scenic' ? card.ticket_price : card.avg_price,
-        ...card
-      });
+      const exists = newSelectedList.some(item => item._id === id);
+      if (!exists) {
+        newSelectedList.push({ ...card, checked: true });
+      }
     } else {
       newSelectedList = newSelectedList.filter(item => item._id !== id);
     }
@@ -242,47 +243,65 @@ Page({
     });
   },
 
-  // ===== 清空选择 =====
+  // ===== 清空所有已选 =====
   clearAll() {
-    this.setData({
-      selectedList: [],
-      planData: []
+    if (this.data.selectedList.length === 0) {
+      wx.showToast({ title: '暂无已选项目', icon: 'none' });
+      return;
+    }
+    wx.showModal({
+      title: '提示',
+      content: '确定要清空所有已选项目吗？',
+      success: (res) => {
+        if (res.confirm) {
+          const { displayList } = this.data;
+          const newDisplayList = displayList.map(item => ({ ...item, checked: false }));
+          this.setData({
+            displayList: newDisplayList,
+            selectedList: []
+          });
+          wx.showToast({ title: '已清空', icon: 'success' });
+        }
+      }
     });
-    this.updateDisplayList();
-    wx.showToast({ title: '已清空所有选择', icon: 'success' });
   },
 
-  // ===== 生成行程方案（按城市归纳） =====
+  // ===== 生成行程方案 =====
   generatePlan() {
     const { selectedList } = this.data;
     if (selectedList.length === 0) {
-      wx.showToast({ title: '请至少选择一个景点或美食', icon: 'none' });
+      wx.showToast({ title: '请至少选择一个项目', icon: 'none' });
       return;
     }
 
-    // 按数据库 city 字段分组（即简称）
-    const cityMap = {};
+    // 按城市分组
+    const grouped = {};
     selectedList.forEach(item => {
-      const city = item.city || '未知';
-      if (!cityMap[city]) {
-        cityMap[city] = [];
-      }
-      cityMap[city].push(item);
+      const city = item.city || '未知城市';
+      if (!grouped[city]) grouped[city] = [];
+      grouped[city].push(item);
     });
 
-    // 为了让分组标题显示标准全称，可将简称映射回全称
-    const planData = Object.keys(cityMap).map(cityKey => {
-      const fullName = SHORT_TO_FULL[cityKey] || cityKey;
-      return {
-        city: fullName,      // 显示全称
-        items: cityMap[cityKey]
-      };
-    });
+    const planData = Object.keys(grouped).map(city => ({
+      city,
+      items: grouped[city]
+    }));
 
     this.setData({ planData });
-    wx.showToast({
-      title: `已生成 ${planData.length} 个城市的行程方案`,
-      icon: 'success'
+    wx.showToast({ title: `已生成${planData.length}个城市的行程`, icon: 'success' });
+  },
+
+  // ===== 查看行程方案详情 =====
+  viewPlanDetail(e) {
+    const index = e.currentTarget.dataset.index;
+    const plan = this.data.planData[index];
+    if (!plan) return;
+    // 跳转到行程详情页，或弹窗显示
+    wx.showModal({
+      title: `📍 ${plan.city}`,
+      content: plan.items.map(item => `• ${item.name}`).join('\\n'),
+      showCancel: false,
+      confirmText: '知道了'
     });
   }
 });

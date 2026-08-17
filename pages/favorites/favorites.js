@@ -8,12 +8,12 @@ Page({
     this.setData({ loading: true });
     try {
       const db = wx.cloud.database();
-      const res = await db.collection('favorites').where({ userId: app.globalData.token }).get();
+      const res = await db.collection('favorites').where({ userId: app.globalData.token }).limit(1000).get();
       const ids = res.data || [];
       const sceneries = [], foods = [];
       for (const item of ids) {
         if (item.type === 'scenic') {
-          const s = await db.collection('sceneries').doc(item.targetId).get();
+          const s = await db.collection('sceneries').doc(item.targetId).limit(1000).get();
           if (s.data) sceneries.push({ ...s.data, favId: item._id });
         } else if (item.type === 'food') {
           const f = await db.collection('foods').doc(item.targetId).get();

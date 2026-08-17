@@ -39,7 +39,7 @@ Page({
     this.setData({ loadingSceneries: true });
     try {
       const db = wx.cloud.database();
-      const res = await db.collection('sceneries').limit(100).get();
+      const res = await db.collection('sceneries').limit(1000).get();
       let list = res.data || [];
       const shuffled = this.shuffleArray(list);
       const selected = shuffled.slice(0, DISPLAY_COUNT);
@@ -60,7 +60,7 @@ Page({
     this.setData({ loadingFoods: true });
     try {
       const db = wx.cloud.database();
-      const res = await db.collection('foods').limit(100).get();
+      const res = await db.collection('foods').limit(1000).get();
       let list = res.data || [];
       const shuffled = this.shuffleArray(list);
       const selected = shuffled.slice(0, DISPLAY_COUNT);
