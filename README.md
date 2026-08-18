@@ -1,148 +1,148 @@
-# ÔÆ¿ª·¢Æ½Ì¨µÄ»·¾³ID
+ï»¿# äº‘å¼€å‘å¹³å°çš„ç¯å¢ƒID
 
 cloud1-d2gphu7bt75dc5910
 
-# ¸ßµÂAPI
+# é«˜å¾·API
 
 68ff2afb0b6d70f0a6970b71737729a6
 
-cd Y:\\Î¢ĞÅ¿ª·¢Õß¹¤¾ß\\Êı¾İ´æ´¢\\ÊñÓÎÖÇĞĞ2
+cd Y:\\å¾®ä¿¡å¼€å‘è€…å·¥å…·\\æ•°æ®å­˜å‚¨\\èœ€æ¸¸æ™ºè¡Œ2
 npm init -y
 npm install express mysql2 cors
 
-# Ä¿Â¼½á¹¹
+# ç›®å½•ç»“æ„
 
-ÊñÓÎÖÇĞĞ/                           # ÏîÄ¿¸ùÄ¿Â¼
-©¦
-©À©¤©¤ app.js                          # È«¾ÖÂß¼­£¨ÅäÖÃ apiBase¡¢globalData£©
-©À©¤©¤ app.json                        # È«¾ÖÅäÖÃ£¨×¢²áËùÓĞÒ³Ãæ¡¢TabBar£©
-©À©¤©¤ app.wxss                        # È«¾ÖÑùÊ½
-©À©¤©¤ project.config.json             # ÏîÄ¿ÅäÖÃÎÄ¼ş£¨
-©À©¤©¤ sitemap.json                    # Õ¾µãµØÍ¼£¨Ä¬ÈÏÅäÖÃ¼´¿É£©
-©¦
-©À©¤©¤ pages/                          # ËùÓĞÒ³ÃæÎÄ¼ş¼Ğ
-©¦   ©À©¤©¤ home/                       # Ê×Ò³£¨¾°Çø+ÃÀÊ³ÁĞ±í£©
-©¦   ©¦   ©À©¤©¤ home.js
-©¦   ©¦   ©À©¤©¤ home.json
-©¦   ©¦   ©À©¤©¤ home.wxml
-©¦   ©¦   ©¸©¤©¤ home.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ login/                      # µÇÂ¼Ò³
-©¦   ©¦   ©À©¤©¤ login.js
-©¦   ©¦   ©À©¤©¤ login.json
-©¦   ©¦   ©À©¤©¤ login.wxml
-©¦   ©¦   ©¸©¤©¤ login.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ register/                   # ×¢²áÒ³
-©¦   ©¦   ©À©¤©¤ register.js
-©¦   ©¦   ©À©¤©¤ register.json
-©¦   ©¦   ©À©¤©¤ register.wxml
-©¦   ©¦   ©¸©¤©¤ register.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ scenic/                     # ¾°ÇøÏêÇéÒ³
-©¦   ©¦   ©À©¤©¤ scenic.js
-©¦   ©¦   ©À©¤©¤ scenic.json
-©¦   ©¦   ©À©¤©¤ scenic.wxml
-©¦   ©¦   ©¸©¤©¤ scenic.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ food/                       # ÃÀÊ³ÏêÇéÒ³
-©¦   ©¦   ©À©¤©¤ food.js
-©¦   ©¦   ©À©¤©¤ food.json
-©¦   ©¦   ©À©¤©¤ food.wxml
-©¦   ©¦   ©¸©¤©¤ food.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ recommend/                  # ¸öĞÔ»¯ÍÆ¼öÒ³£¨TabBarÒ³Ãæ£©
-©¦   ©¦   ©À©¤©¤ recommend.js
-©¦   ©¦   ©À©¤©¤ recommend.json
-©¦   ©¦   ©À©¤©¤ recommend.wxml
-©¦   ©¦   ©¸©¤©¤ recommend.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ route/                      # Â·Ïß¹æ»®Ò³£¨TabBarÒ³Ãæ£¬º¬µØÍ¼£©
-©¦   ©¦   ©À©¤©¤ route.js
-©¦   ©¦   ©À©¤©¤ route.json
-©¦   ©¦   ©À©¤©¤ route.wxml
-©¦   ©¦   ©¸©¤©¤ route.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ profile/                    # ¸öÈËÖĞĞÄÒ³£¨TabBarÒ³Ãæ£©
-©¦   ©¦   ©À©¤©¤ profile.js
-©¦   ©¦   ©À©¤©¤ profile.json
-©¦   ©¦   ©À©¤©¤ profile.wxml
-©¦   ©¦   ©¸©¤©¤ profile.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ favorites/                  # ÎÒµÄÊÕ²ØÒ³
-©¦   ©¦   ©À©¤©¤ favorites.js
-©¦   ©¦   ©À©¤©¤ favorites.json
-©¦   ©¦   ©À©¤©¤ favorites.wxml
-©¦   ©¦   ©¸©¤©¤ favorites.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ history/                    # ä¯ÀÀÀúÊ·Ò³
-©¦   ©¦   ©À©¤©¤ history.js
-©¦   ©¦   ©À©¤©¤ history.json
-©¦   ©¦   ©À©¤©¤ history.wxml
-©¦   ©¦   ©¸©¤©¤ history.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ admin/                      # ¹ÜÀí¶ËµÇÂ¼Ò³
-©¦   ©¦   ©À©¤©¤ admin.js
-©¦   ©¦   ©À©¤©¤ admin.json
-©¦   ©¦   ©À©¤©¤ admin.wxml
-©¦   ©¦   ©¸©¤©¤ admin.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ dashboard/                  # ¹ÜÀíºóÌ¨Ê×Ò³
-©¦   ©¦   ©À©¤©¤ dashboard.js
-©¦   ©¦   ©À©¤©¤ dashboard.json
-©¦   ©¦   ©À©¤©¤ dashboard.wxml
-©¦   ©¦   ©¸©¤©¤ dashboard.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ scenic-mgr/                 # ¾°µã¹ÜÀíÒ³
-©¦   ©¦   ©À©¤©¤ scenic-mgr.js
-©¦   ©¦   ©À©¤©¤ scenic-mgr.json
-©¦   ©¦   ©À©¤©¤ scenic-mgr.wxml
-©¦   ©¦   ©¸©¤©¤ scenic-mgr.wxss
-©¦   ©¦
-©¦   ©À©¤©¤ food-mgr/                   # ÃÀÊ³¹ÜÀíÒ³
-©¦   ©¦   ©À©¤©¤ food-mgr.js
-©¦   ©¦   ©À©¤©¤ food-mgr.json
-©¦   ©¦   ©À©¤©¤ food-mgr.wxml
-©¦   ©¦   ©¸©¤©¤ food-mgr.wxss
-©¦   ©¦
-©¦   ©¸©¤©¤ webview/                    # Ğ¯³ÌµÈÍâ²¿ÍøÒ³Ç¶ÈëÒ³
-©¦       ©À©¤©¤ webview.js
-©¦       ©À©¤©¤ webview.json
-©¦       ©À©¤©¤ webview.wxml
-©¦       ©¸©¤©¤ webview.wxss
-©¦
-©À©¤©¤ libs/                           # µÚÈı·½¿â
-©¦   ©¸©¤©¤ amap-wx.js                  # ¸ßµÂµØÍ¼Î¢ĞÅĞ¡³ÌĞòSDK£¨Ğè´Ó¹ÙÍøÏÂÔØ£©
-©¦
-©À©¤©¤ images/                         # Í¼Æ¬×ÊÔ´
-©¦   ©À©¤©¤ tabbar/                     # µ×²¿µ¼º½Í¼±ê
-©¦   ©¦   ©À©¤©¤ home.png
-©¦   ©¦   ©À©¤©¤ home\_active.png
-©¦   ©¦   ©À©¤©¤ recommend.png
-©¦   ©¦   ©À©¤©¤ recommend\_active.png
-©¦   ©¦   ©À©¤©¤ route.png
-©¦   ©¦   ©À©¤©¤ route\_active.png
-©¦   ©¦   ©À©¤©¤ profile.png
-©¦   ©¦   ©¸©¤©¤ profile\_active.png
-©¦   ©¸©¤©¤ default.png                 # Ä¬ÈÏÍ·ÏñÕ¼Î»Í¼
-©¦
-©À©¤©¤ server/                         # ¡¾ºó¶Ë´úÂë¡¿¶ÀÁ¢ÓÚÇ°¶Ë£¬·ÅÔÚ¸ùÄ¿Â¼ÏÂ·½±ã¹ÜÀí
-©¦   ©À©¤©¤ app.js                      # ºó¶ËÈë¿ÚÎÄ¼ş
-©¦   ©À©¤©¤ package.json                # ºó¶ËÒÀÀµ
-©¦   ©À©¤©¤ config/
-©¦   ©¦   ©¸©¤©¤ db.js                   # Êı¾İ¿âÁ¬½ÓÅäÖÃ
-©¦   ©À©¤©¤ routes/                     # Â·ÓÉÎÄ¼ş
-©¦   ©¦   ©À©¤©¤ auth.js                 # µÇÂ¼/×¢²á
-©¦   ©¦   ©À©¤©¤ sceneries.js            # ¾°µã½Ó¿Ú
-©¦   ©¦   ©À©¤©¤ foods.js                # ÃÀÊ³½Ó¿Ú
-©¦   ©¦   ©À©¤©¤ favorites.js            # ÊÕ²Ø½Ó¿Ú
-©¦   ©¦   ©À©¤©¤ route.js                # Â·Ïß¹æ»®½Ó¿Ú£¨µ÷ÓÃ¸ßµÂ£©
-©¦   ©¦   ©¸©¤©¤ admin.js                # ¹ÜÀíºóÌ¨½Ó¿Ú
-©¦   ©À©¤©¤ models/                     # Êı¾İ¿âÄ£ĞÍ£¨¿ÉÑ¡£©
-©¦   ©¸©¤©¤ public/                     # ¾²Ì¬×ÊÔ´
-©¦       ©¸©¤©¤ images/                 # ´æ·Å¾°µã/ÃÀÊ³Í¼Æ¬£¨ĞèÅäÖÃ¾²Ì¬ÍĞ¹Ü£©
-©¦
-©¸©¤©¤ database/                       # Êı¾İ¿âSQLÎÄ¼ş
-©À©¤©¤ schema.sql                  # ½¨±íÓï¾ä
-©¸©¤©¤ data.sql                    # ³õÊ¼Êı¾İ£¨¾°Çø¡¢ÃÀÊ³µÈ£©
+èœ€æ¸¸æ™ºè¡Œ/                           # é¡¹ç›®æ ¹ç›®å½•
+â”‚
+â”œâ”€â”€ app.js                          # å…¨å±€é€»è¾‘ï¼ˆé…ç½® apiBaseã€globalDataï¼‰
+â”œâ”€â”€ app.json                        # å…¨å±€é…ç½®ï¼ˆæ³¨å†Œæ‰€æœ‰é¡µé¢ã€TabBarï¼‰
+â”œâ”€â”€ app.wxss                        # å…¨å±€æ ·å¼
+â”œâ”€â”€ project.config.json             # é¡¹ç›®é…ç½®æ–‡ä»¶ï¼ˆ
+â”œâ”€â”€ sitemap.json                    # ç«™ç‚¹åœ°å›¾ï¼ˆé»˜è®¤é…ç½®å³å¯ï¼‰
+â”‚
+â”œâ”€â”€ pages/                          # æ‰€æœ‰é¡µé¢æ–‡ä»¶å¤¹
+â”‚   â”œâ”€â”€ home/                       # é¦–é¡µï¼ˆæ™¯åŒº+ç¾é£Ÿåˆ—è¡¨ï¼‰
+â”‚   â”‚   â”œâ”€â”€ home.js
+â”‚   â”‚   â”œâ”€â”€ home.json
+â”‚   â”‚   â”œâ”€â”€ home.wxml
+â”‚   â”‚   â””â”€â”€ home.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ login/                      # ç™»å½•é¡µ
+â”‚   â”‚   â”œâ”€â”€ login.js
+â”‚   â”‚   â”œâ”€â”€ login.json
+â”‚   â”‚   â”œâ”€â”€ login.wxml
+â”‚   â”‚   â””â”€â”€ login.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ register/                   # æ³¨å†Œé¡µ
+â”‚   â”‚   â”œâ”€â”€ register.js
+â”‚   â”‚   â”œâ”€â”€ register.json
+â”‚   â”‚   â”œâ”€â”€ register.wxml
+â”‚   â”‚   â””â”€â”€ register.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ scenic/                     # æ™¯åŒºè¯¦æƒ…é¡µ
+â”‚   â”‚   â”œâ”€â”€ scenic.js
+â”‚   â”‚   â”œâ”€â”€ scenic.json
+â”‚   â”‚   â”œâ”€â”€ scenic.wxml
+â”‚   â”‚   â””â”€â”€ scenic.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ food/                       # ç¾é£Ÿè¯¦æƒ…é¡µ
+â”‚   â”‚   â”œâ”€â”€ food.js
+â”‚   â”‚   â”œâ”€â”€ food.json
+â”‚   â”‚   â”œâ”€â”€ food.wxml
+â”‚   â”‚   â””â”€â”€ food.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ recommend/                  # ä¸ªæ€§åŒ–æ¨èé¡µï¼ˆTabBaré¡µé¢ï¼‰
+â”‚   â”‚   â”œâ”€â”€ recommend.js
+â”‚   â”‚   â”œâ”€â”€ recommend.json
+â”‚   â”‚   â”œâ”€â”€ recommend.wxml
+â”‚   â”‚   â””â”€â”€ recommend.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ route/                      # è·¯çº¿è§„åˆ’é¡µï¼ˆTabBaré¡µé¢ï¼Œå«åœ°å›¾ï¼‰
+â”‚   â”‚   â”œâ”€â”€ route.js
+â”‚   â”‚   â”œâ”€â”€ route.json
+â”‚   â”‚   â”œâ”€â”€ route.wxml
+â”‚   â”‚   â””â”€â”€ route.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ profile/                    # ä¸ªäººä¸­å¿ƒé¡µï¼ˆTabBaré¡µé¢ï¼‰
+â”‚   â”‚   â”œâ”€â”€ profile.js
+â”‚   â”‚   â”œâ”€â”€ profile.json
+â”‚   â”‚   â”œâ”€â”€ profile.wxml
+â”‚   â”‚   â””â”€â”€ profile.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ favorites/                  # æˆ‘çš„æ”¶è—é¡µ
+â”‚   â”‚   â”œâ”€â”€ favorites.js
+â”‚   â”‚   â”œâ”€â”€ favorites.json
+â”‚   â”‚   â”œâ”€â”€ favorites.wxml
+â”‚   â”‚   â””â”€â”€ favorites.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ history/                    # æµè§ˆå†å²é¡µ
+â”‚   â”‚   â”œâ”€â”€ history.js
+â”‚   â”‚   â”œâ”€â”€ history.json
+â”‚   â”‚   â”œâ”€â”€ history.wxml
+â”‚   â”‚   â””â”€â”€ history.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ admin/                      # ç®¡ç†ç«¯ç™»å½•é¡µ
+â”‚   â”‚   â”œâ”€â”€ admin.js
+â”‚   â”‚   â”œâ”€â”€ admin.json
+â”‚   â”‚   â”œâ”€â”€ admin.wxml
+â”‚   â”‚   â””â”€â”€ admin.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ dashboard/                  # ç®¡ç†åå°é¦–é¡µ
+â”‚   â”‚   â”œâ”€â”€ dashboard.js
+â”‚   â”‚   â”œâ”€â”€ dashboard.json
+â”‚   â”‚   â”œâ”€â”€ dashboard.wxml
+â”‚   â”‚   â””â”€â”€ dashboard.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ scenic-mgr/                 # æ™¯ç‚¹ç®¡ç†é¡µ
+â”‚   â”‚   â”œâ”€â”€ scenic-mgr.js
+â”‚   â”‚   â”œâ”€â”€ scenic-mgr.json
+â”‚   â”‚   â”œâ”€â”€ scenic-mgr.wxml
+â”‚   â”‚   â””â”€â”€ scenic-mgr.wxss
+â”‚   â”‚
+â”‚   â”œâ”€â”€ food-mgr/                   # ç¾é£Ÿç®¡ç†é¡µ
+â”‚   â”‚   â”œâ”€â”€ food-mgr.js
+â”‚   â”‚   â”œâ”€â”€ food-mgr.json
+â”‚   â”‚   â”œâ”€â”€ food-mgr.wxml
+â”‚   â”‚   â””â”€â”€ food-mgr.wxss
+â”‚   â”‚
+â”‚   â””â”€â”€ webview/                    # æºç¨‹ç­‰å¤–éƒ¨ç½‘é¡µåµŒå…¥é¡µ
+â”‚       â”œâ”€â”€ webview.js
+â”‚       â”œâ”€â”€ webview.json
+â”‚       â”œâ”€â”€ webview.wxml
+â”‚       â””â”€â”€ webview.wxss
+â”‚
+â”œâ”€â”€ libs/                           # ç¬¬ä¸‰æ–¹åº“
+â”‚   â””â”€â”€ amap-wx.js                  # é«˜å¾·åœ°å›¾å¾®ä¿¡å°ç¨‹åºSDKï¼ˆéœ€ä»å®˜ç½‘ä¸‹è½½ï¼‰
+â”‚
+â”œâ”€â”€ images/                         # å›¾ç‰‡èµ„æº
+â”‚   â”œâ”€â”€ tabbar/                     # åº•éƒ¨å¯¼èˆªå›¾æ ‡
+â”‚   â”‚   â”œâ”€â”€ home.png
+â”‚   â”‚   â”œâ”€â”€ home\_active.png
+â”‚   â”‚   â”œâ”€â”€ recommend.png
+â”‚   â”‚   â”œâ”€â”€ recommend\_active.png
+â”‚   â”‚   â”œâ”€â”€ route.png
+â”‚   â”‚   â”œâ”€â”€ route\_active.png
+â”‚   â”‚   â”œâ”€â”€ profile.png
+â”‚   â”‚   â””â”€â”€ profile\_active.png
+â”‚   â””â”€â”€ default.png                 # é»˜è®¤å¤´åƒå ä½å›¾
+â”‚
+â”œâ”€â”€ server/                         # ã€åç«¯ä»£ç ã€‘ç‹¬ç«‹äºå‰ç«¯ï¼Œæ”¾åœ¨æ ¹ç›®å½•ä¸‹æ–¹ä¾¿ç®¡ç†
+â”‚   â”œâ”€â”€ app.js                      # åç«¯å…¥å£æ–‡ä»¶
+â”‚   â”œâ”€â”€ package.json                # åç«¯ä¾èµ–
+â”‚   â”œâ”€â”€ config/
+â”‚   â”‚   â””â”€â”€ db.js                   # æ•°æ®åº“è¿æ¥é…ç½®
+â”‚   â”œâ”€â”€ routes/                     # è·¯ç”±æ–‡ä»¶
+â”‚   â”‚   â”œâ”€â”€ auth.js                 # ç™»å½•/æ³¨å†Œ
+â”‚   â”‚   â”œâ”€â”€ sceneries.js            # æ™¯ç‚¹æ¥å£
+â”‚   â”‚   â”œâ”€â”€ foods.js                # ç¾é£Ÿæ¥å£
+â”‚   â”‚   â”œâ”€â”€ favorites.js            # æ”¶è—æ¥å£
+â”‚   â”‚   â”œâ”€â”€ route.js                # è·¯çº¿è§„åˆ’æ¥å£ï¼ˆè°ƒç”¨é«˜å¾·ï¼‰
+â”‚   â”‚   â””â”€â”€ admin.js                # ç®¡ç†åå°æ¥å£
+â”‚   â”œâ”€â”€ models/                     # æ•°æ®åº“æ¨¡å‹ï¼ˆå¯é€‰ï¼‰
+â”‚   â””â”€â”€ public/                     # é™æ€èµ„æº
+â”‚       â””â”€â”€ images/                 # å­˜æ”¾æ™¯ç‚¹/ç¾é£Ÿå›¾ç‰‡ï¼ˆéœ€é…ç½®é™æ€æ‰˜ç®¡ï¼‰
+â”‚
+â””â”€â”€ database/                       # æ•°æ®åº“SQLæ–‡ä»¶
+â”œâ”€â”€ schema.sql                  # å»ºè¡¨è¯­å¥
+â””â”€â”€ data.sql                    # åˆå§‹æ•°æ®ï¼ˆæ™¯åŒºã€ç¾é£Ÿç­‰ï¼‰
 
