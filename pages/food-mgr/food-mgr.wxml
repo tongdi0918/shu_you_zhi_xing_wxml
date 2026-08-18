@@ -1,21 +1,23 @@
-<view class="container">
-  <view class="header">
-    <text class="title">🍜 美食管理</text>
-    <button class="add-btn" bindtap="showAddDialog">+ 添加美食</button>
+<!-- pages/food-mgr/food-mgr.wxml -->
+<view class="mgr-container">
+  <view class="mgr-header">
+    <text class="mgr-title">🍜 美食管理</text>
+    <button class="add-btn" bindtap="addFood">+ 添加</button>
   </view>
 
-  <view wx:for="{{list}}" wx:key="id" class="item">
-    <image src="{{item.image}}" mode="aspectFill"></image>
-    <view class="info">
-      <text class="name">{{item.name}}</text>
-      <text class="city">{{item.city}}</text>
-      <text class="price">¥{{item.avg_price}}</text>
-    </view>
-    <view class="actions">
-      <text class="edit" bindtap="showEditDialog" data-id="{{item.id}}">编辑</text>
-      <text class="delete" bindtap="deleteItem" data-id="{{item.id}}">删除</text>
-    </view>
+  <view wx:if="{{list.length === 0}}" class="empty-state">
+    <text class="empty-text">暂无美食数据</text>
   </view>
 
-  <view wx:if="{{list.length === 0}}" class="empty">暂无美食数据</view>
+  <view wx:for="{{list}}" wx:key="_id" class="grid-card mgr-item">
+    <image class="mgr-thumb" src="{{item.thumbnail || '/images/default_food.jpg'}}" mode="aspectFill"></image>
+    <view class="mgr-info">
+      <text class="mgr-name">{{item.name}}</text>
+      <text class="mgr-desc">{{item.city || ''}} · {{item.category || ''}}</text>
+    </view>
+    <view class="mgr-actions">
+      <text class="mgr-edit" bindtap="editFood" data-id="{{item._id}}">✏️</text>
+      <text class="mgr-delete" bindtap="deleteFood" data-id="{{item._id}}">🗑️</text>
+    </view>
+  </view>
 </view>

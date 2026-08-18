@@ -3,53 +3,68 @@ const app = getApp();
 
 Page({
   data: {
-    origin: '',            // 出发地（地址或坐标）
-    destination: '',       // 目的地（地址或坐标）
+    // 出发地：存储为对象 { name: '成都市', latitude: 30.57, longitude: 104.07 }
+    origin: { name: '', latitude: 0, longitude: 0 },
+    // 目的地：存储为对象 { name: '都江堰', latitude: 30.99, longitude: 103.65 }
+    destination: { name: '', latitude: 0, longitude: 0 },
+    // 界面状态
     loading: false,
     routeResult: false,
+    // 路径规划结果
     routeSummary: '',
-    routeDistance: '',
-    routeTime: '',
-    routeTolls: '',
-    routeSteps: [],
+    routeDistance: '',      // 总公里数
+    routeTime: '',          // 预估时间
+    routeTolls: '',         // 高速过路费
+    routeSteps: [],         // 详细路段列表
     // 地图相关
-    mapCenter: {
-      longitude: 104.07,
-      latitude: 30.67
-    },
+    mapCenter: { longitude: 104.07, latitude: 30.67 },
     mapScale: 14,
     markers: [],
     polyline: []
   },
 
   onLoad(options) {
-    // 从主页获取“所在城市”作为默认出发地
+    // 从云数据库加载用户所在城市作为默认出发地
     this.loadDefaultOrigin();
   },
 
   /**
    * 加载默认出发地（用户主页的“所在城市”）
    * 数据来源：云开发数据库 users 集合中当前用户的 city 字段
+   * 同时获取该城市的经纬度坐标
    */
   loadDefaultOrigin() {
     const that = this;
-    // 优先从全局缓存读取
-    if (app.globalData && app.globalData.userCity) {
-      this.setData({ origin: app.globalData.userCity });
-      return;
-    }
-    // 从云数据库读取当前用户的所在城市
     const db = wx.cloud.database();
+
+    // 从云数据库读取当前用户的所在城市
     db.collection('users').where({
-      _openid: app.globalData.openid || ''  // 需确保已登录并获取openid
+      _openid: app.globalData.openid || ''
     }).get({
       success: res => {
         if (res.data && res.data.length > 0 && res.data[0].city) {
-          const city = res.data[0].city;
-          app.globalData.userCity = city;  // 缓存到全局
-          that.setData({ origin: city });
+          const cityName = res.data[0].city;
+          // 对城市名称进行地理编码，获取经纬度
+          that.geocode(cityName, (location) => {
+            if (location) {
+              const [lng, lat] = location.split(',').map(Number);
+              that.setData({
+                'origin.name': cityName,
+                'origin.latitude': lat,
+                'origin.longitude': lng,
+                'mapCenter': { longitude: lng, latitude: lat }
+              });
+              // 缓存到全局
+              app.globalData.userCity = cityName;
+              app.globalData.userCityLng = lng;
+              app.globalData.userCityLat = lat;
+            } else {
+              // 编码失败，尝试使用当前位置
+              that.getMyLocation();
+            }
+          });
         } else {
-          // 若数据库中无数据，尝试使用当前位置
+          // 数据库中无城市数据，尝试使用当前位置
           that.getMyLocation();
         }
       },
@@ -69,16 +84,20 @@ Page({
       type: 'gcj02',
       success: (res) => {
         // 逆地理编码获取地址名称
-        this.geocodeReverse(res.latitude, res.longitude, (address) => {
+        that.geocodeReverse(res.latitude, res.longitude, (address) => {
           if (address) {
             that.setData({
-              origin: address,
-              mapCenter: { longitude: res.longitude, latitude: res.latitude }
+              'origin.name': address,
+              'origin.latitude': res.latitude,
+              'origin.longitude': res.longitude,
+              'mapCenter': { longitude: res.longitude, latitude: res.latitude }
             });
           } else {
             that.setData({
-              origin: `${res.latitude},${res.longitude}`,
-              mapCenter: { longitude: res.longitude, latitude: res.latitude }
+              'origin.name': `${res.latitude},${res.longitude}`,
+              'origin.latitude': res.latitude,
+              'origin.longitude': res.longitude,
+              'mapCenter': { longitude: res.longitude, latitude: res.latitude }
             });
           }
         });
@@ -141,21 +160,35 @@ Page({
   },
 
   /**
-   * 输入框事件
+   * 输入框事件 - 出发地
    */
   setOrigin(e) {
-    this.setData({ origin: e.detail.value });
+    const value = e.detail.value;
+    this.setData({
+      'origin.name': value
+    });
+    // 实时编码（可选），但为了性能，在规划时统一编码
   },
+
+  /**
+   * 输入框事件 - 目的地
+   */
   setDestination(e) {
-    this.setData({ destination: e.detail.value });
+    const value = e.detail.value;
+    this.setData({
+      'destination.name': value
+    });
   },
 
   /**
    * 路径规划（核心方法）
+   * 使用高德地图驾车路径规划 API
    */
   async planRoute() {
     const { origin, destination } = this.data;
-    if (!origin || !destination) {
+
+    // 验证输入
+    if (!origin.name || !destination.name) {
       wx.showToast({ title: '请填写出发地和目的地', icon: 'none' });
       return;
     }
@@ -164,26 +197,38 @@ Page({
     wx.showLoading({ title: '规划中...' });
 
     try {
-      // 判断输入是否已经是坐标（格式：经度,纬度）
-      const isOriginCoord = /^\\d+\\.?\\d*,\\d+\\.?\\d*$/.test(origin);
-      const isDestCoord = /^\\d+\\.?\\d*,\\d+\\.?\\d*$/.test(destination);
-
-      let originCoord, destCoord;
-
-      if (isOriginCoord) {
-        originCoord = origin;
+      // 获取出发地坐标（如果已有则直接使用，否则编码）
+      let originCoord = '';
+      if (origin.latitude && origin.longitude) {
+        originCoord = `${origin.longitude},${origin.latitude}`;
       } else {
         originCoord = await new Promise((resolve) => {
-          this.geocode(origin, (loc) => resolve(loc));
+          this.geocode(origin.name, (loc) => resolve(loc));
         });
+        if (originCoord) {
+          const [lng, lat] = originCoord.split(',').map(Number);
+          this.setData({
+            'origin.latitude': lat,
+            'origin.longitude': lng
+          });
+        }
       }
 
-      if (isDestCoord) {
-        destCoord = destination;
+      // 获取目的地坐标
+      let destCoord = '';
+      if (destination.latitude && destination.longitude) {
+        destCoord = `${destination.longitude},${destination.latitude}`;
       } else {
         destCoord = await new Promise((resolve) => {
-          this.geocode(destination, (loc) => resolve(loc));
+          this.geocode(destination.name, (loc) => resolve(loc));
         });
+        if (destCoord) {
+          const [lng, lat] = destCoord.split(',').map(Number);
+          this.setData({
+            'destination.latitude': lat,
+            'destination.longitude': lng
+          });
+        }
       }
 
       if (!originCoord || !destCoord) {
@@ -201,9 +246,8 @@ Page({
         return;
       }
 
-      // 调用高德地图驾车路径规划API
+      // 调用高德地图驾车路径规划 API
       const url = `https://restapi.amap.com/v3/direction/driving?origin=${originCoord}&destination=${destCoord}&extensions=all&output=json&key=${key}`;
-      
       const res = await new Promise((resolve, reject) => {
         wx.request({ url, success: resolve, fail: reject });
       });
@@ -227,7 +271,7 @@ Page({
             longitude: originLngLat[0],
             latitude: originLngLat[1],
             title: '起点',
-            iconPath: '/images/marker_start.png',  // 请准备对应图标
+            iconPath: '/images/marker_start.png',
             width: 30,
             height: 30
           },
@@ -236,16 +280,15 @@ Page({
             longitude: destLngLat[0],
             latitude: destLngLat[1],
             title: '终点',
-            iconPath: '/images/marker_end.png',    // 请准备对应图标
+            iconPath: '/images/marker_end.png',
             width: 30,
             height: 30
           }
         ];
 
-        // 构建路线折线（高德返回的路径点）
+        // 构建路线折线
         let polyline = [];
         if (path.steps && path.steps.length > 0) {
-          // 从每个step中提取polyline点
           let allPoints = [];
           path.steps.forEach(step => {
             if (step.polyline) {
@@ -271,7 +314,7 @@ Page({
         const centerLng = (originLngLat[0] + destLngLat[0]) / 2;
         const centerLat = (originLngLat[1] + destLngLat[1]) / 2;
 
-        // 计算合适的缩放级别（根据距离）
+        // 计算合适的缩放级别
         const distance = path.distance || 0;
         let scale = 14;
         if (distance > 50000) scale = 10;
@@ -279,14 +322,18 @@ Page({
         else if (distance > 10000) scale = 12;
         else if (distance > 5000) scale = 13;
 
-        const summary = `从 ${origin} 到 ${destination}`;
+        const summary = `从 ${origin.name} 到 ${destination.name}`;
+
+        // 格式化过路费
+        const tolls = path.tolls || 0;
+        const tollsDisplay = tolls > 0 ? `¥${tolls}` : '无过路费';
 
         this.setData({
           routeResult: true,
           routeSummary: summary,
           routeDistance: (path.distance / 1000).toFixed(1) + ' km',
           routeTime: Math.round(path.duration / 60) + ' min',
-          routeTolls: '¥' + (path.tolls || 0),
+          routeTolls: tollsDisplay,
           routeSteps: steps.map(s => s.instruction.replace(/<[^>]+>/g, '')),
           mapCenter: { longitude: centerLng, latitude: centerLat },
           mapScale: scale,
@@ -294,7 +341,7 @@ Page({
           polyline: polyline
         });
 
-        // 延迟一下让地图渲染完成后再调整视野
+        // 延迟调整地图视野
         setTimeout(() => {
           this.moveMapToRoute(originLngLat, destLngLat);
         }, 300);
@@ -315,7 +362,6 @@ Page({
    */
   moveMapToRoute(originLngLat, destLngLat) {
     const mapContext = wx.createMapContext('routeMap', this);
-    // 使用 includePoints 让地图自动调整到包含所有点
     mapContext.includePoints({
       points: [
         { longitude: originLngLat[0], latitude: originLngLat[1] },

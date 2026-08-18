@@ -1,16 +1,26 @@
+<!-- pages/login/login.wxml -->
 <view class="login-container">
-  <view class="login-box">
-    <text class="title">用户登录</text>
-    <text class="subtitle">登录后获取个性化旅行推荐</text>
-    
-    <input class="input" placeholder="请输入用户名" bindinput="onInputUsername" value="{{username}}" />
-    <input class="input" placeholder="请输入密码" password bindinput="onInputPassword" value="{{password}}" />
-    
-    <button class="login-btn" bindtap="doLogin" disabled="{{isLoading}}">登 录</button>
-    
-    <view class="register-link">
+  <view class="login-card">
+    <view class="login-title">👋 欢迎回来</view>
+
+    <view class="input-group">
+      <view class="input-wrapper">
+        <text class="input-icon">👤</text>
+        <input class="input-field" placeholder="请输入用户名" bindinput="onInputUsername" value="{{username}}" />
+      </view>
+      <view class="input-wrapper">
+        <text class="input-icon">🔒</text>
+        <input class="input-field" placeholder="请输入密码" password bindinput="onInputPassword" value="{{password}}" />
+      </view>
+    </view>
+
+    <button class="login-btn" bindtap="handleLogin" loading="{{loading}}" disabled="{{loading}}">
+      登录
+    </button>
+
+    <view class="register-tip">
       <text>还没有账号？</text>
-      <navigator url="/pages/register/register">立即注册</navigator>
+      <text class="register-link" bindtap="goToRegister">立即注册</text>
     </view>
   </view>
 </view>

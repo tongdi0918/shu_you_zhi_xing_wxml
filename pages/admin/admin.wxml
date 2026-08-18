@@ -1,10 +1,90 @@
-<view class="login-container">
-  <view class="login-box">
-    <text class="title">🔐 管理员登录</text>
-    <text class="subtitle">请使用管理员账号登录</text>
-    <input class="input" placeholder="管理员账号" bindinput="setUsername" value="{{username}}" />
-    <input class="input" placeholder="密码" password bindinput="setPassword" value="{{password}}" />
-    <button class="login-btn" bindtap="doLogin">登 录</button>
-    <view class="back-link" bindtap="goBack">← 返回用户端</view>
+<!-- pages/admin/admin.wxml -->
+<view class="admin-container">
+  <view class="admin-title">⚙️ 管理后台</view>
+
+  <!-- 统计卡片 -->
+  <view class="stats-grid">
+    <view class="stat-card"><text class="stat-num">{{stats.scenicCount}}</text><text class="stat-label">景区</text></view>
+    <view class="stat-card"><text class="stat-num">{{stats.foodCount}}</text><text class="stat-label">美食</text></view>
+    <view class="stat-card"><text class="stat-num">{{stats.userCount}}</text><text class="stat-label">用户</text></view>
+    <view class="stat-card"><text class="stat-num">{{stats.favoriteCount}}</text><text class="stat-label">收藏</text></view>
+  </view>
+
+  <!-- Tab -->
+  <view class="tab-bar">
+    <view class="tab-item {{activeTab === 'scenic' ? 'active' : ''}}" bindtap="switchTab" data-tab="scenic">🏔️ 景区</view>
+    <view class="tab-item {{activeTab === 'food' ? 'active' : ''}}" bindtap="switchTab" data-tab="food">🍜 美食</view>
+    <view class="tab-item {{activeTab === 'user' ? 'active' : ''}}" bindtap="switchTab" data-tab="user">👤 用户</view>
+  </view>
+
+  <!-- 添加按钮 -->
+  <view class="add-btn" bindtap="showAddDialog" wx:if="{{activeTab !== 'user'}}">➕ 添加</view>
+
+  <!-- 景区列表 -->
+  <view class="list" wx:if="{{activeTab === 'scenic'}}">
+    <view class="list-item" wx:for="{{scenicList}}" wx:key="_id">
+      <view class="item-block">
+        <view class="item-info">
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-desc">{{item.location || ''}}</view>
+        </view>
+        <view class="item-actions">
+          <text class="edit-btn" bindtap="showEditDialog" data-id="{{item._id}}">✏️</text>
+          <text class="del-btn" bindtap="deleteItem" data-id="{{item._id}}">🗑️</text>
+        </view>
+      </view>
+    </view>
+    <view class="empty" wx:if="{{scenicList.length === 0}}">暂无景区数据</view>
+  </view>
+
+  <!-- 美食列表 -->
+  <view class="list" wx:if="{{activeTab === 'food'}}">
+    <view class="list-item" wx:for="{{foodList}}" wx:key="_id">
+      <view class="item-block">
+        <view class="item-info">
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-desc">{{item.shop || ''}}</view>
+        </view>
+        <view class="item-actions">
+          <text class="edit-btn" bindtap="showEditDialog" data-id="{{item._id}}">✏️</text>
+          <text class="del-btn" bindtap="deleteItem" data-id="{{item._id}}">🗑️</text>
+        </view>
+      </view>
+    </view>
+    <view class="empty" wx:if="{{foodList.length === 0}}">暂无美食数据</view>
+  </view>
+
+  <!-- 用户列表 -->
+  <view class="list" wx:if="{{activeTab === 'user'}}">
+    <view class="list-item" wx:for="{{userList}}" wx:key="_id">
+      <view class="item-block">
+        <view class="item-info">
+          <view class="item-name">{{item.nickName || item.username}}</view>
+          <view class="item-desc">@{{item.username}} {{item.role === 'admin' ? '👑' : ''}}</view>
+        </view>
+        <view class="item-actions">
+          <text class="del-btn" bindtap="deleteUser" data-id="{{item._id}}">🗑️</text>
+        </view>
+      </view>
+    </view>
+    <view class="empty" wx:if="{{userList.length === 0}}">暂无用户数据</view>
+  </view>
+
+  <!-- 对话框 -->
+  <view class="dialog-mask" wx:if="{{showDialog}}" bindtap="closeDialog">
+    <view class="dialog-box" catchtap="stopPropagation">
+      <view class="dialog-title">{{dialogType === 'add' ? '添加' : '编辑'}}</view>
+      <view class="dialog-body">
+        <input class="dialog-input" placeholder="名称" value="{{formData.name}}" bindinput="onFormInput" data-field="name" />
+        <input class="dialog-input" placeholder="{{activeTab === 'scenic' ? '地点' : '店铺'}}" value="{{activeTab === 'scenic' ? formData.location : formData.shop}}" bindinput="onFormInput" data-field="{{activeTab === 'scenic' ? 'location' : 'shop'}}" />
+        <input class="dialog-input" placeholder="描述" value="{{formData.description}}" bindinput="onFormInput" data-field="description" />
+        <input class="dialog-input" placeholder="图片URL" value="{{formData.image}}" bindinput="onFormInput" data-field="image" />
+        <input class="dialog-input" placeholder="{{activeTab === 'scenic' ? '价格' : '参考价格'}}" value="{{formData.price}}" bindinput="onFormInput" data-field="price" />
+      </view>
+      <view class="dialog-actions">
+        <button class="dialog-cancel" bindtap="closeDialog">取消</button>
+        <button class="dialog-confirm" bindtap="saveItem" loading="{{loading}}">确定</button>
+      </view>
+    </view>
   </view>
 </view>

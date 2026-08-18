@@ -4,233 +4,246 @@ const db = wx.cloud.database();
 
 Page({
   data: {
-    isLogin: false,
-    user: {},
-    cityList: ['成都市', '乐山市', '阿坝市', '绵阳市', '宜宾市', '自贡市', '泸州市', '德阳市', '广元市', '遂宁市', '内江市', '资阳市', '眉山市', '雅安市', '巴中市', '达州市', '南充市', '广安市', '攀枝花市', '凉山彝族自治州','甘孜藏族自治州','阿坝藏族羌族自治州'],
-    selectedCityIndex: 0   
+    isLoggedIn: false,
+    userInfo: null,
+    userCity: '',
+    isAdmin: false,
+    scenicCount: 0,
+    foodCount: 0,
+    scenicAchievements: [],
+    foodAchievements: [],
+    showScenicAchievements: false,
+    showFoodAchievements: false,
   },
 
-  onShow() {
-    const token = wx.getStorageSync('token');
-    const user = wx.getStorageSync('user') || {};
+  onShow: function () {
+    this.loadUserData();
+    this.loadAchievements();
+  },
+
+  // 加载用户数据
+  loadUserData: function () {
+    const isLoggedIn = app.globalData.isLoggedIn;
+    const userInfo = app.globalData.userInfo;
+    const userCity = app.globalData.userCity || '未设置';
+    const isAdmin = app.globalData.isAdmin || false;
+
     this.setData({
-      isLogin: !!token,
-      user: user
+      isLoggedIn: isLoggedIn,
+      userInfo: userInfo,
+      userCity: userCity,
+      isAdmin: isAdmin,
     });
-    // 从云数据库同步最新用户信息（含位置）
-    if (token) {
-      this.loadUserFromCloud();
-    }
   },
 
-  // ===== 从云数据库加载用户信息 =====
-  async loadUserFromCloud() {
-    try {
-      const res = await db.collection('users').where({
-        _openid: '{openid}'
-      }).get();
-      if (res.data && res.data.length > 0) {
-        const cloudUser = res.data[0];
-        const localUser = this.data.user;
-        // 合并数据（保留云端的location）
-        const mergedUser = {
-          ...localUser,
-          ...cloudUser,
-          location: cloudUser.location || localUser.location || {}
-        };
-        this.setData({ user: mergedUser });
-        // 更新本地缓存
-        wx.setStorageSync('user', mergedUser);
-      }
-    } catch (err) {
-      console.warn('从云数据库加载用户信息失败', err);
-    }
-  },
-
-  // ===== 编辑位置 =====
-  editLocation() {
-    if (!this.data.isLogin) {
-      wx.navigateTo({ url: '/pages/login/login' });
+  // 加载成就数据（打卡点亮）
+  loadAchievements: function () {
+    if (!this.data.isLoggedIn || !app.globalData.userInfo) {
       return;
     }
+
+    const userId = app.globalData.userInfo._id;
+
+    // 获取景区打卡记录
+    db.collection('checkins').where({
+      userId: userId,
+      type: 'scenic'
+    }).get().then(res => {
+      const scenicIds = res.data.map(item => item.targetId);
+      this.setData({
+        scenicCount: scenicIds.length,
+        scenicAchievements: scenicIds,
+      });
+    }).catch(err => {
+      console.log('获取景区打卡失败', err);
+    });
+
+    // 获取美食打卡记录
+    db.collection('checkins').where({
+      userId: userId,
+      type: 'food'
+    }).get().then(res => {
+      const foodIds = res.data.map(item => item.targetId);
+      this.setData({
+        foodCount: foodIds.length,
+        foodAchievements: foodIds,
+      });
+    }).catch(err => {
+      console.log('获取美食打卡失败', err);
+    });
+  },
+
+  // 切换显示景区成就
+  toggleScenicAchievements: function () {
+    this.setData({
+      showScenicAchievements: !this.data.showScenicAchievements,
+    });
+  },
+
+  // 切换显示美食成就
+  toggleFoodAchievements: function () {
+    this.setData({
+      showFoodAchievements: !this.data.showFoodAchievements,
+    });
+  },
+
+  // 跳转到登录页
+  goToLogin: function () {
+    wx.navigateTo({
+      url: '/pages/login/login',
+    });
+  },
+
+  // 跳转到注册页
+  goToRegister: function () {
+    wx.navigateTo({
+      url: '/pages/register/register',
+    });
+  },
+
+  // 设置城市
+  setCity: function () {
+    if (!this.data.isLoggedIn) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none',
+      });
+      return;
+    }
+
     wx.showModal({
-      title: '设置我的位置',
+      title: '设置城市',
       editable: true,
-      placeholderText: '请输入所在城市，如：成都',
+      placeholderText: '请输入您所在的城市',
       success: (res) => {
         if (res.confirm && res.content) {
-          const city = res.content.trim().replace('市', '');
+          const city = res.content.trim();
           if (city) {
-            this.updateLocation(city);
+            this.updateUserCity(city);
           }
         }
-      }
+      },
     });
   },
 
-
-  loadUserLocation() {
-    const location = app.globalData.userLocation;
-    if (location && location.city && location.city !== '未设置') {
+  // 更新用户城市到云数据库
+  updateUserCity: function (city) {
+    const userId = app.globalData.userInfo._id;
+    db.collection('users').doc(userId).update({
+      data: {
+        city: city,
+        updateTime: new Date(),
+      }
+    }).then(() => {
+      app.globalData.userCity = city;
       this.setData({
-        userLocation: location
+        userCity: city,
       });
-      const index = this.data.cityList.indexOf(location.city);
-      if (index > -1) {
-        this.setData({ selectedCityIndex: index });
-      }
-    } else {
-      // 从云数据库获取
-      this.fetchLocationFromDB();
-    }
-  },
-
-  async fetchLocationFromDB() {
-    try {
-      const db = wx.cloud.database();
-      const res = await db.collection('users').where({
-        _openid: '{openid}'
-      }).get();
-      if (res.data.length > 0 && res.data[0].location) {
-        const location = res.data[0].location;
-        app.globalData.userLocation = location;
-        this.setData({ userLocation: location });
-        const index = this.data.cityList.indexOf(location.city);
-        if (index > -1) {
-          this.setData({ selectedCityIndex: index });
-        }
-      }
-    } catch (err) {
-      console.error('获取用户位置失败', err);
-    }
-  },
-
-  // ===== 城市选择 =====
-  onCityChange(e) {
-    const index = e.detail.value;
-    const city = this.data.cityList[index];
-    this.setData({
-      selectedCityIndex: index,
-      'userLocation.city': city
-    });
-    // 保存到全局
-    app.globalData.userLocation = this.data.userLocation;
-    // 保存到云数据库
-    this.saveLocationToDB(city);
-    wx.showToast({
-      title: '已保存位置',
-      icon: 'success'
+      wx.showToast({
+        title: '城市设置成功',
+        icon: 'success',
+      });
+    }).catch(err => {
+      wx.showToast({
+        title: '设置失败，请重试',
+        icon: 'none',
+      });
+      console.log('更新城市失败', err);
     });
   },
 
-  async saveLocationToDB(city) {
-    try {
-      const db = wx.cloud.database();
-      const res = await db.collection('users').where({
-        _openid: '{openid}'
-      }).get();
-      if (res.data.length > 0) {
-        await db.collection('users').doc(res.data[0]._id).update({
-          data: {
-            location: { city, latitude: 0, longitude: 0 }
-          }
-        });
-      } else {
-        await db.collection('users').add({
-          data: {
-            location: { city, latitude: 0, longitude: 0 },
-            nickName: this.data.userInfo.nickName || '用户'
-          }
-        });
-      }
-    } catch (err) {
-      console.error('保存位置失败', err);
-    }
-  },
-
-
-
-  // ===== 更新位置到云数据库 =====
-  async updateLocation(city) {
-    wx.showLoading({ title: '保存中...' });
-    try {
-      await db.collection('users').where({
-        _openid: '{openid}'
-      }).update({
-        data: {
-          location: {
-            city: city,
-            province: '四川',
-            updateTime: new Date()
-          }
-        }
+  // 查看我的收藏
+  goToFavorites: function () {
+    if (!this.data.isLoggedIn) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none',
       });
-      // 更新本地数据
-      const user = this.data.user;
-      user.location = { city: city, province: '四川' };
-      this.setData({ user });
-      wx.setStorageSync('user', user);
-      wx.hideLoading();
-      wx.showToast({ title: '位置已更新', icon: 'success' });
-    } catch (err) {
-      wx.hideLoading();
-      console.error('更新位置失败', err);
-      wx.showToast({ title: '更新失败，请重试', icon: 'none' });
-    }
-  },
-
-  // 跳转到收藏
-  goToFavorites() {
-    if (!this.data.isLogin) {
-      wx.navigateTo({ url: '/pages/login/login' });
       return;
     }
-    wx.navigateTo({ url: '/pages/favorites/favorites' });
+    wx.navigateTo({
+      url: '/pages/favorites/favorites',
+    });
   },
 
-  // 跳转到历史
-  goToHistory() {
-    if (!this.data.isLogin) {
-      wx.navigateTo({ url: '/pages/login/login' });
+  // 查看浏览历史
+  goToHistory: function () {
+    if (!this.data.isLoggedIn) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none',
+      });
       return;
     }
-    wx.navigateTo({ url: '/pages/history/history' });
+    wx.navigateTo({
+      url: '/pages/history/history',
+    });
   },
 
-  // 跳转到推荐
-  goToRecommend() {
-    wx.switchTab({ url: '/pages/recommend/recommend' });
+  // 管理员后台
+  goToAdmin: function () {
+    if (!this.data.isLoggedIn) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none',
+      });
+      return;
+    }
+    if (!this.data.isAdmin) {
+      wx.showToast({
+        title: '您不是管理员',
+        icon: 'none',
+      });
+      return;
+    }
+    wx.navigateTo({
+      url: '/pages/admin/admin',
+    });
   },
 
-  // 跳转到管理后台
-  goToDashboard() {
-    wx.navigateTo({ url: '/pages/dashboard/dashboard' });
-  },
-
-  // 关于
-  showAbout() {
+  // 关于我们
+  showAbout: function () {
     wx.showModal({
-      title: '关于蜀游智行',
-      content: '蜀游智行 - 四川旅游推荐平台\\\\n\\\\n提供四川景区查询、智能路线规划、个性化推荐等服务。\\\\n\\\\n? 李字雄 For 2026',
-      showCancel: false
+      title: '产品介绍',
+      content: '蜀游之行 - 带你探索四川的美食与美景\n\n本应用致力于为游客提供四川地区最优质的景区和美食推荐。\n\n版本:1.0.6',
+      showCancel: false,
+      confirmText: '知道了',
     });
   },
 
   // 退出登录
-  doLogout() {
+  handleLogout: function () {
+    if (!this.data.isLoggedIn) {
+      return;
+    }
     wx.showModal({
-      title: '确认退出',
+      title: '提示',
       content: '确定要退出登录吗？',
       success: (res) => {
         if (res.confirm) {
-          wx.removeStorageSync('token');
-          wx.removeStorageSync('user');
-          app.globalData.token = null;
-          app.globalData.user = null;
-          this.setData({ isLogin: false, user: {} });
-          wx.showToast({ title: '已退出', icon: 'success' });
+          app.logout();
         }
-      }
+      },
     });
-  }
+  },
+
+  // 查看景区详情（打卡点亮）
+  viewScenicDetail: function (e) {
+    const id = e.currentTarget.dataset.id;
+    if (id) {
+      wx.navigateTo({
+        url: '/pages/scenic/scenic?id=' + id,
+      });
+    }
+  },
+
+  // 查看美食详情（打卡点亮）
+  viewFoodDetail: function (e) {
+    const id = e.currentTarget.dataset.id;
+    if (id) {
+      wx.navigateTo({
+        url: '/pages/food/food?id=' + id,
+      });
+    }
+  },
 });

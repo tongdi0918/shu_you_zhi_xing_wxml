@@ -1,16 +1,37 @@
-<view class="container">
-  <view class="tabs">
-    <view class="tab {{tab === 'scenic' ? 'active' : ''}}" bindtap="switchTab" data-tab="scenic">🏔️ 景区</view>
-    <view class="tab {{tab === 'food' ? 'active' : ''}}" bindtap="switchTab" data-tab="food">🍜 美食</view>
-  </view>
-
-  <view wx:for="{{list}}" wx:key="id" class="item" bindtap="goToDetail" data-type="{{tab}}" data-id="{{item.id}}">
-    <image src="{{item.image}}" mode="aspectFill"></image>
-    <view class="info">
-      <text class="name">{{item.name}}</text>
-      <text class="desc">{{item.description}}</text>
+<!-- pages/favorites/favorites.wxml -->
+<view class="favorites-container">
+  <view class="tab-bar">
+    <view class="tab-item {{activeTab === 'scenic' ? 'active' : ''}}" bindtap="switchTab" data-tab="scenic">
+      ??? 景区
+    </view>
+    <view class="tab-item {{activeTab === 'food' ? 'active' : ''}}" bindtap="switchTab" data-tab="food">
+      ?? 美食
     </view>
   </view>
 
-  <view wx:if="{{list.length === 0}}" class="empty">暂无收藏，去发现美好吧</view>
+  <view class="content-area">
+    <!-- 景区列表 -->
+    <view class="list" wx:if="{{activeTab === 'scenic'}}">
+      <view class="list-item" wx:for="{{scenicList}}" wx:key="_id" bindtap="viewDetail" data-id="{{item._id}}" data-type="scenic">
+        <view class="item-block">
+          <view class="item-name">{{item.name || '景区'}}</view>
+          <view class="item-location">{{item.location || ''}}</view>
+          <view class="item-remove" catchtap="removeFavorite" data-id="{{item._id}}" data-type="scenic">?</view>
+        </view>
+      </view>
+      <view class="empty" wx:if="{{scenicList.length === 0}}">暂无收藏的景区</view>
+    </view>
+
+    <!-- 美食列表 -->
+    <view class="list" wx:if="{{activeTab === 'food'}}">
+      <view class="list-item" wx:for="{{foodList}}" wx:key="_id" bindtap="viewDetail" data-id="{{item._id}}" data-type="food">
+        <view class="item-block">
+          <view class="item-name">{{item.name || '美食'}}</view>
+          <view class="item-location">{{item.shop || ''}}</view>
+          <view class="item-remove" catchtap="removeFavorite" data-id="{{item._id}}" data-type="food">?</view>
+        </view>
+      </view>
+      <view class="empty" wx:if="{{foodList.length === 0}}">暂无收藏的美食</view>
+    </view>
+  </view>
 </view>

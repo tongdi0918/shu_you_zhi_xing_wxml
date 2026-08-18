@@ -1,70 +1,87 @@
 // pages/login/login.js
 const app = getApp();
+const db = wx.cloud.database();
 
 Page({
   data: {
     username: '',
     password: '',
-    isLoading: false
+    loading: false,
   },
 
-  onInputUsername(e) {
-    this.setData({ username: e.detail.value });
+  onInputUsername: function (e) {
+    this.setData({
+      username: e.detail.value,
+    });
   },
 
-  onInputPassword(e) {
-    this.setData({ password: e.detail.value });
+  onInputPassword: function (e) {
+    this.setData({
+      password: e.detail.value,
+    });
   },
 
-  async doLogin() {
+  // 登录
+  handleLogin: function () {
     const { username, password } = this.data;
+
     if (!username || !password) {
-      wx.showToast({ title: '请填写用户名和密码', icon: 'none' });
+      wx.showToast({
+        title: '请输入用户名和密码',
+        icon: 'none',
+      });
       return;
     }
 
-    this.setData({ isLoading: true });
-    wx.showLoading({ title: '登录中...' });
+    this.setData({ loading: true });
 
-    try {
-      const db = wx.cloud.database();
-      const res = await db.collection('users')
-        .where({
-          username: username,
-          password: password   // 明文，后续可加密
-        })
-        .get();
-
-      if (res.data && res.data.length > 0) {
-        const user = res.data[0];
-        app.globalData.token = user._id;
-        app.globalData.user = {
-          _id: user._id,
-          username: user.username,
-          nickname: user.nickname || user.username,
-          avatar: user.avatar || '',
-          role: user.role || 'user'
-        };
-        wx.setStorageSync('token', app.globalData.token);
-        wx.setStorageSync('user', app.globalData.user);
-
-        wx.hideLoading();
-        wx.showToast({ title: '登录成功', icon: 'success' });
-        wx.switchTab({ url: '/pages/home/home' });
-      } else {
-        wx.hideLoading();
-        wx.showToast({ title: '用户名或密码错误', icon: 'none' });
+    db.collection('users').where({
+      username: username,
+    }).get().then(res => {
+      if (res.data.length === 0) {
+        wx.showToast({
+          title: '用户不存在',
+          icon: 'none',
+        });
+        this.setData({ loading: false });
+        return;
       }
-    } catch (err) {
-      console.error('登录查询失败', err);
-      wx.hideLoading();
-      wx.showToast({ title: '登录失败，请重试', icon: 'none' });
-    } finally {
-      this.setData({ isLoading: false });
-    }
+
+      const user = res.data[0];
+      if (user.password !== password) {
+        wx.showToast({
+          title: '密码错误',
+          icon: 'none',
+        });
+        this.setData({ loading: false });
+        return;
+      }
+
+      // 登录成功
+      app.setUserInfo(user);
+      wx.showToast({
+        title: '登录成功',
+        icon: 'success',
+      });
+
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 1000);
+    }).catch(err => {
+      wx.showToast({
+        title: '登录失败，请重试',
+        icon: 'none',
+      });
+      console.log('登录失败', err);
+    }).finally(() => {
+      this.setData({ loading: false });
+    });
   },
 
-  goToRegister() {
-    wx.navigateTo({ url: '/pages/register/register' });
-  }
+  // 跳转到注册
+  goToRegister: function () {
+    wx.navigateTo({
+      url: '/pages/register/register',
+    });
+  },
 });

@@ -9,20 +9,22 @@ page {
   min-height: 100vh;
 }
 
-/* 顶部导航 */
+/* ===== 顶部导航 ===== */
 .nav-header {
   display: flex;
   align-items: center;
   margin-bottom: 30rpx;
   padding: 20rpx 0;
 }
+
 .back {
   font-size: 28rpx;
   color: #FF6B35;
   padding: 10rpx 20rpx;
   border-radius: 8rpx;
-  background: rgba(255,107,53,0.08);
+  background: rgba(255, 107, 53, 0.08);
 }
+
 .title {
   flex: 1;
   text-align: center;
@@ -31,17 +33,19 @@ page {
   color: #2d3436;
 }
 
-/* 输入区域卡片 */
+/* ===== 输入区域卡片 ===== */
 .input-area {
   background: #ffffff;
   border-radius: 20rpx;
   padding: 30rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
 }
+
 .input-item {
   margin-bottom: 20rpx;
 }
+
 .input-label {
   display: block;
   font-size: 26rpx;
@@ -49,6 +53,7 @@ page {
   margin-bottom: 8rpx;
   font-weight: 500;
 }
+
 .input {
   width: 100%;
   height: 80rpx;
@@ -60,6 +65,7 @@ page {
   background: #fafafa;
   transition: border-color 0.2s;
 }
+
 .input:focus {
   border-color: #FF6B35;
   background: #fff;
@@ -70,7 +76,9 @@ page {
   gap: 20rpx;
   margin-top: 10rpx;
 }
-.plan-btn, .location-btn {
+
+.plan-btn,
+.location-btn {
   flex: 1;
   height: 80rpx;
   border-radius: 40rpx;
@@ -81,52 +89,48 @@ page {
   border: none;
   font-weight: 600;
 }
+
 .plan-btn {
   background: linear-gradient(135deg, #FF6B35, #f5573a);
   color: #fff;
-  box-shadow: 0 6rpx 20rpx rgba(255,107,53,0.3);
+  box-shadow: 0 6rpx 20rpx rgba(255, 107, 53, 0.3);
 }
+
 .plan-btn[disabled] {
   opacity: 0.6;
 }
+
 .location-btn {
   background: #f0f0f0;
   color: #2d3436;
 }
 
-/* 地图区域卡片 */
+/* ===== 地图区域卡片 ===== */
 .map-area {
   background: #ffffff;
   border-radius: 20rpx;
   overflow: hidden;
   margin-bottom: 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
 }
+
 .map {
   width: 100%;
   height: 400rpx;
 }
-.map-placeholder {
-  background: #ffffff;
-  border-radius: 20rpx;
-  padding: 80rpx 0;
-  text-align: center;
-  color: #b2bec3;
-  font-size: 28rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
-}
 
-/* 结果详情卡片 */
+/* ===== 结果详情卡片 ===== */
 .result-area {
   margin-bottom: 30rpx;
 }
+
 .result-card {
   background: #ffffff;
   border-radius: 20rpx;
   padding: 30rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
 }
+
 .summary {
   display: block;
   font-size: 32rpx;
@@ -137,56 +141,79 @@ page {
   border-bottom: 2rpx solid #f1f2f6;
 }
 
-.stats {
+/* ===== 统计信息 - 小矩形块网格布局 ===== */
+.stats-grid {
   display: flex;
-  justify-content: space-around;
+  gap: 16rpx;
   margin-bottom: 24rpx;
-  background: #fafafa;
-  border-radius: 16rpx;
-  padding: 20rpx 0;
 }
+
 .stat-item {
+  flex: 1;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  padding: 20rpx 16rpx;
+  text-align: center;
+  border: 1rpx solid #e9ecef;
+  min-height: 100rpx;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
 }
+
 .stat-label {
   font-size: 22rpx;
-  color: #b2bec3;
+  color: #868e96;
   margin-bottom: 6rpx;
 }
+
 .stat-value {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 700;
   color: #2d3436;
 }
-.stat-item:first-child .stat-value { color: #FF6B35; }
-.stat-item:nth-child(2) .stat-value { color: #0984e3; }
-.stat-item:last-child .stat-value { color: #00b894; }
 
-.steps {
-  max-height: 300rpx;
-  overflow-y: auto;
+/* ===== 详细路段 ===== */
+.steps-section {
+  margin-top: 10rpx;
   border-top: 2rpx solid #f1f2f6;
-  padding-top: 16rpx;
+  padding-top: 20rpx;
 }
-.step {
-  display: flex;
-  padding: 14rpx 0;
-  border-bottom: 2rpx solid #f5f6fa;
-  font-size: 26rpx;
+
+.steps-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
   color: #2d3436;
+  margin-bottom: 16rpx;
+}
+
+.steps-list {
+  max-height: 400rpx;
+  overflow-y: auto;
+}
+
+.step-item {
+  display: flex;
+  gap: 12rpx;
+  padding: 16rpx 20rpx;
+  margin-bottom: 8rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  border-left: 4rpx solid #FF6B35;
+  font-size: 26rpx;
   line-height: 1.6;
+  color: #2d3436;
 }
-.step:last-child {
-  border-bottom: none;
-}
+
 .step-num {
   color: #FF6B35;
   font-weight: 600;
-  margin-right: 12rpx;
   flex-shrink: 0;
 }
+
 .step-text {
   flex: 1;
+  word-break: break-all;
 }

@@ -27,7 +27,7 @@ Page({
   async loadFood(id) {
     try {
       const db = wx.cloud.database();
-      const res = await db.collection('foods').doc(id).limit(1000).get();
+      const res = await db.collection('foods').doc(id).get();
       if (res.data) {
         const data = res.data;
         if (!data.images || data.images.length === 0) {

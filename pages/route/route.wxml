@@ -1,59 +1,81 @@
-<!--pages/route/route.wxml-->
+<!-- pages/route/route.wxml -->
 <view class="route-container">
   <!-- 顶部导航 -->
   <view class="nav-header">
-    <text class="back" bindtap="goBack">‹ 返回</text>
-    <text class="title">路线规划</text>
+    <view class="back" bindtap="goBack">‹ 返回</view>
+    <view class="title">路线规划</view>
   </view>
 
-  <!-- 输入区域（卡片） -->
+  <!-- 输入区域卡片 -->
   <view class="input-area">
+    <!-- 出发地 -->
     <view class="input-item">
-      <text class="input-label">🚗 出发地</text>
-      <input class="input" placeholder="自动读取主页所在城市" value="{{origin}}" bindinput="setOrigin" />
+      <text class="input-label">🚀 出发地</text>
+      <input class="input" 
+             placeholder="请输入出发地" 
+             value="{{origin.name}}" 
+             bindinput="setOrigin" />
     </view>
+    <!-- 目的地 -->
     <view class="input-item">
-      <text class="input-label">🏁 目的地</text>
-      <input class="input" placeholder="请输入目的地名称" value="{{destination}}" bindinput="setDestination" />
+      <text class="input-label">📍 目的地</text>
+      <input class="input" 
+             placeholder="请输入目的地" 
+             value="{{destination.name}}" 
+             bindinput="setDestination" />
     </view>
+    <!-- 按钮组 -->
     <view class="btn-group">
-      <button class="plan-btn" bindtap="planRoute" disabled="{{loading}}">{{loading ? '规划中...' : '🚀 路径规划'}}</button>
+      <button class="plan-btn" bindtap="planRoute" disabled="{{loading}}">
+        {{loading ? '规划中...' : '🚗 路径规划'}}
+      </button>
       <button class="location-btn" bindtap="getMyLocation">📍 我的位置</button>
     </view>
   </view>
 
-  <!-- 地图区域（卡片） -->
-  <view class="map-area" wx:if="{{routeResult}}">
-    <map
-      id="routeMap"
-      class="map"
-      longitude="{{mapCenter.longitude}}"
-      latitude="{{mapCenter.latitude}}"
-      scale="{{mapScale}}"
-      markers="{{markers}}"
-      polyline="{{polyline}}"
-      show-location
-      enable-rotate
-      enable-satellite="{{false}}"
-    />
-  </view>
-  <view class="map-placeholder" wx:else>
-    <text>请输入出发地和目的地，点击规划路线</text>
+  <!-- 地图区域卡片 -->
+  <view class="map-area">
+    <map id="routeMap"
+         class="map"
+         longitude="{{mapCenter.longitude}}"
+         latitude="{{mapCenter.latitude}}"
+         scale="{{mapScale}}"
+         markers="{{markers}}"
+         polyline="{{polyline}}"
+         show-location
+         enable-zoom
+         enable-scroll>
+    </map>
   </view>
 
-  <!-- 路线详情（卡片） -->
+  <!-- 结果详情卡片 -->
   <view class="result-area" wx:if="{{routeResult}}">
     <view class="result-card">
+      <!-- 摘要 -->
       <text class="summary">{{routeSummary}}</text>
-      <view class="stats">
-        <view class="stat-item"><text class="stat-label">总公里数</text><text class="stat-value">{{routeDistance}}</text></view>
-        <view class="stat-item"><text class="stat-label">预估时间</text><text class="stat-value">{{routeTime}}</text></view>
-        <view class="stat-item"><text class="stat-label">高速过路费</text><text class="stat-value">{{routeTolls}}</text></view>
+      <!-- 统计信息 - 小矩形块布局 -->
+      <view class="stats-grid">
+        <view class="stat-item">
+          <text class="stat-label">总公里数</text>
+          <text class="stat-value">{{routeDistance}}</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-label">预估时间</text>
+          <text class="stat-value">{{routeTime}}</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-label">高速过路费</text>
+          <text class="stat-value">{{routeTolls}}</text>
+        </view>
       </view>
-      <view class="steps">
-        <view class="step" wx:for="{{routeSteps}}" wx:key="index">
-          <text class="step-num">{{index+1}}.</text>
-          <text class="step-text">{{item}}</text>
+      <!-- 详细路段 -->
+      <view class="steps-section">
+        <text class="steps-title">📋 详细路段</text>
+        <view class="steps-list">
+          <view class="step-item" wx:for="{{routeSteps}}" wx:key="index">
+            <text class="step-num">{{index + 1}}.</text>
+            <text class="step-text">{{item}}</text>
+          </view>
         </view>
       </view>
     </view>

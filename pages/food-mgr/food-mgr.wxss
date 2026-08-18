@@ -1,82 +1,89 @@
-.container {
+/* pages/food-mgr/food-mgr.wxss */
+/* 复用 scenic-mgr.wxss 的样式 */
+.mgr-container {
   padding: 20rpx 30rpx 60rpx;
+  background: #f5f6fa;
+  min-height: 100vh;
 }
-.header {
+
+.mgr-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30rpx;
+  padding: 20rpx 0;
 }
-.title {
+
+.mgr-title {
   font-size: 36rpx;
   font-weight: 700;
   color: #333;
 }
+
 .add-btn {
   background: #FF6B35;
-  color: white;
+  color: #fff;
   border: none;
-  border-radius: 40rpx;
+  border-radius: 30rpx;
   padding: 12rpx 32rpx;
   font-size: 26rpx;
 }
-.item {
+
+.empty-state {
+  text-align: center;
+  padding: 80rpx 0;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.mgr-item {
   display: flex;
   align-items: center;
-  background: white;
-  border-radius: 16rpx;
   padding: 20rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.04);
-}
-.item image {
-  width: 140rpx;
-  height: 140rpx;
+  margin-bottom: 16rpx;
+  background: #fff;
   border-radius: 12rpx;
+}
+
+.mgr-thumb {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 8rpx;
+  background: #eee;
   flex-shrink: 0;
 }
-.item .info {
+
+.mgr-info {
   flex: 1;
   margin-left: 20rpx;
 }
-.item .name {
-  font-size: 30rpx;
+
+.mgr-name {
+  display: block;
+  font-size: 28rpx;
   font-weight: 600;
   color: #333;
-  display: block;
 }
-.item .city {
-  font-size: 24rpx;
+
+.mgr-desc {
+  display: block;
+  font-size: 22rpx;
   color: #999;
-  display: block;
   margin-top: 4rpx;
 }
-.item .price {
-  font-size: 24rpx;
-  color: #FF6B35;
-  display: block;
-  margin-top: 4rpx;
-}
-.item .actions {
+
+.mgr-actions {
   display: flex;
-  gap: 20rpx;
+  gap: 16rpx;
 }
-.item .actions text {
-  font-size: 26rpx;
-  padding: 8rpx 20rpx;
-  border-radius: 30rpx;
+
+.mgr-edit, .mgr-delete {
+  font-size: 32rpx;
+  padding: 8rpx;
 }
-.edit {
-  color: #2196F3;
-  background: #E3F2FD;
-}
-.delete {
-  color: #D32F2F;
-  background: #FFEBEE;
-}
-.empty {
-  text-align: center;
-  padding: 120rpx 0;
-  color: #ccc;
-  font-size: 28rpx;
+
+.mgr-edit:active, .mgr-delete:active {
+  opacity: 0.6;
 }

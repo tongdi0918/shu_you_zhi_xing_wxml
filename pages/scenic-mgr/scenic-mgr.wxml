@@ -1,20 +1,23 @@
-<view class="manager-container">
-  <view class="header">
-    <text class="title">??? 景点管理</text>
-    <button class="add-btn" bindtap="showAddDialog">+ 添加景点</button>
+<!-- pages/scenic-mgr/scenic-mgr.wxml -->
+<view class="mgr-container">
+  <view class="mgr-header">
+    <text class="mgr-title">🏞️ 景区管理</text>
+    <button class="add-btn" bindtap="addScenic">+ 添加</button>
   </view>
 
-  <view wx:for="{{list}}" wx:key="id" class="item">
-    <image src="{{item.image}}" mode="aspectFill"></image>
-    <view class="info">
-      <text class="name">{{item.name}}</text>
-      <text class="city">{{item.city}}</text>
-    </view>
-    <view class="actions">
-      <text class="edit" bindtap="showEditDialog" data-id="{{item.id}}">编辑</text>
-      <text class="delete" bindtap="deleteItem" data-id="{{item.id}}">删除</text>
-    </view>
+  <view wx:if="{{list.length === 0}}" class="empty-state">
+    <text class="empty-text">暂无景区数据</text>
   </view>
 
-  <view wx:if="{{list.length === 0}}" class="empty">暂无景点数据</view>
+  <view wx:for="{{list}}" wx:key="_id" class="grid-card mgr-item">
+    <image class="mgr-thumb" src="{{item.thumbnail || '/images/default_scenic.jpg'}}" mode="aspectFill"></image>
+    <view class="mgr-info">
+      <text class="mgr-name">{{item.name}}</text>
+      <text class="mgr-desc">{{item.city || ''}} · {{item.level || ''}}</text>
+    </view>
+    <view class="mgr-actions">
+      <text class="mgr-edit" bindtap="editScenic" data-id="{{item._id}}">✏️</text>
+      <text class="mgr-delete" bindtap="deleteScenic" data-id="{{item._id}}">🗑️</text>
+    </view>
+  </view>
 </view>

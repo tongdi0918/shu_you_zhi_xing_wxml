@@ -1,57 +1,109 @@
-<!-- 个人中心页面 -->
+<!-- pages/profile/profile.wxml -->
 <view class="profile-container">
-  <!-- 用户信息卡片 -->
-  <view class="user-card">
-    <image class="avatar" src="{{user.avatar || '/images/default.png'}}" mode="aspectFill"></image>
-    <text class="name">{{user.username}}</text>
-    <text class="bio">蜀游智行 · 四川旅行家</text>
+
+<!-- 用户信息卡片 -->
+<view class="user-card">
+  <view class="avatar-wrapper">
+    <image class="avatar" src="{{userInfo ? userInfo.avatarUrl : '/images/default_avatar.png'}}" mode="aspectFill"></image>
   </view>
 
-
-
-<!-- 位置设置 -->
-<view class="section">
-  <view class="section-title">📍 我的位置</view>
-  <view class="location-card">
-    <view class="location-picker">
-      <picker mode="selector" range="{{cityList}}" value="{{selectedCityIndex}}" bindchange="onCityChange">
-        <view class="picker-display">
-          <text class="picker-label">所在城市</text>
-          <text class="picker-value">{{cityList[selectedCityIndex] || '请选择'}}</text>
-          <text class="picker-arrow">▼</text>
-        </view>
-      </picker>
+  <!-- 未登录状态 -->
+  <block wx:if="{{!isLoggedIn}}">
+    <view class="user-name">游客</view>
+    <view class="login-register-row">
+      <text class="login-btn" bindtap="goToLogin">登录</text>
+      <text class="divider">|</text>
+      <text class="register-btn" bindtap="goToRegister">注册</text>
     </view>
-    <view class="location-tip">智能推荐页面使用此位置</view>
+  </block>
+
+  <!-- 已登录状态 -->
+  <block wx:else>
+    <view class="user-name">{{userInfo.nickName || '用户'}}</view>
+    <view class="user-city" bindtap="setCity">
+      <text class="city-label">📍 所在城市：</text>
+      <text class="city-value">{{userCity}}</text>
+      <text class="city-edit">[点击设置]</text>
+    </view>
+  </block>
+</view>
+
+<!-- 功能菜单 -->
+<view class="menu-grid">
+  <!-- 我的收藏 -->
+  <view class="menu-item" bindtap="goToFavorites">
+    <view class="menu-icon">⭐</view>
+    <text class="menu-text">我的收藏</text>
+  </view>
+
+  <!-- 浏览历史 -->
+  <view class="menu-item" bindtap="goToHistory">
+    <view class="menu-icon">📜</view>
+    <text class="menu-text">浏览历史</text>
+  </view>
+
+  <!-- 管理员后台 -->
+  <view class="menu-item" bindtap="goToAdmin" wx:if="{{isLoggedIn && isAdmin}}">
+    <view class="menu-icon">⚙️</view>
+    <text class="menu-text">管理后台</text>
+  </view>
+
+  <!-- 关于我们 -->
+  <view class="menu-item" bindtap="showAbout">
+    <view class="menu-icon">ℹ️</view>
+    <text class="menu-text">关于我们</text>
+  </view>
+
+  <!-- 退出登录 -->
+  <view class="menu-item" bindtap="handleLogout" wx:if="{{isLoggedIn}}">
+    <view class="menu-icon">🚪</view>
+    <text class="menu-text">退出登录</text>
   </view>
 </view>
 
+<!-- 我的成就 - 打卡点亮 -->
+<view class="achievement-section">
+  <view class="section-title">🏆 我的成就 - 打卡点亮</view>
 
-
-  <!-- 功能菜单 -->
-  <view class="menu-group">
-    <view class="menu-item" bindtap="goToFavorites">⭐ 我的收藏</view>
-    <view class="menu-item" bindtap="goToHistory">🕐 浏览历史</view>
-    <view class="menu-item" bindtap="goToRecommend">🎯 个性化推荐</view>
+  <!-- 景区成就 -->
+  <view class="achievement-group">
+    <view class="group-header" bindtap="toggleScenicAchievements">
+      <text class="group-name">🏔️ 景区打卡</text>
+      <text class="group-count">已打卡 {{scenicCount}} 处</text>
+      <text class="group-arrow">{{showScenicAchievements ? '▼' : '▶'}}</text>
+    </view>
+    <view class="achievement-list" wx:if="{{showScenicAchievements}}">
+      <view class="achievement-item" wx:for="{{scenicAchievements}}" wx:key="*this" bindtap="viewScenicDetail" data-id="{{item}}">
+        <view class="achievement-block">
+          <text class="achievement-name">景区 {{index + 1}}</text>
+          <text class="achievement-status">✅ 已点亮</text>
+        </view>
+      </view>
+      <view class="empty-tip" wx:if="{{scenicAchievements.length === 0}}">
+        暂无景区打卡记录，快去探索吧！
+      </view>
+    </view>
   </view>
 
-  <!-- 管理员入口（仅管理员可见） -->
-  <view class="menu-group" wx:if="{{user.role === 'admin'}}">
-    <view class="menu-item" bindtap="goToDashboard">⚙️ 管理后台</view>
+  <!-- 美食成就 -->
+  <view class="achievement-group">
+    <view class="group-header" bindtap="toggleFoodAchievements">
+      <text class="group-name">🍜 美食打卡</text>
+      <text class="group-count">已打卡 {{foodCount}} 处</text>
+      <text class="group-arrow">{{showFoodAchievements ? '▼' : '▶'}}</text>
+    </view>
+    <view class="achievement-list" wx:if="{{showFoodAchievements}}">
+      <view class="achievement-item" wx:for="{{foodAchievements}}" wx:key="*this" bindtap="viewFoodDetail" data-id="{{item}}">
+        <view class="achievement-block">
+          <text class="achievement-name">美食 {{index + 1}}</text>
+          <text class="achievement-status">✅ 已点亮</text>
+        </view>
+      </view>
+      <view class="empty-tip" wx:if="{{foodAchievements.length === 0}}">
+        暂无美食打卡记录，快去品尝吧！
+      </view>
+    </view>
   </view>
+</view>
 
-  <!-- 其他 -->
-  <view class="menu-group">
-    <view class="menu-item" bindtap="showAbout">ℹ️ 关于我们</view>
-    <view class="menu-item logout" bindtap="doLogout" wx:if="{{isLogin}}">🚪 退出登录</view>
-  </view>
-
-  <view class="checkin-area">
-    <button class="checkin-btn" bindtap="doCheckin" disabled="{{hasCheckedIn}}">
-      {{hasCheckedIn ? '✅ 已打卡' : '📌 打卡点亮'}}
-    </button>
-    <text class="checkin-days">已连续打卡 {{checkinDays}} 天</text>
-  </view>
-
-  <view class="version">蜀游智行 v1.0.0</view>
 </view>

@@ -1,78 +1,108 @@
 // pages/register/register.js
-const app = getApp();
+const db = wx.cloud.database();
 
 Page({
   data: {
     username: '',
     password: '',
     confirmPassword: '',
-    isLoading: false
+    nickName: '',
+    loading: false,
   },
 
-  onInputUsername(e) {
+  onInputUsername: function (e) {
     this.setData({ username: e.detail.value });
   },
-  onInputPassword(e) {
+
+  onInputPassword: function (e) {
     this.setData({ password: e.detail.value });
   },
-  onInputConfirmPassword(e) {
+
+  onInputConfirmPassword: function (e) {
     this.setData({ confirmPassword: e.detail.value });
   },
 
-  async doRegister() {
-    const { username, password, confirmPassword } = this.data;
-    if (!username || !password) {
-      wx.showToast({ title: '请填写完整信息', icon: 'none' });
+  onInputNickName: function (e) {
+    this.setData({ nickName: e.detail.value });
+  },
+
+  // 注册
+  handleRegister: function () {
+    const { username, password, confirmPassword, nickName } = this.data;
+
+    if (!username || !password || !confirmPassword) {
+      wx.showToast({
+        title: '请填写完整信息',
+        icon: 'none',
+      });
       return;
     }
+
     if (password !== confirmPassword) {
-      wx.showToast({ title: '两次密码不一致', icon: 'none' });
+      wx.showToast({
+        title: '两次密码不一致',
+        icon: 'none',
+      });
       return;
     }
 
-    this.setData({ isLoading: true });
-    wx.showLoading({ title: '注册中...' });
+    if (password.length < 6) {
+      wx.showToast({
+        title: '密码至少6位',
+        icon: 'none',
+      });
+      return;
+    }
 
-    try {
-      const db = wx.cloud.database();
+    this.setData({ loading: true });
 
-      // 先检查用户名是否已存在
-      const checkRes = await db.collection('users')
-        .where({ username: username })
-        .get();
-      if (checkRes.data && checkRes.data.length > 0) {
-        wx.hideLoading();
-        wx.showToast({ title: '用户名已被占用', icon: 'none' });
-        this.setData({ isLoading: false });
+    // 检查用户名是否已存在
+    db.collection('users').where({
+      username: username,
+    }).get().then(res => {
+      if (res.data.length > 0) {
+        wx.showToast({
+          title: '用户名已存在',
+          icon: 'none',
+        });
+        this.setData({ loading: false });
         return;
       }
 
-      // 插入新用户（默认角色为 'user'）
-      const addRes = await db.collection('users').add({
+      // 创建用户
+      return db.collection('users').add({
         data: {
           username: username,
-          password: password,   // 明文，后续可改进
-          nickname: username,
-          avatar: '',
+          password: password,
+          nickName: nickName || username,
+          avatarUrl: '',
+          city: '',
           role: 'user',
-          createTime: new Date()
+          createTime: new Date(),
+          updateTime: new Date(),
         }
       });
-
-      wx.hideLoading();
-      wx.showToast({ title: '注册成功', icon: 'success' });
-      // 注册成功后跳转登录页
-      wx.navigateBack();
-    } catch (err) {
-      console.error('注册失败', err);
-      wx.hideLoading();
-      wx.showToast({ title: '注册失败，请重试', icon: 'none' });
-    } finally {
-      this.setData({ isLoading: false });
-    }
+    }).then(() => {
+      wx.showToast({
+        title: '注册成功',
+        icon: 'success',
+      });
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 1000);
+    }).catch(err => {
+      wx.showToast({
+        title: '注册失败，请重试',
+        icon: 'none',
+      });
+      console.log('注册失败', err);
+    }).finally(() => {
+      this.setData({ loading: false });
+    });
   },
 
-  goToLogin() {
+  // 跳转到登录
+  goToLogin: function () {
     wx.navigateBack();
-  }
+  },
 });
