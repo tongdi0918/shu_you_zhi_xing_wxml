@@ -95,7 +95,7 @@ Page({
     } catch (err) {
       console.error('加载打卡数据失败', err);
       this.setData({ loading: false });
-      wx.showToast({ title: '加载数据失败，请重试', icon: 'none' });
+      wx.showToast({ title: '加载数据失败………', icon: 'none' });
     }
   },
 
@@ -143,7 +143,7 @@ Page({
             createTime: new Date()
           }
         });
-        wx.showToast({ title: '打卡成功！?', icon: 'success' });
+        wx.showToast({ title: '打卡成功！', icon: 'success' });
       }
 
       // 更新本地数据
@@ -231,7 +231,7 @@ Page({
   showAbout() {
     wx.showModal({
       title: '关于蜀游智行',
-      content: '蜀游智行 — 探索四川之美\\\\n记录你的每一次旅行足迹',
+      content: '蜀游智行 —-— 记录你的每一次旅行足迹',
       showCancel: false
     });
   },
