@@ -1,6 +1,7 @@
 /* pages/recommend/recommend.wxss */
+
 .recommend-container {
-  padding: 20rpx 30rpx 120rpx;
+  padding: 20rpx 30rpx 180rpx;
   background: #f5f7fa;
   min-height: 100vh;
 }
@@ -22,10 +23,20 @@
   align-items: center;
   gap: 8rpx;
 }
-.location-icon { font-size: 32rpx; }
-.location-text { font-size: 26rpx; color: #666; }
 
-.city-picker { flex-shrink: 0; }
+.location-icon {
+  font-size: 32rpx;
+}
+
+.location-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.city-picker {
+  flex-shrink: 0;
+}
+
 .picker-display {
   display: flex;
   align-items: center;
@@ -34,8 +45,17 @@
   padding: 8rpx 20rpx;
   border-radius: 30rpx;
 }
-.city-name { font-size: 28rpx; font-weight: 600; color: #2d8cf0; }
-.arrow { font-size: 22rpx; color: #2d8cf0; }
+
+.city-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2d8cf0;
+}
+
+.arrow {
+  font-size: 22rpx;
+  color: #2d8cf0;
+}
 
 /* ===== Tab栏 ===== */
 .tab-bar {
@@ -46,6 +66,7 @@
   margin-bottom: 20rpx;
   box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06);
 }
+
 .tab-item {
   flex: 1;
   text-align: center;
@@ -55,6 +76,7 @@
   transition: all 0.3s;
   border-bottom: 4rpx solid transparent;
 }
+
 .tab-item.active {
   color: #2d8cf0;
   border-bottom-color: #2d8cf0;
@@ -78,15 +100,18 @@
   transition: all 0.3s;
   position: relative;
 }
-.card-item:active { transform: scale(0.97); }
 
-/* 复选框 */
+.card-item:active {
+  transform: scale(0.97);
+}
+
 .card-check {
   position: absolute;
   top: 12rpx;
   left: 12rpx;
   z-index: 10;
 }
+
 .checkbox {
   width: 44rpx;
   height: 44rpx;
@@ -100,12 +125,15 @@
   color: #fff;
   transition: all 0.3s;
 }
+
 .checkbox.checked {
   background: #2d8cf0;
   border-color: #2d8cf0;
 }
 
-.card-content { display: block; }
+.card-content {
+  display: block;
+}
 
 .card-img {
   width: 100%;
@@ -135,44 +163,32 @@
   margin-top: 4rpx;
 }
 
-.card-tags {
-  display: flex;
-  gap: 12rpx;
-  margin-top: 10rpx;
-  flex-wrap: wrap;
-}
-.tag {
+.card-tag {
   font-size: 22rpx;
-  color: #fff;
-  padding: 4rpx 16rpx;
+  color: #2d8cf0;
+  background: #e8f0fe;
+  padding: 2rpx 12rpx;
   border-radius: 20rpx;
+  display: inline-block;
+  margin-top: 6rpx;
 }
-.tag.level { background: #2d8cf0; }
-.tag.category { background: #19be6b; }
 
 .card-price {
-  margin-top: 12rpx;
-}
-.price {
-  font-size: 30rpx;
-  font-weight: bold;
-  color: #e74c3c;
+  font-size: 26rpx;
+  color: #f60;
+  font-weight: 600;
+  display: block;
+  margin-top: 6rpx;
 }
 
-/* ===== 空状态 ===== */
-.empty-state {
-  text-align: center;
-  padding: 120rpx 0;
-}
-.empty-icon { font-size: 80rpx; display: block; }
-.empty-text { font-size: 28rpx; color: #999; margin-top: 20rpx; display: block; }
-
-/* ===== 加载中 ===== */
+/* ===== 空状态 & 加载中 ===== */
+.empty-state,
 .loading-state {
   text-align: center;
   padding: 80rpx 0;
+  color: #999;
+  font-size: 28rpx;
 }
-.loading-text { font-size: 28rpx; color: #999; }
 
 /* ===== 底部操作栏 ===== */
 .bottom-bar {
@@ -182,66 +198,192 @@
   right: 0;
   background: #fff;
   padding: 20rpx 30rpx;
-  box-shadow: 0 -4rpx 20rpx rgba(0,0,0,0.08);
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 20rpx rgba(0,0,0,0.06);
   display: flex;
   justify-content: space-between;
   align-items: center;
   z-index: 100;
 }
-.bottom-left {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-}
-.selected-count { font-size: 26rpx; color: #333; }
-.clear-btn { font-size: 26rpx; color: #e74c3c; padding: 8rpx 16rpx; }
-.btn-generate {
-  background: linear-gradient(135deg, #2d8cf0, #19be6b);
-  color: #fff;
-  border: none;
-  border-radius: 40rpx;
-  padding: 16rpx 40rpx;
+
+.selected-info {
   font-size: 28rpx;
-  font-weight: 600;
+  color: #333;
 }
 
-/* ===== 行程方案 ===== */
+.selected-count {
+  color: #2d8cf0;
+  font-weight: 700;
+  font-size: 32rpx;
+}
+
+.bottom-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.btn-clear {
+  background: #f5f7fa;
+  color: #666;
+  border: none;
+  border-radius: 30rpx;
+  padding: 12rpx 28rpx;
+  font-size: 26rpx;
+  line-height: 1.4;
+}
+
+.btn-generate {
+  background: linear-gradient(135deg, #2d8cf0, #1a6bc4);
+  color: #fff;
+  border: none;
+  border-radius: 30rpx;
+  padding: 12rpx 32rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   行程方案区域（重构后 —— 按城市分组 + 彩色小矩形块）
+   ============================================================ */
 .plan-section {
   margin-top: 30rpx;
   background: #fff;
-  border-radius: 16rpx;
-  padding: 24rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06);
+  border-radius: 24rpx;
+  padding: 30rpx 24rpx 40rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.06);
 }
+
+.plan-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 28rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid #f0f2f5;
+}
+
 .plan-title {
-  font-size: 32rpx;
-  font-weight: 600;
+  font-size: 34rpx;
+  font-weight: 700;
   color: #1a1a1a;
-  margin-bottom: 20rpx;
 }
-.plan-item {
-  border-bottom: 1rpx solid #f0f0f0;
-  padding: 16rpx 0;
+
+.plan-hint {
+  font-size: 24rpx;
+  color: #999;
 }
-.plan-item:last-child { border-bottom: none; }
-.plan-city {
-  font-size: 28rpx;
+
+/* 每个城市分组 */
+.plan-city-group {
+  margin-bottom: 32rpx;
+}
+
+.plan-city-group:last-child {
+  margin-bottom: 0;
+}
+
+/* 城市标签（上方标签） */
+.plan-city-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+  padding-left: 6rpx;
+}
+
+.city-name-label {
+  font-size: 30rpx;
   font-weight: 600;
   color: #2d8cf0;
-  margin-bottom: 10rpx;
 }
+
+.city-item-count {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 小矩形块容器 — 弹性换行 */
 .plan-items {
   display: flex;
   flex-wrap: wrap;
-  gap: 12rpx;
+  gap: 16rpx;
 }
-.plan-sub {
-  background: #f5f7fa;
-  padding: 8rpx 16rpx;
-  border-radius: 20rpx;
+
+/* 每个小矩形块 — 统一尺寸与风格 */
+.plan-item {
+  position: relative;
+  width: calc(33.33% - 12rpx);   /* 一行3个，适配间隙 */
+  min-width: 140rpx;
+  height: 120rpx;
+  border-radius: 16rpx;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10rpx;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.10);
+  transition: all 0.2s;
+  padding: 8rpx 4rpx;
+  box-sizing: border-box;
 }
-.plan-sub-name { font-size: 24rpx; color: #333; }
-.plan-sub-type { font-size: 20rpx; color: #999; }
+
+.plan-item:active {
+  transform: scale(0.94);
+}
+
+/* 蓝色 —— 景点 */
+.plan-item-scenic {
+  background: linear-gradient(145deg, #4a8af4, #2d6fc4);
+  color: #fff;
+}
+
+/* 黄色 —— 美食 */
+.plan-item-food {
+  background: linear-gradient(145deg, #f7c948, #e8a82e);
+  color: #333;
+}
+
+/* 左上角顺序编号 */
+.plan-item-index {
+  position: absolute;
+  top: 6rpx;
+  left: 10rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  opacity: 0.85;
+  background: rgba(0,0,0,0.15);
+  padding: 0 10rpx;
+  border-radius: 20rpx;
+  line-height: 1.6;
+  color: inherit;
+}
+
+/* 项目名称 */
+.plan-item-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 类型小标签（景点/美食） */
+.plan-item-type {
+  font-size: 20rpx;
+  opacity: 0.8;
+  margin-top: 4rpx;
+  background: rgba(255,255,255,0.25);
+  padding: 0 14rpx;
+  border-radius: 20rpx;
+  line-height: 1.6;
+}
+
+/* 响应式微调：屏幕较窄时一行2个 */
+@media screen and (max-width: 375px) {
+  .plan-item {
+    width: calc(50% - 12rpx);
+  }
+}

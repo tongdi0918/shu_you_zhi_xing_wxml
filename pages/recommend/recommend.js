@@ -37,9 +37,9 @@ Object.keys(CITY_ALIAS_MAP).forEach(full => {
 Page({
   data: {
     userLocation: { city: '未设置', latitude: 0, longitude: 0 },
-    cityList: [],           // 下拉选项：从数据库提取的有数据的城市列表
+    cityList: [],                // 下拉选项：从数据库提取的有数据的城市列表
     selectedCityIndex: 0,
-    selectedCity: '',       // 选中的标准全称
+    selectedCity: '',            // 选中的标准全称
     activeTab: 'scenic',
     allSceneries: [],
     allFoods: [],
@@ -47,7 +47,7 @@ Page({
     filteredFoods: [],
     displayList: [],
     selectedList: [],
-    planData: [],
+    planData: [],                // 行程方案数据 [{ city, items }]
     loading: false
   },
 
@@ -89,34 +89,26 @@ Page({
         db.collection('sceneries').limit(500).get(),
         db.collection('foods').limit(500).get()
       ]);
-
       const allSceneries = scenicRes.data;
       const allFoods = foodRes.data;
       this.setData({ allSceneries, allFoods });
 
-      // 【核心修改】直接从数据中提取所有不重复的 city 字段
-      // 因为数据库中 city 字段统一为 "成都市" 格式，直接去重即可
+      // 直接从数据中提取所有不重复的 city 字段
       const citySet = new Set();
       [...allSceneries, ...allFoods].forEach(item => {
         if (item.city && typeof item.city === 'string') {
-          // 去除首尾空格，统一格式
           const city = item.city.trim();
-          // 尝试通过映射表将简称转为标准全称
           const full = SHORT_TO_FULL[city];
           if (full) {
             citySet.add(full);
           } else if (CITY_ALIAS_MAP[city]) {
-            // 如果本身就是标准全称，直接加入
             citySet.add(city);
           } else {
-            // 兜底：如果无法映射，但 city 看起来像 "XX市"，也直接加入
-            // 这样可以兼容数据库中的任何合法城市名
             citySet.add(city);
           }
         }
       });
 
-      // 转为数组并排序
       const cityList = Array.from(citySet).sort();
       console.log('✅ 提取到的城市列表:', cityList);
 
@@ -152,7 +144,6 @@ Page({
       } else {
         wx.showToast({ title: '未匹配到有效城市', icon: 'none' });
       }
-
     } catch (err) {
       console.error('加载失败', err);
       wx.showToast({ title: '加载数据失败，请检查网络', icon: 'none' });
@@ -166,7 +157,6 @@ Page({
     const { allSceneries, allFoods, selectedCity } = this.data;
     if (!selectedCity) return;
 
-    // 获取该城市对应的所有可能city值（别名）
     const aliases = CITY_ALIAS_MAP[selectedCity] || [selectedCity];
 
     let filteredSceneries = allSceneries
@@ -274,31 +264,39 @@ Page({
       return;
     }
 
-    // 按城市分组
+    // 按城市分组，并赋予全局顺序编号
     const grouped = {};
+    let globalIndex = 1;
     selectedList.forEach(item => {
       const city = item.city || '未知城市';
       if (!grouped[city]) grouped[city] = [];
-      grouped[city].push(item);
+      grouped[city].push({
+        ...item,
+        planIndex: globalIndex++   // 全局顺序编号
+      });
     });
 
+    // 转换为数组，城市按出现顺序或字母排序
     const planData = Object.keys(grouped).map(city => ({
       city,
       items: grouped[city]
     }));
 
     this.setData({ planData });
-    wx.showToast({ title: `已生成${planData.length}个城市的行程`, icon: 'success' });
+
+    wx.showToast({
+      title: `已生成 ${planData.length} 个城市的行程`,
+      icon: 'success'
+    });
   },
 
-  // ===== 查看行程方案详情 =====
+  // ===== 查看行程方案详情（保留原功能） =====
   viewPlanDetail(e) {
     const index = e.currentTarget.dataset.index;
     const plan = this.data.planData[index];
     if (!plan) return;
-    // 跳转到行程详情页，或弹窗显示
     wx.showModal({
-      title: `📍 ${plan.city}`,
+      title: `📌 ${plan.city}`,
       content: plan.items.map(item => `• ${item.name}`).join('\\n'),
       showCancel: false,
       confirmText: '知道了'
