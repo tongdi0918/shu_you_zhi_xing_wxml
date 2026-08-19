@@ -3,6 +3,7 @@
   background: #f5f5f5;
   min-height: 100vh;
   padding: 20rpx;
+  padding-bottom: 100rpx;
 }
 
 .tab-bar {
@@ -26,6 +27,13 @@
   background: #fff5f0;
   font-weight: bold;
   border-bottom: 4rpx solid #FF6B35;
+}
+
+.loading-tip {
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+  padding: 80rpx 0;
 }
 
 .list-container {
@@ -56,6 +64,7 @@
   flex-shrink: 0;
   background: #e8e8e8;
 }
+
 .item-info {
   flex: 1;
   margin-left: 20rpx;
@@ -72,6 +81,7 @@
   font-size: 24rpx;
   color: #999;
 }
+
 .item-remove {
   width: 48rpx;
   height: 48rpx;

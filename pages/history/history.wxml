@@ -1,18 +1,24 @@
 <!-- pages/history/history.wxml -->
 <view class="history-container">
+  <!-- 标题栏 -->
   <view class="history-header">
-    <text class="history-title">📜 浏览历史</text>
-    <text class="history-clear" bindtap="clearHistory">清空</text>
+    <text class="history-title">?? 浏览历史</text>
+    <text class="clear-btn" bindtap="clearHistory">清空</text>
   </view>
 
-  <view wx:for="{{historyList}}" wx:key="_id" class="history-item" bindtap="viewDetail" data-id="{{item._id}}" data-type="{{item.type}}">
-    <image class="history-thumb" src="{{item.images && item.images[0] || '/images/default.png'}}" mode="aspectFill"></image>
-    <view class="history-info">
-      <text class="history-name">{{item.type === 'scenic' ? '🏞️' : '🍜'}} {{item.name || '未知'}}</text>
-      <text class="history-location">{{item.type === 'scenic' ? item.location : item.shop}}</text>
-      <text class="history-time">{{item.viewTime ? item.viewTime.substring(0, 16) : ''}}</text>
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+
+  <!-- 历史列表 -->
+  <view wx:else class="list-container">
+    <view wx:for="{{historyList}}" wx:key="_id" class="item-card" bindtap="viewDetail" data-id="{{item._id}}" data-type="{{item.type}}">
+      <image class="item-thumb" src="{{item.images && item.images[0] || '/images/default.png'}}" mode="aspectFill"></image>
+      <view class="item-info">
+        <text class="item-name">{{item.type === 'scenic' ? '???' : '??'}} {{item.name || '未知'}}</text>
+        <text class="item-location">{{item.type === 'scenic' ? item.location : item.shop}}</text>
+      </view>
+      <text class="item-time">{{item.viewTime ? item.viewTime.substring(0, 16) : ''}}</text>
     </view>
+    <view wx:if="{{historyList.length === 0}}" class="empty-tip">暂无浏览历史</view>
   </view>
-
-  <view wx:if="{{historyList.length === 0}}" class="empty-tip">暂无浏览历史</view>
 </view>

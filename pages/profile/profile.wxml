@@ -4,7 +4,7 @@
 <!-- ===== 用户信息卡片 ===== -->
 <view class="user-card">
   <view class="avatar-wrapper">
-    <image class="avatar" src="{{userInfo.avatarUrl || '/images/default.png'}}" mode="aspectFill"></image>
+    <image class="avatar" src="{{userInfo.avatarUrl || '/images/default_avatar.png'}}" mode="aspectFill"></image>
   </view>
   <view wx:if="{{isLoggedIn}}" class="user-name">{{userInfo.nickName || '用户'}}</view>
   <view wx:else class="login-register-row">
@@ -17,7 +17,7 @@
     <text class="city-value">{{userCity}}</text>
     <text class="city-edit" bindtap="setCity">[点击设置]</text>
   </view>
-  <view wx:if="{{role}}" style="margin-top:10rpx;color:#fff;background:rgba(255,255,255,0.25);padding:4rpx 20rpx;border-radius:20rpx;font-size:24rpx;">管理员</view>
+  <view wx:if="{{isAdmin}}" class="admin-badge">管理员</view>
 </view>
 
 <!-- ===== 功能菜单 ===== -->
@@ -27,59 +27,74 @@
     <text class="menu-text">我的收藏</text>
   </view>
   <view class="menu-item" bindtap="goToHistory">
-    <text class="menu-icon">📜</text>
+    <text class="menu-icon">📖</text>
     <text class="menu-text">浏览历史</text>
   </view>
-  <view class="menu-item" wx:if="{{isAdmin}}" bindtap="goToDashboard">
+  <view wx:if="{{isAdmin}}" class="menu-item" bindtap="goToAdmin">
     <text class="menu-icon">⚙️</text>
     <text class="menu-text">管理后台</text>
   </view>
-  <view class="menu-item" bindtap="goToAbout">
+  <view class="menu-item" bindtap="showAbout">
     <text class="menu-icon">ℹ️</text>
     <text class="menu-text">关于我们</text>
   </view>
-  <view class="menu-item" wx:if="{{isLoggedIn}}" bindtap="logout">
+  <view wx:if="{{isLoggedIn}}" class="menu-item" bindtap="logout">
     <text class="menu-icon">🚪</text>
     <text class="menu-text">退出登录</text>
   </view>
 </view>
 
-<!-- ===== 我的成就 - 打卡点亮 ===== -->
+<!-- ===== 成就打卡区域 ===== -->
 <view class="achievement-section">
-  <view class="section-title">🏆 我的成就 - 打卡点亮</view>
+  <!-- 标题 -->
+  <view class="section-header">
+    <text class="section-title">🏆 我的成就 · 蜀游打卡</text>
+    <text class="section-subtitle">点击方块标记你已实地到访的景点和美食吧！</text>
+  </view>
 
-  <!-- 景区打卡 -->
-  <view class="achieve-group">
-    <view class="achieve-header" bindtap="toggleScenicAchievements">
-      <text class="achieve-label">🏞️ 景区打卡</text>
-      <text class="achieve-count">已打卡 {{scenicCount}} 处</text>
-      <text class="achieve-arrow">{{showScenicAchievements ? '▼' : '▶'}}</text>
+  <!-- 统计总数 -->
+  <view class="stats-row">
+    <text class="stats-text">已打卡 <text class="stats-number">{{totalCheckedCount}}</text> 个地点</text>
+  </view>
+
+  <!-- 标签页 -->
+  <view class="tabs">
+    <view class="tab {{currentTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
+      🏞️ 景点打卡 <text class="tab-count">{{scenicCheckedCount}}</text>
     </view>
-    <view wx:if="{{showScenicAchievements}}" class="achieve-grid">
-      <view wx:for="{{scenicAchievements}}" wx:key="index" class="achieve-item {{item.highlight ? 'highlight' : ''}}" bindtap="toggleHighlight" data-index="{{index}}" data-type="scenic">
-        <image class="achieve-thumb" src="{{item.images && item.images[0] || '/images/default.png'}}" mode="aspectFill"></image>
-        <text class="achieve-name">{{item.name || '景区'}}</text>
-        <text class="achieve-status">✅ 已点亮</text>
-      </view>
-      <view wx:if="{{scenicAchievements.length === 0}}" class="empty-tip">暂无景区打卡记录，快去探索吧！</view>
+    <view class="tab {{currentTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
+      🍜 美食打卡 <text class="tab-count">{{foodCheckedCount}}</text>
     </view>
   </view>
 
-  <!-- 美食打卡 -->
-  <view class="achieve-group">
-    <view class="achieve-header" bindtap="toggleFoodAchievements">
-      <text class="achieve-label">🍜 美食打卡</text>
-      <text class="achieve-count">已打卡 {{foodCount}} 处</text>
-      <text class="achieve-arrow">{{showFoodAchievements ? '▼' : '▶'}}</text>
-    </view>
-    <view wx:if="{{showFoodAchievements}}" class="achieve-grid">
-      <view wx:for="{{foodAchievements}}" wx:key="index" class="achieve-item {{item.highlight ? 'highlight' : ''}}" bindtap="toggleHighlight" data-index="{{index}}" data-type="food">
-        <image class="achieve-thumb" src="{{item.images && item.images[0] || '/images/default.png'}}" mode="aspectFill"></image>
-        <text class="achieve-name">{{item.name || '美食'}}</text>
-        <text class="achieve-status">✅ 已点亮</text>
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-text">加载中...</view>
+
+  <!-- 卡片网格 -->
+  <view wx:else class="card-grid">
+    <!-- 景点列表 -->
+    <block wx:if="{{currentTab === 0}}">
+      <view wx:for="{{scenicList}}" wx:key="_id" class="card" bindtap="toggleCheckin" data-id="{{item._id}}" data-type="scenic">
+        <image class="card-image" src="/images//default.png" mode="aspectFill"></image>
+        <view class="card-name">{{item.name}}</view>
+        <view class="card-check {{item.checked ? 'checked' : ''}}">
+          <text wx:if="{{item.checked}}" class="check-icon">✓</text>
+        </view>
       </view>
-      <view wx:if="{{foodAchievements.length === 0}}" class="empty-tip">暂无美食打卡记录，快去品尝吧！</view>
-    </view>
+      <view wx:if="{{scenicList.length === 0}}" class="empty-text">暂无景点数据，请先添加</view>
+    </block>
+
+    <!-- 美食列表 -->
+    <block wx:if="{{currentTab === 1}}">
+      <view wx:for="{{foodList}}" wx:key="_id" class="card" bindtap="toggleCheckin" data-id="{{item._id}}" data-type="food">
+        <image class="card-image" src="{{item.image || '/images/default.png'}}" mode="aspectFill"></image>
+        <view class="card-name">{{item.name}}</view>
+        <view class="card-check {{item.checked ? 'checked' : ''}}">
+          <text wx:if="{{item.checked}}" class="check-icon">✓</text>
+        </view>
+      </view>
+      <view wx:if="{{foodList.length === 0}}" class="empty-text">暂无美食数据，请先添加</view>
+    </block>
   </view>
 </view>
 

@@ -1,78 +1,91 @@
 /* pages/profile/profile.wxss */
+
 .profile-container {
   background-color: #f5f5f5;
   min-height: 100vh;
   padding: 20rpx;
-  padding-bottom: 100rpx;
+  padding-bottom: 120rpx;
 }
 
 /* ===== 用户信息卡片 ===== */
 .user-card {
   background: linear-gradient(135deg, #07C160, #06AD56);
   border-radius: 24rpx;
-  padding: 40rpx 30rpx;
+  padding: 40rpx 30rpx 30rpx;
   margin-bottom: 30rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   box-shadow: 0 8rpx 24rpx rgba(7, 193, 96, 0.3);
 }
+
 .avatar-wrapper {
   width: 140rpx;
   height: 140rpx;
   border-radius: 50%;
   border: 6rpx solid #ffffff;
   overflow: hidden;
-  margin-bottom: 20rpx;
+  margin-bottom: 16rpx;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
 }
+
 .avatar {
   width: 100%;
   height: 100%;
 }
+
 .user-name {
   font-size: 40rpx;
   font-weight: bold;
   color: #ffffff;
-  margin-bottom: 10rpx;
+  margin-bottom: 8rpx;
 }
+
 .login-register-row {
   display: flex;
   align-items: center;
-  margin-top: 10rpx;
+  margin-top: 6rpx;
 }
-.login-btn, .register-btn {
+
+.login-btn,
+.register-btn {
   font-size: 32rpx;
   color: #ffffff;
   padding: 10rpx 30rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.6);
   border-radius: 40rpx;
-  transition: all 0.3s;
 }
-.login-btn:active, .register-btn:active {
+
+.login-btn:active,
+.register-btn:active {
   background-color: rgba(255, 255, 255, 0.2);
 }
+
 .divider {
   color: rgba(255, 255, 255, 0.5);
   margin: 0 20rpx;
   font-size: 28rpx;
 }
+
 .user-city {
   font-size: 28rpx;
   color: rgba(255, 255, 255, 0.9);
-  margin-top: 10rpx;
+  margin-top: 12rpx;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
 }
+
 .city-label {
   opacity: 0.8;
 }
+
 .city-value {
   font-weight: bold;
   margin: 0 8rpx;
 }
+
 .city-edit {
   color: #fff;
   background-color: rgba(255, 255, 255, 0.2);
@@ -81,35 +94,48 @@
   font-size: 24rpx;
 }
 
+.admin-badge {
+  margin-top: 12rpx;
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 24rpx;
+  padding: 4rpx 24rpx;
+  border-radius: 20rpx;
+}
+
 /* ===== 功能菜单 ===== */
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20rpx;
+  gap: 16rpx;
   background-color: #ffffff;
   border-radius: 24rpx;
-  padding: 30rpx 20rpx;
+  padding: 24rpx 16rpx;
   margin-bottom: 30rpx;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
 }
+
 .menu-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16rpx 0;
+  padding: 12rpx 0;
   border-radius: 16rpx;
   transition: all 0.2s;
 }
+
 .menu-item:active {
   background-color: #f0f0f0;
   transform: scale(0.95);
 }
+
 .menu-icon {
-  font-size: 48rpx;
-  margin-bottom: 10rpx;
+  font-size: 44rpx;
+  margin-bottom: 6rpx;
 }
+
 .menu-text {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #333333;
 }
 
@@ -117,101 +143,184 @@
 .achievement-section {
   background-color: #ffffff;
   border-radius: 24rpx;
-  padding: 30rpx 24rpx;
+  padding: 30rpx 24rpx 36rpx;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
 }
+
+.section-header {
+  margin-bottom: 20rpx;
+}
+
 .section-title {
-  font-size: 34rpx;
+  display: block;
+  font-size: 36rpx;
   font-weight: bold;
   color: #333;
-  margin-bottom: 24rpx;
-  padding-bottom: 16rpx;
-  border-bottom: 2rpx solid #f0f0f0;
+  margin-bottom: 8rpx;
 }
 
-.achieve-group {
-  margin-bottom: 30rpx;
-}
-.achieve-group:last-child {
-  margin-bottom: 0;
-}
-
-.achieve-header {
-  display: flex;
-  align-items: center;
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
-  cursor: pointer;
-}
-.achieve-label {
-  font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
-  flex: 1;
-}
-.achieve-count {
+.section-subtitle {
+  display: block;
   font-size: 26rpx;
-  color: #FF6B35;
-  margin-right: 16rpx;
-}
-.achieve-arrow {
-  font-size: 28rpx;
   color: #999;
+  line-height: 1.5;
 }
 
-/* 成就网格 - 小矩形块布局 */
-.achieve-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20rpx;
-  padding-top: 20rpx;
+/* ===== 统计 ===== */
+.stats-row {
+  text-align: center;
+  padding: 16rpx 0 20rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+  margin-bottom: 20rpx;
 }
-.achieve-item {
-  background: #fafafa;
+
+.stats-text {
+  font-size: 30rpx;
+  color: #666;
+}
+
+.stats-number {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #07C160;
+  margin: 0 6rpx;
+}
+
+/* ===== 标签页 ===== */
+.tabs {
+  display: flex;
+  background-color: #f5f5f5;
+  border-radius: 16rpx;
+  padding: 6rpx;
+  margin-bottom: 24rpx;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 18rpx 0;
+  font-size: 28rpx;
+  color: #888;
+  border-radius: 12rpx;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.tab.active {
+  background-color: #07C160;
+  color: #ffffff;
+  font-weight: bold;
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.3);
+}
+
+.tab-count {
+  display: inline-block;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 20rpx;
+  padding: 0 14rpx;
+  font-size: 22rpx;
+  margin-left: 8rpx;
+  min-width: 32rpx;
+  text-align: center;
+}
+
+.tab.active .tab-count {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ===== 卡片网格 ===== */
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18rpx;
+  justify-content: flex-start;
+}
+
+/* ===== 单个卡片（小矩形块） ===== */
+.card {
+  position: relative;
+  width: calc((100% - 36rpx) / 3);
+  aspect-ratio: 1 / 1.1;
+  background-color: #fafafa;
   border-radius: 16rpx;
   overflow: hidden;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 12rpx;
-  border: 3rpx solid transparent;
-}
-.achieve-item.highlight {
-  transform: translateY(-12rpx) scale(1.04);
-  box-shadow: 0 12rpx 32rpx rgba(255, 107, 53, 0.25);
-  border-color: #FF6B35;
-  background: #fff8f5;
-}
-.achieve-thumb {
-  width: 100%;
-  height: 160rpx;
-  background: #e8e8e8;
-  display: block;
-}
-.achieve-name {
-  font-size: 26rpx;
-  color: #333;
-  margin-top: 10rpx;
-  text-align: center;
-  font-weight: 500;
-  padding: 0 6rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
-}
-.achieve-status {
-  font-size: 22rpx;
-  color: #07C160;
-  margin-top: 4rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.25s ease;
+  border: 2rpx solid #f0f0f0;
 }
 
-.empty-tip {
-  grid-column: 1 / -1;
+.card:active {
+  transform: scale(0.96);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.12);
+}
+
+.card-image {
+  width: 100%;
+  height: 70%;
+  background-color: #e8e8e8;
+}
+
+.card-name {
+  width: 100%;
+  height: 30%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #333;
+  font-weight: 500;
   text-align: center;
-  color: #999;
+  padding: 0 6rpx;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  word-break: break-all;
+  line-height: 1.3;
+}
+
+/* ===== 卡片右上角绿色对勾 ===== */
+.card-check {
+  position: absolute;
+  top: 6rpx;
+  right: 6rpx;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.10);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: all 0.3s ease;
+}
+
+.card-check.checked {
+  opacity: 1;
+  transform: scale(1);
+  background-color: #07C160;
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.4);
+}
+
+.check-icon {
   font-size: 28rpx;
-  padding: 40rpx 0;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* ===== 空状态 & 加载 ===== */
+.empty-text {
+  width: 100%;
+  text-align: center;
+  padding: 60rpx 0;
+  font-size: 28rpx;
+  color: #bbb;
+}
+
+.loading-text {
+  width: 100%;
+  text-align: center;
+  padding: 60rpx 0;
+  font-size: 28rpx;
+  color: #999;
 }
