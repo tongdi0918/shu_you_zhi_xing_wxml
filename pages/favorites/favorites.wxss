@@ -1,90 +1,96 @@
 /* pages/favorites/favorites.wxss */
 .favorites-container {
-  background-color: #f5f5f5;
+  background: #f5f5f5;
   min-height: 100vh;
   padding: 20rpx;
 }
 
 .tab-bar {
   display: flex;
-  background-color: #ffffff;
+  background: #fff;
   border-radius: 16rpx;
-  padding: 8rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06);
 }
-
 .tab-item {
   flex: 1;
   text-align: center;
-  padding: 20rpx 0;
-  font-size: 28rpx;
-  color: #999;
-  border-radius: 12rpx;
+  padding: 24rpx 0;
+  font-size: 30rpx;
+  color: #666;
   transition: all 0.3s;
 }
-
 .tab-item.active {
-  background-color: #07C160;
-  color: #ffffff;
+  color: #FF6B35;
+  background: #fff5f0;
   font-weight: bold;
+  border-bottom: 4rpx solid #FF6B35;
 }
 
-.content-area {
-  background-color: #ffffff;
-  border-radius: 16rpx;
-  padding: 20rpx;
-  min-height: 400rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
 }
 
-.list-item {
-  margin-bottom: 16rpx;
-}
-
-.item-block {
-  background-color: #f8f8f8;
-  border-radius: 12rpx;
-  padding: 24rpx;
+.item-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  border: 2rpx solid #eee;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06);
+  position: relative;
   transition: all 0.2s;
 }
-
-.item-block:active {
+.item-card:active {
   transform: scale(0.98);
-  border-color: #07C160;
+  background: #fafafa;
 }
 
+.item-thumb {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+  background: #e8e8e8;
+}
+.item-info {
+  flex: 1;
+  margin-left: 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
 .item-name {
   font-size: 30rpx;
   font-weight: bold;
   color: #333;
 }
-
 .item-location {
   font-size: 24rpx;
   color: #999;
-  flex: 1;
-  margin: 0 16rpx;
 }
-
 .item-remove {
-  font-size: 32rpx;
-  color: #ff6b6b;
-  padding: 8rpx 16rpx;
-  border-radius: 8rpx;
-}
-
-.item-remove:active {
-  background-color: #fff0f0;
-}
-
-.empty {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: #f0f0f0;
   text-align: center;
-  padding: 80rpx 0;
+  line-height: 48rpx;
   font-size: 28rpx;
   color: #999;
+  flex-shrink: 0;
+}
+.item-remove:active {
+  background: #ff6b6b;
+  color: #fff;
+}
+
+.empty-tip {
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+  padding: 80rpx 0;
 }

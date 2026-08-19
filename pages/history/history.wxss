@@ -1,94 +1,84 @@
 /* pages/history/history.wxss */
 .history-container {
-  background-color: #f5f5f5;
+  background: #f5f5f5;
   min-height: 100vh;
   padding: 20rpx;
 }
 
-.header {
+.history-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #ffffff;
+  background: #fff;
   border-radius: 16rpx;
-  padding: 24rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  padding: 24rpx 30rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06);
 }
-
-.header-title {
+.history-title {
   font-size: 32rpx;
   font-weight: bold;
   color: #333;
 }
-
-.clear-btn {
-  font-size: 26rpx;
-  color: #ff6b6b;
+.history-clear {
+  font-size: 28rpx;
+  color: #FF6B35;
   padding: 8rpx 20rpx;
-  border-radius: 8rpx;
-  background-color: #fff5f5;
+  border-radius: 20rpx;
+  border: 1rpx solid #FF6B35;
+}
+.history-clear:active {
+  background: #FF6B35;
+  color: #fff;
 }
 
-.clear-btn:active {
-  background-color: #ffe8e8;
-}
-
-.list {
-  background-color: #ffffff;
-  border-radius: 16rpx;
-  padding: 20rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
-}
-
-.list-item {
-  margin-bottom: 16rpx;
-}
-
-.item-block {
+.history-item {
   display: flex;
   align-items: center;
+  background: #fff;
+  border-radius: 16rpx;
   padding: 20rpx;
-  background-color: #f8f8f8;
-  border-radius: 12rpx;
-  border: 2rpx solid #eee;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06);
   transition: all 0.2s;
 }
-
-.item-block:active {
+.history-item:active {
   transform: scale(0.98);
-  border-color: #07C160;
+  background: #fafafa;
 }
 
-.item-type {
-  font-size: 40rpx;
-  margin-right: 16rpx;
+.history-thumb {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+  background: #e8e8e8;
 }
-
-.item-info {
+.history-info {
   flex: 1;
+  margin-left: 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
 }
-
-.item-name {
-  font-size: 28rpx;
+.history-name {
+  font-size: 30rpx;
   font-weight: bold;
   color: #333;
 }
-
-.item-desc {
+.history-location {
   font-size: 24rpx;
   color: #999;
+}
+.history-time {
+  font-size: 22rpx;
+  color: #bbb;
   margin-top: 4rpx;
 }
 
-.item-time {
-  font-size: 22rpx;
-  color: #bbb;
-}
-
-.empty {
+.empty-tip {
   text-align: center;
-  padding: 80rpx 0;
-  font-size: 28rpx;
   color: #999;
+  font-size: 28rpx;
+  padding: 120rpx 0;
 }

@@ -13,104 +13,115 @@ Page({
     scenicAchievements: [],
     foodAchievements: [],
     showScenicAchievements: false,
-    showFoodAchievements: false,
+    showFoodAchievements: false
   },
 
-  onShow: function () {
+  onShow() {
     this.loadUserData();
     this.loadAchievements();
   },
 
-  // 加载用户数据
-  loadUserData: function () {
-    const isLoggedIn = app.globalData.isLoggedIn;
-    const userInfo = app.globalData.userInfo;
+  // ===== 加载用户数据 =====
+  loadUserData() {
+    const isLoggedIn = app.globalData.isLoggedIn || false;
+    const userInfo = app.globalData.userInfo || null;
     const userCity = app.globalData.userCity || '未设置';
     const isAdmin = app.globalData.isAdmin || false;
-
-    this.setData({
-      isLoggedIn: isLoggedIn,
-      userInfo: userInfo,
-      userCity: userCity,
-      isAdmin: isAdmin,
-    });
+    this.setData({ isLoggedIn, userInfo, userCity, isAdmin });
   },
 
-  // 加载成就数据（打卡点亮）
-  loadAchievements: function () {
+  // ===== 加载成就数据（打卡点亮） =====
+  async loadAchievements() {
     if (!this.data.isLoggedIn || !app.globalData.userInfo) {
       return;
     }
-
     const userId = app.globalData.userInfo._id;
 
-    // 获取景区打卡记录
-    db.collection('checkins').where({
-      userId: userId,
-      type: 'scenic'
-    }).get().then(res => {
-      const scenicIds = res.data.map(item => item.targetId);
+    try {
+      // 获取景区打卡记录
+      const scenicRes = await db.collection('checkins').where({
+        userId: userId,
+        type: 'scenic'
+      }).get();
+      const scenicIds = scenicRes.data.map(item => item.targetId);
+
+      // 获取景区详情
+      let scenicList = [];
+      if (scenicIds.length > 0) {
+        const detailRes = await db.collection('sceneries').where({
+          _id: db.command.in(scenicIds)
+        }).get();
+        scenicList = detailRes.data.map(item => ({ ...item, highlight: false }));
+      }
+
+      // 获取美食打卡记录
+      const foodRes = await db.collection('checkins').where({
+        userId: userId,
+        type: 'food'
+      }).get();
+      const foodIds = foodRes.data.map(item => item.targetId);
+
+      let foodList = [];
+      if (foodIds.length > 0) {
+        const detailRes = await db.collection('foods').where({
+          _id: db.command.in(foodIds)
+        }).get();
+        foodList = detailRes.data.map(item => ({ ...item, highlight: false }));
+      }
+
       this.setData({
-        scenicCount: scenicIds.length,
-        scenicAchievements: scenicIds,
+        scenicCount: scenicList.length,
+        scenicAchievements: scenicList,
+        foodCount: foodList.length,
+        foodAchievements: foodList
       });
-    }).catch(err => {
-      console.log('获取景区打卡失败', err);
-    });
-
-    // 获取美食打卡记录
-    db.collection('checkins').where({
-      userId: userId,
-      type: 'food'
-    }).get().then(res => {
-      const foodIds = res.data.map(item => item.targetId);
-      this.setData({
-        foodCount: foodIds.length,
-        foodAchievements: foodIds,
-      });
-    }).catch(err => {
-      console.log('获取美食打卡失败', err);
-    });
+    } catch (err) {
+      console.error('加载成就失败', err);
+    }
   },
 
-  // 切换显示景区成就
-  toggleScenicAchievements: function () {
+  // ===== 切换景区成就展开 =====
+  toggleScenicAchievements() {
     this.setData({
-      showScenicAchievements: !this.data.showScenicAchievements,
+      showScenicAchievements: !this.data.showScenicAchievements
     });
   },
 
-  // 切换显示美食成就
-  toggleFoodAchievements: function () {
+  // ===== 切换美食成就展开 =====
+  toggleFoodAchievements() {
     this.setData({
-      showFoodAchievements: !this.data.showFoodAchievements,
+      showFoodAchievements: !this.data.showFoodAchievements
     });
   },
 
-  // 跳转到登录页
-  goToLogin: function () {
-    wx.navigateTo({
-      url: '/pages/login/login',
+  // ===== 点击缩略图切换高亮 =====
+  toggleHighlight(e) {
+    const { index, type } = e.currentTarget.dataset;
+    const key = type === 'scenic' ? 'scenicAchievements' : 'foodAchievements';
+    const list = this.data[key];
+    // 切换当前项的高亮状态
+    list[index].highlight = !list[index].highlight;
+    this.setData({
+      [key]: list
     });
   },
 
-  // 跳转到注册页
-  goToRegister: function () {
-    wx.navigateTo({
-      url: '/pages/register/register',
-    });
+  // ===== 跳转登录 =====
+  goToLogin() {
+    wx.navigateTo({ url: '/pages/login/login' });
   },
 
-  // 设置城市
-  setCity: function () {
+  // ===== 跳转注册 =====
+  goToRegister() {
+    wx.navigateTo({ url: '/pages/register/register' });
+  },
+
+  // ===== 设置城市 =====
+  setCity() {
     if (!this.data.isLoggedIn) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none',
-      });
+      wx.showToast({ title: '请先登录', icon: 'none' });
       return;
     }
-
     wx.showModal({
       title: '设置城市',
       editable: true,
@@ -122,128 +133,89 @@ Page({
             this.updateUserCity(city);
           }
         }
-      },
-    });
-  },
-
-  // 更新用户城市到云数据库
-  updateUserCity: function (city) {
-    const userId = app.globalData.userInfo._id;
-    db.collection('users').doc(userId).update({
-      data: {
-        city: city,
-        updateTime: new Date(),
       }
-    }).then(() => {
+    });
+  },
+
+  // ===== 更新用户城市 =====
+  async updateUserCity(city) {
+    const userId = app.globalData.userInfo._id;
+    try {
+      await db.collection('users').doc(userId).update({
+        data: { city: city, updateTime: new Date() }
+      });
       app.globalData.userCity = city;
-      this.setData({
-        userCity: city,
-      });
-      wx.showToast({
-        title: '城市设置成功',
-        icon: 'success',
-      });
-    }).catch(err => {
-      wx.showToast({
-        title: '设置失败，请重试',
-        icon: 'none',
-      });
-      console.log('更新城市失败', err);
-    });
+      app.globalData.userInfo.city = city;
+      wx.setStorageSync('userInfo', app.globalData.userInfo);
+      this.setData({ userCity: city });
+      wx.showToast({ title: '城市设置成功', icon: 'success' });
+    } catch (err) {
+      wx.showToast({ title: '设置失败，请重试', icon: 'none' });
+      console.error('更新城市失败', err);
+    }
   },
 
-  // 查看我的收藏
-  goToFavorites: function () {
+  // ===== 跳转收藏 =====
+  goToFavorites() {
     if (!this.data.isLoggedIn) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none',
-      });
+      wx.showToast({ title: '请先登录', icon: 'none' });
       return;
     }
-    wx.navigateTo({
-      url: '/pages/favorites/favorites',
-    });
+    wx.navigateTo({ url: '/pages/favorites/favorites' });
   },
 
-  // 查看浏览历史
-  goToHistory: function () {
+  // ===== 跳转历史 =====
+  goToHistory() {
     if (!this.data.isLoggedIn) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none',
-      });
+      wx.showToast({ title: '请先登录', icon: 'none' });
       return;
     }
-    wx.navigateTo({
-      url: '/pages/history/history',
-    });
+    wx.navigateTo({ url: '/pages/history/history' });
   },
 
-  // 管理员后台
-  goToAdmin: function () {
-    if (!this.data.isLoggedIn) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none',
-      });
-      return;
-    }
+  // ===== 跳转管理后台 =====
+  goToDashboard() {
     if (!this.data.isAdmin) {
-      wx.showToast({
-        title: '您不是管理员',
-        icon: 'none',
-      });
+      wx.showToast({ title: '无权限', icon: 'none' });
       return;
     }
-    wx.navigateTo({
-      url: '/pages/admin/admin',
-    });
+    wx.navigateTo({ url: '/pages/dashboard/dashboard' });
   },
 
-  // 关于我们
-  showAbout: function () {
+  // ===== 关于我们 =====
+  goToAbout() {
     wx.showModal({
-      title: '产品介绍',
-      content: '蜀游之行 - 带你探索四川的美食与美景\n\n本应用致力于为游客提供四川地区最优质的景区和美食推荐。\n\n版本:1.0.6',
-      showCancel: false,
-      confirmText: '知道了',
+      title: '关于蜀游智行',
+      content: '蜀游智行 v1.0\\n为您推荐四川最美的景区和最地道的美食',
+      showCancel: false
     });
   },
 
-  // 退出登录
-  handleLogout: function () {
-    if (!this.data.isLoggedIn) {
-      return;
-    }
+  // ===== 退出登录 =====
+  logout() {
     wx.showModal({
       title: '提示',
       content: '确定要退出登录吗？',
       success: (res) => {
         if (res.confirm) {
-          app.logout();
+          wx.removeStorageSync('token');
+          wx.removeStorageSync('userInfo');
+          wx.removeStorageSync('isAdmin');
+          app.globalData.token = null;
+          app.globalData.userInfo = null;
+          app.globalData.isLoggedIn = false;
+          app.globalData.isAdmin = false;
+          this.setData({
+            isLoggedIn: false,
+            userInfo: null,
+            scenicAchievements: [],
+            foodAchievements: [],
+            scenicCount: 0,
+            foodCount: 0
+          });
+          wx.showToast({ title: '已退出', icon: 'success' });
         }
-      },
+      }
     });
-  },
-
-  // 查看景区详情（打卡点亮）
-  viewScenicDetail: function (e) {
-    const id = e.currentTarget.dataset.id;
-    if (id) {
-      wx.navigateTo({
-        url: '/pages/scenic/scenic?id=' + id,
-      });
-    }
-  },
-
-  // 查看美食详情（打卡点亮）
-  viewFoodDetail: function (e) {
-    const id = e.currentTarget.dataset.id;
-    if (id) {
-      wx.navigateTo({
-        url: '/pages/food/food?id=' + id,
-      });
-    }
-  },
+  }
 });

@@ -1,5 +1,6 @@
 // pages/food/food.js
 const app = getApp();
+const db = wx.cloud.database();
 
 Page({
   data: {
@@ -8,7 +9,7 @@ Page({
     foodId: null,
     defaultImages: [
       'https://picsum.photos/800/400?random=26',
-      '../../images/bg.jpg'     
+      '/images/default.png'
     ]
   },
 
@@ -18,6 +19,8 @@ Page({
       this.setData({ foodId: id });
       this.loadFood(id);
       this.checkFavorite(id);
+      // ✅ 记录浏览历史
+      this.recordHistory(id, 'food');
     } else {
       wx.showToast({ title: '参数错误', icon: 'none' });
     }
@@ -26,7 +29,6 @@ Page({
   // ===== 加载美食数据 =====
   async loadFood(id) {
     try {
-      const db = wx.cloud.database();
       const res = await db.collection('foods').doc(id).get();
       if (res.data) {
         const data = res.data;
@@ -45,11 +47,11 @@ Page({
 
   // ===== 检查收藏状态 =====
   async checkFavorite(id) {
-    if (!app.globalData.token) return;
+    if (!app.globalData.isLoggedIn) return;
     try {
-      const db = wx.cloud.database();
+      const userId = app.globalData.userInfo._id;
       const res = await db.collection('favorites').where({
-        userId: app.globalData.token,
+        userId: userId,
         type: 'food',
         targetId: id
       }).get();
@@ -61,16 +63,16 @@ Page({
 
   // ===== 切换收藏 =====
   async toggleFavorite() {
-    if (!app.globalData.token) {
+    if (!app.globalData.isLoggedIn) {
       wx.navigateTo({ url: '/pages/login/login' });
       return;
     }
     const { foodId, isFavorite } = this.data;
+    const userId = app.globalData.userInfo._id;
     try {
-      const db = wx.cloud.database();
       if (isFavorite) {
         const res = await db.collection('favorites').where({
-          userId: app.globalData.token,
+          userId: userId,
           type: 'food',
           targetId: foodId
         }).get();
@@ -80,7 +82,7 @@ Page({
       } else {
         await db.collection('favorites').add({
           data: {
-            userId: app.globalData.token,
+            userId: userId,
             type: 'food',
             targetId: foodId,
             createTime: new Date()
@@ -95,6 +97,31 @@ Page({
     } catch (e) {
       console.error(e);
       wx.showToast({ title: '操作失败', icon: 'none' });
+    }
+  },
+
+  // ===== ✅ 记录浏览历史 =====
+  async recordHistory(targetId, type) {
+    if (!app.globalData.isLoggedIn) return;
+    const userId = app.globalData.userInfo._id;
+    try {
+      // 先删除同一条目的旧记录
+      await db.collection('histories').where({
+        userId: userId,
+        targetId: targetId,
+        type: type
+      }).remove();
+      // 插入新记录
+      await db.collection('histories').add({
+        data: {
+          userId: userId,
+          targetId: targetId,
+          type: type,
+          viewTime: new Date()
+        }
+      });
+    } catch (err) {
+      console.error('记录浏览历史失败', err);
     }
   },
 

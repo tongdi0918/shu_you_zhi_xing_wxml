@@ -12,7 +12,7 @@ Page({
 
   async loadList() {
     try {
-      const res = await db.collection('scenics').get();
+      const res = await db.collection('sceneries').get();
       this.setData({ list: res.data || [] });
     } catch (err) {
       console.error('加载景区列表失败', err);
@@ -34,7 +34,7 @@ Page({
 
   async saveScenic(data) {
     try {
-      await db.collection('scenics').add({
+      await db.collection('sceneries').add({
         data: {
           ...data,
           createTime: new Date()
@@ -64,7 +64,7 @@ Page({
 
   async updateScenic(id, data) {
     try {
-      await db.collection('scenics').doc(id).update({ data });
+      await db.collection('sceneries').doc(id).update({ data });
       this.loadList();
       wx.showToast({ title: '✅ 更新成功', icon: 'success' });
     } catch (err) {
@@ -81,7 +81,7 @@ Page({
       success: async (res) => {
         if (res.confirm) {
           try {
-            await db.collection('scenics').doc(id).remove();
+            await db.collection('sceneries').doc(id).remove();
             this.loadList();
             wx.showToast({ title: '✅ 已删除', icon: 'success' });
           } catch (err) {
