@@ -1,72 +1,40 @@
-<!-- pages/route/route.wxml -->
-<view class="route-container">
-
-<!-- ========== 1. 路线输入区（矩形块布局） ========== -->
-<view class="input-section">
-  <view class="input-block">
-    <text class="input-label">出发地</text>
-    <input class="input-field" value="{{startAddress}}" bindinput="onStartInput" placeholder="请输入出发地" />
+<!-- 路线输入区 -->
+<view class="route-input-area">
+  <view class="input-group">
+    <text class="label">出发地：</text>
+    <input class="input" placeholder="请输入出发地" bindinput="onStartInput" value="{{startAddress}}"/>
   </view>
-  <view class="input-block">
-    <text class="input-label">目的地</text>
-    <input class="input-field" value="{{destination}}" bindinput="onDestinationInput" placeholder="请输入目的地名称" />
-  </view>
-  <view class="button-row">
-    <button class="btn-primary" bindtap="planRoute" disabled="{{loading}}">
-      {{loading ? '规划中...' : '路径规划'}}
-    </button>
-    <button class="btn-secondary" bindtap="getMyLocation">我的位置</button>
+  <view class="input-group">
+    <text class="label">目的地：</text>
+    <input class="input" placeholder="请输入目的地" bindinput="onEndInput" value="{{endAddress}}"/>
   </view>
 </view>
 
-<!-- ========== 2. 地图区域 ========== -->
-<view class="map-section">
-  <map
-    id="routeMap"
-    class="map-view"
-    latitude="{{latitude}}"
-    longitude="{{longitude}}"
-    scale="{{scale}}"
-    markers="{{markers}}"
-    polyline="{{polylines}}"
-    show-location
-    enable-traffic="{{true}}"
-  />
+<!-- 按钮区域 -->
+<view class="button-area">
+  <button class="btn btn-primary" bindtap="planRoute">进行规划路线</button>
+  <button class="btn btn-secondary" bindtap="getMyLocation">我的位置</button>
 </view>
 
-<!-- ========== 3. 路线详情区域（矩形块布局） ========== -->
-<view class="detail-section" wx:if="{{hasRoute}}">
-  <!-- 3.1 概要信息 -->
-  <view class="summary-grid">
-    <view class="summary-item">
-      <text class="summary-label">总公里数</text>
-      <text class="summary-value">{{routeDistance}}</text>
-    </view>
-    <view class="summary-item">
-      <text class="summary-label">预估时间</text>
-      <text class="summary-value">{{routeTime}}</text>
-    </view>
-    <view class="summary-item">
-      <text class="summary-label">高速过路费</text>
-      <text class="summary-value">{{routeTolls}}</text>
+<!-- 地图区域 -->
+<view class="map-area">
+  <map id="map" longitude="{{longitude}}" latitude="{{latitude}}" scale="{{scale}}" markers="{{markers}}" polyline="{{polyline}}" show-location="{{showLocation}}" style="width: 100%; height: 100%;"/>
+</view>
+
+<!-- 路线详情 -->
+<view class="route-detail" wx:if="{{routeInfo}}">
+  <view class="detail-item">
+    <text>总公里数：{{routeInfo.distance}} km</text>
+  </view>
+  <view class="detail-item">
+    <text>预估时间：{{routeInfo.duration}} hour</text>
+  </view>
+  <view class="detail-item">
+    <text>高速过路费：{{routeInfo.toll}} ￥</text>
+  </view>
+  <view class="step-list">
+    <view class="step-item" wx:for="{{routeInfo.steps}}" wx:key="index">
+      <text>{{item.instruction}}</text>
     </view>
   </view>
-
-  <!-- 3.2 逐段导航步骤列表 -->
-  <view class="steps-section">
-    <text class="steps-title">逐段导航步骤</text>
-    <view class="steps-list">
-      <view class="step-item" wx:for="{{steps}}" wx:key="index">
-        <text class="step-index">{{item.index}}.</text>
-        <text class="step-text">{{item.displayText}}</text>
-      </view>
-    </view>
-  </view>
-</view>
-
-<!-- 无路线时的占位提示 -->
-<view class="empty-tip" wx:else>
-  <text>请输入出发地和目的地，点击「路径规划」</text>
-</view>
-
 </view>

@@ -1,202 +1,87 @@
-/* pages/route/route.wxss */
-
-/* ----- 全局容器 ----- */
-.route-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: #f5f7fa;
-  padding: 12rpx 20rpx 20rpx 20rpx;
-  box-sizing: border-box;
+/* 路线输入区 - 小矩形块布局 */
+.route-input-area {
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  border-radius: 20rpx;
+  margin: 20rpx;
 }
 
-/* ========== 1. 输入区样式（矩形块） ========== */
-.input-section {
-  background: #ffffff;
-  border-radius: 16rpx;
-  padding: 24rpx 28rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
-  margin-bottom: 16rpx;
-  flex-shrink: 0;
-}
-
-.input-block {
+.input-group {
   display: flex;
   align-items: center;
-  padding: 16rpx 0;
-  border-bottom: 2rpx solid #f0f2f5;
-}
-.input-block:last-of-type {
-  border-bottom: none;
-}
-
-.input-label {
-  width: 120rpx;
-  font-size: 28rpx;
-  color: #333333;
-  font-weight: 500;
-  flex-shrink: 0;
-}
-
-.input-field {
-  flex: 1;
-  font-size: 28rpx;
-  color: #1a1a1a;
-  padding: 8rpx 16rpx;
-  background: #f7f8fc;
-  border-radius: 10rpx;
-  height: 72rpx;
-  line-height: 72rpx;
-}
-.input-field[disabled] {
-  color: #888888;
-  background: #f0f2f5;
-}
-
-.button-row {
-  display: flex;
-  gap: 20rpx;
-  margin-top: 20rpx;
-}
-
-.btn-primary {
-  flex: 2;
-  height: 80rpx;
-  line-height: 80rpx;
-  background: linear-gradient(135deg, #07c160, #06ad56);
-  color: #ffffff;
-  font-size: 30rpx;
-  font-weight: 500;
-  border: none;
-  border-radius: 12rpx;
-  box-shadow: 0 6rpx 16rpx rgba(7, 193, 96, 0.30);
-}
-.btn-primary[disabled] {
-  opacity: 0.6;
-  box-shadow: none;
-}
-
-.btn-secondary {
-  flex: 1;
-  height: 80rpx;
-  line-height: 80rpx;
-  background: #ffffff;
-  color: #07c160;
-  font-size: 28rpx;
-  border: 2rpx solid #07c160;
-  border-radius: 12rpx;
-}
-
-/* ========== 2. 地图区域 ========== */
-.map-section {
-  flex: 1;
-  min-height: 400rpx;
-  border-radius: 16rpx;
-  overflow: hidden;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
-  margin-bottom: 16rpx;
-  background: #e8ecf1;
-}
-
-.map-view {
-  width: 100%;
-  height: 100%;
-}
-
-/* ========== 3. 详情区域（矩形块） ========== */
-.detail-section {
-  background: #ffffff;
-  border-radius: 16rpx;
-  padding: 24rpx 28rpx 32rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
-  flex-shrink: 0;
-  max-height: 50vh;
-  overflow-y: auto;
-}
-
-/* 3.1 概要信息（三列网格） */
-.summary-grid {
-  display: flex;
-  justify-content: space-around;
-  padding-bottom: 24rpx;
-  border-bottom: 2rpx solid #f0f2f5;
   margin-bottom: 20rpx;
 }
 
-.summary-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
-
-.summary-label {
-  font-size: 24rpx;
-  color: #999999;
-  margin-bottom: 8rpx;
-}
-
-.summary-value {
+.label {
+  width: 150rpx;
   font-size: 32rpx;
-  font-weight: 600;
-  color: #1a1a1a;
-  background: #f7f8fc;
-  padding: 6rpx 20rpx;
+  color: #333;
+}
+
+.input {
+  flex: 1;
+  height: 80rpx;
+  background-color: #fff;
   border-radius: 10rpx;
-}
-
-/* 3.2 逐段导航步骤 */
-.steps-section {
-  margin-top: 4rpx;
-}
-
-.steps-title {
+  padding: 0 20rpx;
   font-size: 28rpx;
-  font-weight: 600;
-  color: #333333;
-  display: block;
-  margin-bottom: 16rpx;
 }
 
-.steps-list {
-  max-height: 400rpx;
-  overflow-y: auto;
+/* 按钮区域 - 小矩形块布局 */
+.button-area {
+  display: flex;
+  justify-content: space-around;
+  padding: 20rpx;
+}
+
+.btn {
+  width: 45%;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 32rpx;
+  color: #fff;
+}
+
+.btn-primary {
+  background-color: #07c160;
+}
+
+.btn-secondary {
+  background-color: #1989fa;
+}
+
+/* 地图区域 */
+.map-area {
+  width: 100%;
+  height: 500rpx;
+  margin: 20rpx 0;
+}
+
+/* 路线详情 - 小矩形块布局 */
+.route-detail {
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  border-radius: 20rpx;
+  margin: 20rpx;
+}
+
+.detail-item {
+  padding: 20rpx;
+  background-color: #fff;
+  border-radius: 10rpx;
+  margin-bottom: 20rpx;
+  font-size: 28rpx;
+}
+
+.step-list {
+  background-color: #fff;
+  border-radius: 10rpx;
+  padding: 20rpx;
 }
 
 .step-item {
-  display: flex;
-  align-items: flex-start;
-  padding: 14rpx 0;
-  border-bottom: 2rpx dashed #f0f2f5;
-}
-.step-item:last-child {
-  border-bottom: none;
-}
-
-.step-index {
-  width: 56rpx;
-  font-size: 26rpx;
-  color: #07c160;
-  font-weight: 500;
-  flex-shrink: 0;
-}
-
-.step-text {
-  flex: 1;
-  font-size: 26rpx;
-  color: #333333;
-  line-height: 1.6;
-  word-break: break-all;
-}
-
-/* ========== 空状态提示 ========== */
-.empty-tip {
-  background: #ffffff;
-  border-radius: 16rpx;
-  padding: 40rpx 0;
-  text-align: center;
-  color: #aaaaaa;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #eee;
   font-size: 28rpx;
-  flex-shrink: 0;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
 }
