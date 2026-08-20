@@ -1,4 +1,5 @@
 {
+  "navigationBarTitleText": "路线规划",
   "usingComponents": {},
-  "navigationBarTitleText": "路线规划"
+  "enablePullDownRefresh": false
 }
