@@ -6,22 +6,22 @@
     <view class="title">路线规划</view>
   </view>
 
-  <!-- 输入区域卡片 -->
+  <!-- 输入区域 -->
   <view class="input-area">
     <!-- 出发地 -->
     <view class="input-item">
       <text class="input-label">🚀 出发地</text>
-      <input class="input" 
-             placeholder="请输入出发地" 
-             value="{{origin.name}}" 
+      <input class="input"
+             placeholder="请输入出发地"
+             value="{{origin.name}}"
              bindinput="setOrigin" />
     </view>
     <!-- 目的地 -->
     <view class="input-item">
       <text class="input-label">📍 目的地</text>
-      <input class="input" 
-             placeholder="请输入目的地" 
-             value="{{destination.name}}" 
+      <input class="input"
+             placeholder="请输入目的地"
+             value="{{destination.name}}"
              bindinput="setDestination" />
     </view>
     <!-- 按钮组 -->
@@ -29,14 +29,16 @@
       <button class="plan-btn" bindtap="planRoute" disabled="{{loading}}">
         {{loading ? '规划中...' : '🚗 路径规划'}}
       </button>
-      <button class="location-btn" bindtap="getMyLocation">📍 我的位置</button>
+      <button class="location-btn" bindtap="useMyLocation">
+        📍 我的位置
+      </button>
     </view>
   </view>
 
-  <!-- 地图区域卡片 -->
+  <!-- 地图区域 -->
   <view class="map-area">
-    <map id="routeMap"
-         class="map"
+    <map class="map"
+         id="routeMap"
          longitude="{{mapCenter.longitude}}"
          latitude="{{mapCenter.latitude}}"
          scale="{{mapScale}}"
@@ -49,11 +51,11 @@
   </view>
 
   <!-- 结果详情卡片 -->
-  <view class="result-area" wx:if="{{routeResult}}">
+  <view class="result-area" wx:if="{{routeResult && showDetail}}">
     <view class="result-card">
-      <!-- 摘要 -->
       <text class="summary">{{routeSummary}}</text>
-      <!-- 统计信息 - 小矩形块布局 -->
+
+      <!-- 统计信息 - 小矩形块网格布局 -->
       <view class="stats-grid">
         <view class="stat-item">
           <text class="stat-label">总公里数</text>
@@ -68,13 +70,14 @@
           <text class="stat-value">{{routeTolls}}</text>
         </view>
       </view>
+
       <!-- 详细路段 -->
       <view class="steps-section">
-        <text class="steps-title">📋 详细路段</text>
+        <text class="steps-title">📋 逐段导航步骤</text>
         <view class="steps-list">
           <view class="step-item" wx:for="{{routeSteps}}" wx:key="index">
             <text class="step-num">{{index + 1}}.</text>
-            <text class="step-text">{{item}}</text>
+            <text class="step-text">{{item.displayText}}</text>
           </view>
         </view>
       </view>
