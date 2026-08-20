@@ -1,14 +1,11 @@
 ﻿# 云开发平台的环境ID
-
 cloud1-d2gphu7bt75dc5910
 
 # 高德API
-
 68ff2afb0b6d70f0a6970b71737729a6
 
-cd Y:\\微信开发者工具\\数据存储\\蜀游智行2
-npm init -y
-npm install express mysql2 cors
+# 腾讯地图API
+PCOBZ-7TC3C-HY32K-A2BQJ-PGYKV-MTBZI
 
 # 目录结构
 
