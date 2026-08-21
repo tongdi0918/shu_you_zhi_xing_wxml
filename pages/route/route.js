@@ -20,7 +20,6 @@ Page({
     this.getMyLocation();
   },
 
-  // 获取用户当前位置
   getMyLocation: function() {
     wx.getLocation({
       type: 'gcj02',
@@ -49,14 +48,15 @@ Page({
   onStartInput: function(e) {
     this.setData({ startAddress: e.detail.value });
   },
+
   onEndInput: function(e) {
     this.setData({ endAddress: e.detail.value });
   },
 
-  // 核心：规划路线（带配额错误处理）
   planRoute: function() {
     const start = this.data.startAddress.trim();
     const end = this.data.endAddress.trim();
+
     if (!start || !end) {
       wx.showToast({ title: '请输入出发地和目的地', icon: 'none' });
       return;
@@ -64,111 +64,221 @@ Page({
 
     wx.showLoading({ title: '规划中...' });
 
-    // 地理编码 + 路线规划（错误处理中捕获 121 状态码）
+    // 地理编码出发地
     this.qqmapsdk.geocoder({
       address: start,
       success: (res1) => {
-        const sLat = res1.result.location.lat;
-        const sLng = res1.result.location.lng;
+        console.log('出发地地理编码结果：', res1);
+        const sLoc = res1.result && res1.result.location;
+        if (!sLoc || typeof sLoc.lat !== 'number' || typeof sLoc.lng !== 'number') {
+          wx.hideLoading();
+          wx.showToast({ title: '出发地解析失败，请更换更详细的地点', icon: 'none' });
+          return;
+        }
+
+        // 地理编码目的地
         this.qqmapsdk.geocoder({
           address: end,
           success: (res2) => {
-            const eLat = res2.result.location.lat;
-            const eLng = res2.result.location.lng;
+            console.log('目的地地理编码结果：', res2);
+            const eLoc = res2.result && res2.result.location;
+            if (!eLoc || typeof eLoc.lat !== 'number' || typeof eLoc.lng !== 'number') {
+              wx.hideLoading();
+              wx.showToast({ title: '目的地解析失败，请更换更详细的地点', icon: 'none' });
+              return;
+            }
+
+            const from = `${sLoc.lat},${sLoc.lng}`;
+            const to = `${eLoc.lat},${eLoc.lng}`;
+            console.log(`开始路线规划: from=${from}, to=${to}`);
+
+            // 驾车路线规划
             this.qqmapsdk.direction({
               mode: 'driving',
-              from: sLat + ',' + sLng,
-              to: eLat + ',' + eLng,
+              from: from,
+              to: to,
               success: (res) => {
                 wx.hideLoading();
-                this.handleRouteResult(res);
+                this.handleRouteResult(res, sLoc, eLoc);
               },
               fail: (err) => {
                 wx.hideLoading();
+                console.error('路线规划失败详情：', err);
                 this.handleApiError(err);
               }
             });
           },
           fail: (err) => {
             wx.hideLoading();
+            console.error('目的地地理编码失败：', err);
             this.handleApiError(err);
           }
         });
       },
       fail: (err) => {
         wx.hideLoading();
+        console.error('出发地地理编码失败：', err);
         this.handleApiError(err);
       }
     });
   },
 
-  // 统一处理 API 错误（重点：配额超限提示）
-  handleApiError: function(err) {
-    console.error('地图API调用失败', err);
-    if (err.status === 121) {
-      wx.showModal({
-        title: 'API调用达上限',
-        content: '当前腾讯地图Key的日配额已用完，请更换为您自己的Key（在utils/config.js中修改）',
-        showCancel: false
-      });
-    } else {
-      wx.showToast({
-        title: err.message || '请求失败，请重试',
-        icon: 'none'
-      });
-    }
-  },
+  // 处理路线结果，传入地理编码坐标作为备用
+  handleRouteResult: function(res, sLoc, eLoc) {
+    console.log('完整路线返回数据：', JSON.stringify(res, null, 2));
 
-  handleRouteResult: function(res) {
     const route = res.result.routes[0];
     if (!route) {
       wx.showToast({ title: '未找到路线', icon: 'none' });
       return;
     }
 
+    // 提取基本数据
     const distance = (route.distance / 1000).toFixed(1);
     const duration = (route.duration / 3600).toFixed(1);
     const toll = route.toll || 0;
 
-    const points = [];
+    // ---- 提取分步导航指令 ----
     const steps = [];
-    for (let step of route.steps) {
-      if (step.polyline) {
-        for (let coord of step.polyline) {
-          points.push({ latitude: coord.lat, longitude: coord.lng });
+    if (route.steps && Array.isArray(route.steps)) {
+      for (let step of route.steps) {
+        if (step.instruction) {
+          steps.push({ instruction: step.instruction });
         }
       }
-      steps.push({ instruction: step.instruction });
     }
 
+    // ---- 提取路线点（polyline） ----
+    let points = [];
+    if (route.steps && Array.isArray(route.steps)) {
+      for (let step of route.steps) {
+        // 尝试多种可能的字段名
+        let poly = step.polyline || step.path || step.coords || step.points;
+        if (poly && Array.isArray(poly) && poly.length > 0) {
+          // 检查poly数组中的元素结构：可能是 {lat, lng} 或 {latitude, longitude} 或 [lat, lng]
+          for (let coord of poly) {
+            let lat, lng;
+            if (coord.lat !== undefined && coord.lng !== undefined) {
+              lat = coord.lat;
+              lng = coord.lng;
+            } else if (coord.latitude !== undefined && coord.longitude !== undefined) {
+              lat = coord.latitude;
+              lng = coord.longitude;
+            } else if (Array.isArray(coord) && coord.length >= 2) {
+              lat = coord[0];
+              lng = coord[1];
+            } else {
+              continue; // 无法识别
+            }
+            if (typeof lat === 'number' && typeof lng === 'number') {
+              points.push({ latitude: lat, longitude: lng });
+            }
+          }
+        }
+      }
+    }
+
+    console.log(`提取到 ${points.length} 个路线点`);
+
+    // 如果points为空，使用起点和终点构建两点直线（至少显示标记）
+    if (points.length === 0) {
+      console.warn('未提取到polyline点，使用起终点两点连线');
+      if (sLoc && eLoc) {
+        points = [
+          { latitude: sLoc.lat, longitude: sLoc.lng },
+          { latitude: eLoc.lat, longitude: eLoc.lng }
+        ];
+        wx.showToast({ title: '仅显示起终点连线，缺少详细路径', icon: 'none' });
+      } else {
+        wx.showToast({ title: '无法获取坐标点，请重试', icon: 'none' });
+        return;
+      }
+    }
+
+    // 构建绿色线条
+    const polyline = [{
+      points: points,
+      color: '#07c160',
+      width: 6,
+      dottedLine: false,
+      arrowLine: true
+    }];
+
+    // 设置起点终点标记
+    const startCoord = points[0];
+    const endCoord = points[points.length - 1];
     const markers = [
       {
         id: 0,
-        latitude: points[0].latitude,
-        longitude: points[0].longitude,
-        title: '出发地',
+        latitude: startCoord.latitude,
+        longitude: startCoord.longitude,
+        title: '起点',
         iconPath: '/images/start.png',
         width: 30,
         height: 30
       },
       {
         id: 1,
-        latitude: points[points.length - 1].latitude,
-        longitude: points[points.length - 1].longitude,
-        title: '目的地',
+        latitude: endCoord.latitude,
+        longitude: endCoord.longitude,
+        title: '终点',
         iconPath: '/images/end.png',
         width: 30,
         height: 30
       }
     ];
 
+    // 保留用户位置标记（如果有）
+    if (this.data.markers && this.data.markers.length > 0 && this.data.markers[0].id === 0) {
+      markers.push(this.data.markers[0]);
+    }
+
     this.setData({
-      polyline: [{ points, color: '#00FF00', width: 6 }],
+      latitude: (startCoord.latitude + endCoord.latitude) / 2,
+      longitude: (startCoord.longitude + endCoord.longitude) / 2,
+      scale: 12,
       markers: markers,
-      routeInfo: { distance, duration, toll, steps }
+      polyline: polyline,
+      routeInfo: {
+        distance: distance,
+        duration: duration,
+        toll: toll,
+        steps: steps
+      }
     });
 
-    const mapCtx = wx.createMapContext('map');
-    mapCtx.includePoints({ points, padding: [50, 50, 50, 50] });
+    // 调整地图视野包含所有点
+    const mapCtx = wx.createMapContext('routeMap');
+    mapCtx.includePoints({
+      points: points,
+      padding: [60, 60, 60, 60]
+    });
+  },
+
+  handleApiError: function(err) {
+    console.error('地图API调用失败：', err);
+    let msg = '请求失败，请重试';
+    if (err.status) {
+      switch (err.status) {
+        case 348:
+          msg = '参数错误，请检查输入地址是否准确（如：牛佛镇 → 自贡市大安区牛佛镇）';
+          break;
+        case 110:
+          msg = '请求来源未被授权（请检查Key是否正确）';
+          break;
+        case 121:
+          msg = '日配额已用完，请更换腾讯地图Key';
+          break;
+        default:
+          msg = `错误码 ${err.status}：${err.message || '未知错误'}`;
+      }
+    } else {
+      msg = err.message || msg;
+    }
+    wx.showModal({
+      title: '规划失败',
+      content: msg,
+      showCancel: false
+    });
   }
 });
