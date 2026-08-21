@@ -1,140 +1,193 @@
 /* pages/route/route.wxss */
-.route-container {
-  padding: 20rpx;
-  background-color: #f8f9fa;
-  min-height: 100vh;
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f5f5f5;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
-/* 路线输入区 - 小矩形块 */
-.route-input-area {
-  padding: 30rpx;
+/* ===== 输入区域 ===== */
+.input-area {
   background-color: #ffffff;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
-  margin-bottom: 20rpx;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
-.input-group {
+.input-row {
   display: flex;
   align-items: center;
-  margin-bottom: 24rpx;
-}
-
-.input-group:last-child {
-  margin-bottom: 0;
+  margin-bottom: 10px;
 }
 
 .label {
-  width: 140rpx;
-  font-size: 30rpx;
-  color: #333333;
-  font-weight: 500;
+  width: 60px;
+  font-size: 14px;
+  color: #333;
+  flex-shrink: 0;
 }
 
 .input {
   flex: 1;
-  height: 80rpx;
-  background-color: #f5f6fa;
-  border-radius: 12rpx;
-  padding: 0 24rpx;
-  font-size: 28rpx;
-  color: #333;
-  border: 2rpx solid #e8ecf1;
-  transition: border-color 0.2s;
+  height: 36px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0 8px;
+  font-size: 14px;
+  background-color: #fafafa;
 }
 
-.input:focus {
-  border-color: #07c160;
-}
-
-/* 按钮区域 - 小矩形块 */
-.button-area {
+.button-row {
   display: flex;
   justify-content: space-between;
-  gap: 20rpx;
-  margin-bottom: 20rpx;
+  margin-top: 6px;
 }
 
-.btn {
+.btn-plan {
   flex: 1;
-  height: 88rpx;
-  line-height: 88rpx;
-  border-radius: 44rpx;
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #ffffff;
-  border: none;
+  margin-right: 6px;
+  background-color: #07c160;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 36px;
   text-align: center;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.10);
+  border: none;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #07c160, #06ad56);
+.btn-location {
+  flex: 1;
+  margin-left: 6px;
+  background-color: #1989fa;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 36px;
+  text-align: center;
+  border: none;
 }
 
-.btn-secondary {
-  background: linear-gradient(135deg, #1989fa, #0a6fc9);
-}
-
-.btn:active {
-  opacity: 0.85;
-  transform: scale(0.97);
-}
-
-/* 地图区域 - 小矩形块 */
+/* ===== 地图区域 ===== */
 .map-area {
-  width: 100%;
-  height: 520rpx;
-  border-radius: 16rpx;
-  overflow: hidden;
-  background-color: #e8ecf1;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
-  margin-bottom: 20rpx;
-}
-
-/* 路线详情 - 小矩形块 */
-.route-detail {
-  padding: 30rpx;
+  flex: 1;
   background-color: #ffffff;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  min-height: 300px;
 }
 
-.detail-item {
-  padding: 22rpx 24rpx;
-  background-color: #f5f6fa;
-  border-radius: 12rpx;
-  margin-bottom: 16rpx;
-  font-size: 28rpx;
+/* ===== 路线信息卡片 ===== */
+.info-area {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.info-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.info-item {
+  width: 48%;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 8px 6px;
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.info-label {
+  font-size: 11px;
+  color: #999;
+}
+
+.info-value {
+  font-size: 16px;
   color: #333;
-  border-left: 6rpx solid #07c160;
+  font-weight: bold;
+  margin-top: 2px;
 }
 
-.detail-item:last-of-type {
-  margin-bottom: 20rpx;
+/* ===== 逐段导航步骤 ===== */
+.steps-area {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 220px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
-.step-list {
-  background-color: #f5f6fa;
-  border-radius: 12rpx;
-  padding: 20rpx 24rpx;
-}
-
-.step-title {
-  font-size: 28rpx;
-  font-weight: 600;
+.steps-title {
+  font-size: 14px;
+  font-weight: bold;
   color: #333;
-  margin-bottom: 16rpx;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #eee;
+}
+
+.steps-scroll {
+  max-height: 170px;
 }
 
 .step-item {
-  padding: 18rpx 0;
-  border-bottom: 2rpx solid #e8ecf1;
-  font-size: 26rpx;
-  color: #555;
-  line-height: 1.6;
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .step-item:last-child {
   border-bottom: none;
+}
+
+.step-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #07c160;
+  color: #fff;
+  text-align: center;
+  line-height: 24px;
+  font-size: 12px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-instruction {
+  font-size: 13px;
+  color: #333;
+  display: block;
+  line-height: 1.4;
+}
+
+.step-road {
+  font-size: 12px;
+  color: #666;
+  display: block;
+  margin-top: 2px;
+}
+
+.step-distance {
+  font-size: 12px;
+  color: #999;
+  display: block;
+  margin-top: 1px;
 }
