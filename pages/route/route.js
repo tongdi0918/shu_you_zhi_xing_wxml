@@ -21,7 +21,6 @@ Page({
     this.getMyLocation();
   },
 
-  // 获取用户当前位置
   getMyLocation: function() {
     wx.getLocation({
       type: 'gcj02',
@@ -47,17 +46,14 @@ Page({
     });
   },
 
-  // 输入出发地
   onStartInput: function(e) {
     this.setData({ startAddress: e.detail.value });
   },
 
-  // 输入目的地
   onEndInput: function(e) {
     this.setData({ endAddress: e.detail.value });
   },
 
-  // 路径规划
   planRoute: function() {
     const start = this.data.startAddress.trim();
     const end = this.data.endAddress.trim();
@@ -67,22 +63,18 @@ Page({
     }
     wx.showLoading({ title: '规划中...' });
 
-    // 地理编码出发地
     this.qqmapsdk.geocoder({
       address: start,
       success: (res1) => {
-        console.log('出发地地理编码结果：', res1);
         const sLoc = res1.result && res1.result.location;
         if (!sLoc || typeof sLoc.lat !== 'number' || typeof sLoc.lng !== 'number') {
           wx.hideLoading();
           wx.showToast({ title: '出发地解析失败，请更换更详细的地点', icon: 'none' });
           return;
         }
-        // 地理编码目的地
         this.qqmapsdk.geocoder({
           address: end,
           success: (res2) => {
-            console.log('目的地地理编码结果：', res2);
             const eLoc = res2.result && res2.result.location;
             if (!eLoc || typeof eLoc.lat !== 'number' || typeof eLoc.lng !== 'number') {
               wx.hideLoading();
@@ -91,8 +83,6 @@ Page({
             }
             const from = `${sLoc.lat},${sLoc.lng}`;
             const to = `${eLoc.lat},${eLoc.lng}`;
-            console.log(`开始路线规划: from=${from}, to=${to}`);
-            // 驾车路线规划
             this.qqmapsdk.direction({
               mode: 'driving',
               from: from,
@@ -123,7 +113,30 @@ Page({
     });
   },
 
-  // 处理路线结果
+  /**
+   * 解码腾讯地图差分编码的 polyline 数组
+   */
+  decodePolyline: function(polyline) {
+    if (!polyline || !Array.isArray(polyline) || polyline.length < 2) {
+      return [];
+    }
+    const points = [];
+    let lat = 0, lng = 0;
+    for (let i = 0; i < polyline.length; i += 2) {
+      const deltaLat = polyline[i];
+      const deltaLng = polyline[i+1];
+      if (i === 0) {
+        lat = deltaLat;
+        lng = deltaLng;
+      } else {
+        lat += deltaLat / 1e6;
+        lng += deltaLng / 1e6;
+      }
+      points.push({ latitude: lat, longitude: lng });
+    }
+    return points;
+  },
+
   handleRouteResult: function(res, sLoc, eLoc) {
     console.log('完整路线返回数据：', JSON.stringify(res, null, 2));
     const route = res.result.routes[0];
@@ -133,72 +146,26 @@ Page({
     }
 
     // 提取基本数据
-    const distance = (route.distance / 1000).toFixed(1);
-    const duration = (route.duration / 3600).toFixed(1);
-    const toll = route.toll || 0;
-    // 估算油耗（假设每公里0.1升）
-    const fuel = (route.distance / 1000 * 0.1).toFixed(1);
+    const distance = (route.distance / 1000).toFixed(1);         // 公里
+    // ★★★ 修正：腾讯地图 duration 单位为分钟，除以 60 得小时 ★★★
+    const duration = (route.duration / 60).toFixed(1);          // 小时
+    const toll = route.toll || 0;                               // 元
+    const fuel = (route.distance / 1000 * 0.1).toFixed(1);      // 估算油耗（升）
 
-    // ---- 提取分步导航指令 ----
-    const steps = [];
-    if (route.steps && Array.isArray(route.steps)) {
-      for (let step of route.steps) {
-        const instruction = step.instruction || '';
-        const road = step.road || '';
-        const stepDistance = step.distance ? (step.distance / 1000).toFixed(1) : '';
-        steps.push({
-          instruction: instruction,
-          road: road,
-          distance: stepDistance
-        });
-      }
-    }
-
-    // ---- 提取路线点（polyline） ----
+    // ---- 解码顶层 polyline 获得真实路线点 ----
     let points = [];
-    if (route.steps && Array.isArray(route.steps)) {
-      for (let step of route.steps) {
-        let poly = step.polyline || step.path || step.coords || step.points;
-        if (poly && Array.isArray(poly) && poly.length > 0) {
-          for (let coord of poly) {
-            let lat, lng;
-            if (coord.lat !== undefined && coord.lng !== undefined) {
-              lat = coord.lat;
-              lng = coord.lng;
-            } else if (coord.latitude !== undefined && coord.longitude !== undefined) {
-              lat = coord.latitude;
-              lng = coord.longitude;
-            } else if (Array.isArray(coord) && coord.length >= 2) {
-              lat = coord[0];
-              lng = coord[1];
-            } else {
-              continue;
-            }
-            if (typeof lat === 'number' && typeof lng === 'number') {
-              points.push({ latitude: lat, longitude: lng });
-            }
-          }
-        }
-      }
-    }
-    console.log(`提取到 ${points.length} 个路线点`);
-
-    // 如果points为空，使用起点和终点构建两点连线（降级方案）
-    if (points.length === 0) {
-      console.warn('未提取到polyline点，使用起终点两点连线');
-      if (sLoc && eLoc) {
-        points = [
-          { latitude: sLoc.lat, longitude: sLoc.lng },
-          { latitude: eLoc.lat, longitude: eLoc.lng }
-        ];
-        wx.showToast({ title: '仅显示起终点连线，缺少详细路径', icon: 'none' });
-      } else {
-        wx.showToast({ title: '无法获取坐标点，请重试', icon: 'none' });
-        return;
-      }
+    if (route.polyline && Array.isArray(route.polyline) && route.polyline.length >= 2) {
+      points = this.decodePolyline(route.polyline);
+      console.log(`解码后的路线点数量：${points.length}`);
     }
 
-    // 构建绿色曲线（真实驾车路线）
+    if (points.length < 2) {
+      console.error('提取到的路线点不足，无法绘制真实路线。', route.polyline);
+      wx.showToast({ title: '无法获取完整路线细节，请更换起终点重试', icon: 'none' });
+      return;
+    }
+
+    // ---- 构建绿色实线 ----
     const polyline = [{
       points: points,
       color: '#07c160',
@@ -207,7 +174,6 @@ Page({
       arrowLine: true
     }];
 
-    // 设置起点终点标记
     const startCoord = points[0];
     const endCoord = points[points.length - 1];
     const markers = [
@@ -231,27 +197,42 @@ Page({
       }
     ];
 
-    // 保留用户位置标记（如果有）
     if (this.data.markers && this.data.markers.length > 0 && this.data.markers[0].id === 0) {
       markers.push(this.data.markers[0]);
     }
 
+    // ---- 提取逐段导航步骤 ----
+    let steps = [];
+    if (route.steps && Array.isArray(route.steps)) {
+      for (let step of route.steps) {
+        const instruction = step.instruction || '';
+        const road = step.road || '';
+        const stepDistance = step.distance ? (step.distance / 1000).toFixed(1) : '';
+        steps.push({
+          instruction: instruction,
+          road: road,
+          distance: stepDistance
+        });
+      }
+    }
+
+    const midIndex = Math.floor(points.length / 2);
     this.setData({
-      latitude: (startCoord.latitude + endCoord.latitude) / 2,
-      longitude: (startCoord.longitude + endCoord.longitude) / 2,
+      latitude: points[midIndex].latitude,
+      longitude: points[midIndex].longitude,
       scale: 14,
       markers: markers,
       polyline: polyline,
       routeInfo: {
         distance: distance,
-        duration: duration,
+        duration: duration,   // 已修正为小时
         toll: toll,
         fuel: fuel
       },
       steps: steps
     });
 
-    // 调整地图视野包含所有点（抬高抬亮地图详情）
+    // 调整地图视野包含所有点
     const mapCtx = wx.createMapContext('routeMap');
     mapCtx.includePoints({
       points: points,
@@ -259,7 +240,6 @@ Page({
     });
   },
 
-  // API错误处理
   handleApiError: function(err) {
     console.error('地图API调用失败：', err);
     let msg = '请求失败，请重试';

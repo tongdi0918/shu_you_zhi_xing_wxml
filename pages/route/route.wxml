@@ -1,27 +1,27 @@
-<!-- pages/route/route.wxml -->
 <view class="container">
   <!-- 输入区域 -->
   <view class="input-area">
     <view class="input-row">
       <text class="label">出发地</text>
-      <input class="input" placeholder="请输入出发地" value="{{startAddress}}" bindinput="onStartInput" />
+      <input class="input" placeholder="输入出发地" bindinput="onStartInput" value="{{startAddress}}" />
     </view>
     <view class="input-row">
       <text class="label">目的地</text>
-      <input class="input" placeholder="请输入目的地" value="{{endAddress}}" bindinput="onEndInput" />
+      <input class="input" placeholder="输入目的地" bindinput="onEndInput" value="{{endAddress}}" />
     </view>
     <view class="button-row">
-      <button class="btn-plan" bindtap="planRoute">规划路径</button>
-      <button class="btn-location" bindtap="getMyLocation">我的位置</button>
+      <button class="btn-plan" bindtap="planRoute">路径规划</button>
+      <button class="btn-location" bindtap="getMyLocation">我的当前位置</button>
     </view>
   </view>
 
   <!-- 地图区域 -->
   <view class="map-area">
-    <map id="routeMap" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" markers="{{markers}}" polyline="{{polyline}}" show-location="{{showLocation}}" style="width: 100%; height: 100%;"></map>
+    <map id="routeMap" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" markers="{{markers}}" polyline="{{polyline}}" show-location="{{showLocation}}" style="width: 100%; height: 100%;">
+    </map>
   </view>
 
-  <!-- 路线信息卡片 -->
+  <!-- 路线信息卡片（四宫格小矩形块） -->
   <view class="info-area" wx:if="{{routeInfo}}">
     <view class="info-card">
       <view class="info-item">
@@ -29,11 +29,11 @@
         <text class="info-value">{{routeInfo.distance}} km</text>
       </view>
       <view class="info-item">
-        <text class="info-label">预估时间</text>
-        <text class="info-value">{{routeInfo.duration}} 小时</text>
+        <text class="info-label">预估驾车时间</text>
+        <text class="info-value">{{routeInfo.duration}} H</text>
       </view>
       <view class="info-item">
-        <text class="info-label">油耗</text>
+        <text class="info-label">总油耗</text>
         <text class="info-value">{{routeInfo.fuel}} L</text>
       </view>
       <view class="info-item">
@@ -43,7 +43,7 @@
     </view>
   </view>
 
-  <!-- 逐段导航步骤列表 -->
+  <!-- 逐段导航步骤 -->
   <view class="steps-area" wx:if="{{steps.length > 0}}">
     <view class="steps-title">逐段导航步骤</view>
     <scroll-view class="steps-scroll" scroll-y>
@@ -51,8 +51,8 @@
         <view class="step-number">{{index + 1}}</view>
         <view class="step-content">
           <text class="step-instruction">{{item.instruction}}</text>
-          <text class="step-road" wx:if="{{item.road}}">道路：{{item.road}}</text>
-          <text class="step-distance" wx:if="{{item.distance}}">距离：{{item.distance}} km</text>
+          <text class="step-road">道路：{{item.road}}</text>
+          <text class="step-distance">距离：{{item.distance}} km</text>
         </view>
       </view>
     </scroll-view>
