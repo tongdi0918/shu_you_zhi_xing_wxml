@@ -29,8 +29,12 @@ Page({
     const userInfo = app.globalData.userInfo || null;
     const userCity = app.globalData.userCity || '未设置';
     const isAdmin = app.globalData.isAdmin || false;
+
     this.setData({ isLoggedIn, userInfo, userCity, isAdmin });
+
     if (isLoggedIn) {
+      // 从云数据库刷新用户城市（确保数据最新）
+      this.refreshUserCity();
       this.loadCheckinData();
     } else {
       // 未登录时清空打卡数据
@@ -44,12 +48,36 @@ Page({
     }
   },
 
+  // ===== 从云数据库刷新用户城市 =====
+  async refreshUserCity() {
+    if (!this.data.isLoggedIn || !app.globalData.userInfo) return;
+
+    const userId = app.globalData.userInfo._id;
+    try {
+      const res = await db.collection('users').doc(userId).get();
+      if (res.data) {
+        const city = res.data.city || '未设置';
+        // 更新全局数据
+        app.globalData.userCity = city;
+        if (app.globalData.userInfo) {
+          app.globalData.userInfo.city = city;
+        }
+        // 更新页面数据
+        this.setData({ userCity: city });
+      }
+    } catch (err) {
+      console.error('获取用户城市失败', err);
+    }
+  },
+
   // ===== 加载打卡数据（从云数据库） =====
   async loadCheckinData() {
     if (!this.data.isLoggedIn || !app.globalData.userInfo) {
       return;
     }
+
     this.setData({ loading: true });
+
     const userId = app.globalData.userInfo._id;
 
     try {
@@ -95,7 +123,7 @@ Page({
     } catch (err) {
       console.error('加载打卡数据失败', err);
       this.setData({ loading: false });
-      wx.showToast({ title: '加载数据失败………', icon: 'none' });
+      wx.showToast({ title: '加载数据失败…', icon: 'none' });
     }
   },
 
@@ -117,6 +145,7 @@ Page({
     const listKey = type === 'scenic' ? 'scenicList' : 'foodList';
     const list = this.data[listKey];
     const item = list.find(i => i._id === id);
+
     if (!item) return;
 
     const isChecked = item.checked;
@@ -124,11 +153,7 @@ Page({
     try {
       if (isChecked) {
         // 取消打卡：查询并删除打卡记录
-        const res = await db.collection('checkins').where({
-          userId,
-          targetId: id,
-          type
-        }).get();
+        const res = await db.collection('checkins').where({ userId, targetId: id, type }).get();
         if (res.data.length > 0) {
           await db.collection('checkins').doc(res.data[0]._id).remove();
         }
@@ -177,23 +202,40 @@ Page({
     wx.navigateTo({ url: '/pages/register/register' });
   },
 
-  // ===== 设置城市 =====
+  // ===== 设置城市（已修复：同步保存到云数据库） =====
   setCity() {
     if (!this.data.isLoggedIn) {
       wx.showToast({ title: '请先登录', icon: 'none' });
       return;
     }
+
     wx.showModal({
       title: '设置城市',
       editable: true,
       placeholderText: '请输入您所在的城市',
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm && res.content) {
           const city = res.content.trim();
           if (city) {
+            // 更新全局和页面数据
             app.globalData.userCity = city;
             this.setData({ userCity: city });
-            wx.showToast({ title: '设置成功', icon: 'success' });
+
+            // ★ 保存到云数据库（关键修复）
+            try {
+              const userId = app.globalData.userInfo._id;
+              await db.collection('users').doc(userId).update({
+                data: { city: city }
+              });
+              // 同步更新 userInfo 中的 city
+              if (app.globalData.userInfo) {
+                app.globalData.userInfo.city = city;
+              }
+              wx.showToast({ title: '设置成功', icon: 'success' });
+            } catch (err) {
+              console.error('保存城市失败', err);
+              wx.showToast({ title: '保存失败，请重试', icon: 'none' });
+            }
           }
         }
       }
@@ -231,7 +273,7 @@ Page({
   showAbout() {
     wx.showModal({
       title: '关于蜀游智行',
-      content: '蜀游智行 —-— 记录你的每一次旅行足迹',
+      content: '蜀游智行 — 记录你的每一次旅行足迹',
       showCancel: false
     });
   },
