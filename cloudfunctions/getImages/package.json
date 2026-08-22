@@ -1,0 +1,9 @@
+{
+  "name": "getImages",
+  "version": "1.0.0",
+  "description": "换取云存储图片临时链接",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}
