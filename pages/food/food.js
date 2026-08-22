@@ -29,7 +29,6 @@ Page({
       const res = await db.collection('foods').doc(id).get();
       if (res.data) {
         const data = res.data;
-        // 处理图片：调用云函数获取临时链接
         let imageList = [];
         if (data.image_url) {
           const fileList = Array.isArray(data.image_url) ? data.image_url : [data.image_url];
@@ -135,24 +134,15 @@ Page({
           viewTime: new Date()
         }
       });
-    } catch (err) {
-      console.error('记录浏览历史失败', err);
+    } catch (e) {
+      console.error(e);
     }
   },
 
-  // ===== 定位至该地点 =====
-  goToLocation() {
-    const { food } = this.data;
-    if (!food.longitude || !food.latitude) {
-      wx.showToast({ title: '该地点暂无位置信息', icon: 'none' });
-      return;
-    }
-    wx.openLocation({
-      latitude: parseFloat(food.latitude),
-      longitude: parseFloat(food.longitude),
-      name: food.name,
-      address: food.address || food.city || '',
-      scale: 15
+  // ===== 跳转携程 =====
+  goToCtrip() {
+    wx.navigateTo({
+      url: '/pages/webview/webview?url=' + encodeURIComponent('https://www.ctrip.com/')
     });
   }
 });

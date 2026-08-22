@@ -1,13 +1,16 @@
-<!--pages/food/food.wxml-->
+<!-- pages/food/food.wxml -->
 <view class="container" wx:if="{{food.name}}">
-  <!-- ===== 图片轮播 ===== -->
-  <swiper class="image-swiper" indicator-dots="{{true}}" autoplay="{{true}}" circular="{{true}}" indicator-color="rgba(255,255,255,0.6)" indicator-active-color="#ffffff">
+  <!-- 图片轮播 -->
+  <swiper class="image-swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="3000" circular="{{true}}" wx:if="{{imageList.length > 0}}">
     <swiper-item wx:for="{{imageList}}" wx:key="index">
       <image class="swiper-image" src="{{item}}" mode="aspectFill" />
     </swiper-item>
   </swiper>
+  <view class="image-placeholder" wx:else>
+    <text>暂无图片</text>
+  </view>
 
-  <!-- ===== 卡片1: 名称/评分/类别/地点 ===== -->
+  <!-- 卡片1: 基本信息 -->
   <view class="card info-card">
     <view class="title-row">
       <text class="name">{{food.name}}</text>
@@ -19,26 +22,26 @@
     </view>
   </view>
 
-  <!-- ===== 卡片2: 价格/营业时间 ===== -->
+  <!-- 卡片2: 双列信息 -->
   <view class="card row-card">
     <view class="row-item">
-      <text class="row-label">💰 参考价格</text>
+      <text class="row-label">参考价格</text>
       <text class="row-value">¥{{food.price || '0'}}</text>
     </view>
     <view class="row-divider"></view>
     <view class="row-item">
-      <text class="row-label">🕐 营业时间</text>
+      <text class="row-label">营业时间</text>
       <text class="row-value">{{food.business_hours || '暂无'}}</text>
     </view>
   </view>
 
-  <!-- ===== 卡片3: 美食介绍 ===== -->
+  <!-- 卡片3: 美食介绍 -->
   <view class="card text-card">
     <text class="card-title">📖 美食介绍</text>
     <text class="card-content">{{food.description || '暂无介绍'}}</text>
   </view>
 
-  <!-- ===== 卡片4: 标签 ===== -->
+  <!-- 卡片4: 标签 -->
   <view class="card tags-card" wx:if="{{food.tags && food.tags.length > 0}}">
     <text class="card-title">🏷️ 标签</text>
     <view class="tags-wrap">
@@ -46,14 +49,12 @@
     </view>
   </view>
 
-  <!-- ===== 底部操作栏 ===== -->
+  <!-- 底部操作栏（收藏 + 携程跳转） -->
   <view class="action-bar">
-    <button class="btn-favorite {{isFavorite ? 'active' : ''}}" bindtap="toggleFavorite">
-      {{isFavorite ? '❤️ 已收藏' : '🤍 收藏'}}
+    <button class="btn-favorite" bindtap="toggleFavorite">
+      {{isFavorite ? '❤️ 已收藏' : '☆ 收藏'}}
     </button>
-    <button class="btn-location" bindtap="goToLocation">
-      📍 定位至该地点
-    </button>
+    <button class="btn-ctrip" bindtap="goToCtrip">前往携程查看酒店</button>
   </view>
 </view>
 

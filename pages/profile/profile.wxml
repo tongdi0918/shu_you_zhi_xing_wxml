@@ -75,7 +75,7 @@
     <!-- 景点列表 -->
     <block wx:if="{{currentTab === 0}}">
       <view wx:for="{{scenicList}}" wx:key="_id" class="card" bindtap="toggleCheckin" data-id="{{item._id}}" data-type="scenic">
-        <image class="card-image" src="/images//default.png" mode="aspectFill"></image>
+        <image class="card-image" src="{{item.image_url || ''}}" mode="aspectFill"></image>
         <view class="card-name">{{item.name}}</view>
         <view class="card-check {{item.checked ? 'checked' : ''}}">
           <text wx:if="{{item.checked}}" class="check-icon">✓</text>
@@ -87,7 +87,7 @@
     <!-- 美食列表 -->
     <block wx:if="{{currentTab === 1}}">
       <view wx:for="{{foodList}}" wx:key="_id" class="card" bindtap="toggleCheckin" data-id="{{item._id}}" data-type="food">
-        <image class="card-image" src="{{item.image || '/images/default.png'}}" mode="aspectFill"></image>
+        <image class="card-image" src="{{item.image_url}}" mode="aspectFill"></image>
         <view class="card-name">{{item.name}}</view>
         <view class="card-check {{item.checked ? 'checked' : ''}}">
           <text wx:if="{{item.checked}}" class="check-icon">✓</text>

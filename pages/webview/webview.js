@@ -1,12 +1,7 @@
-// pages/webview/webview.js
 Page({
-  data: {
-    url: ''
-  },
   onLoad(options) {
-    const url = decodeURIComponent(options.url || '');
-    const title = options.title || '详情';
-    wx.setNavigationBarTitle({ title });
+    // 接收传入的网页链接（已编码）
+    const url = options.url ? decodeURIComponent(options.url) : 'https://www.ctrip.com/';
     this.setData({ url });
   }
 });

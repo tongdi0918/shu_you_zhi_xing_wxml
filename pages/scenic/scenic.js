@@ -29,7 +29,6 @@ Page({
       const res = await db.collection('sceneries').doc(id).get();
       if (res.data) {
         const data = res.data;
-        // 处理图片：调用云函数获取临时链接
         let imageList = [];
         if (data.image_url) {
           const fileList = Array.isArray(data.image_url) ? data.image_url : [data.image_url];
@@ -43,7 +42,6 @@ Page({
             }
           } catch (err) {
             console.error('获取图片临时链接失败', err);
-            // 降级：直接使用 fileID（可能无法显示，但不会报错）
             imageList = fileList;
           }
         }
@@ -136,24 +134,15 @@ Page({
           viewTime: new Date()
         }
       });
-    } catch (err) {
-      console.error('记录浏览历史失败', err);
+    } catch (e) {
+      console.error(e);
     }
   },
 
-  // ===== 定位至该地点 =====
-  goToLocation() {
-    const { scenic } = this.data;
-    if (!scenic.longitude || !scenic.latitude) {
-      wx.showToast({ title: '该地点暂无位置信息', icon: 'none' });
-      return;
-    }
-    wx.openLocation({
-      latitude: parseFloat(scenic.latitude),
-      longitude: parseFloat(scenic.longitude),
-      name: scenic.name,
-      address: scenic.address || scenic.city || '',
-      scale: 15
+  // ===== 跳转携程 =====
+  goToCtrip() {
+    wx.navigateTo({
+      url: '/pages/webview/webview?url=' + encodeURIComponent('https://www.ctrip.com/')
     });
   }
 });
