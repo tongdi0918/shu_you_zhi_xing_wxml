@@ -13,7 +13,8 @@
     "pages/admin/admin",
     "pages/dashboard/dashboard",
     "pages/scenic-mgr/scenic-mgr",
-    "pages/food-mgr/food-mgr"   
+    "pages/food-mgr/food-mgr",
+    "pages/webview/webview"
   ],
   "tabBar": {
     "color": "#999",
