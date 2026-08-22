@@ -13,7 +13,7 @@
     "pages/admin/admin",
     "pages/dashboard/dashboard",
     "pages/scenic-mgr/scenic-mgr",
-    "pages/food-mgr/food-mgr"
+    "pages/food-mgr/food-mgr"   
   ],
   "tabBar": {
     "color": "#999",
@@ -50,15 +50,13 @@
     "navigationBarTitleText": "蜀游智行",
     "navigationBarTextStyle": "white"
   },
-
-  
-
   "permission": {
     "scope.userLocation": {
       "desc": "你的位置信息将用于路线规划"
     }
   },
-  
-  "requiredPrivateInfos": [    "getLocation"  ],  
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
   "lazyCodeLoading": "requiredComponents"
-} 
+}
