@@ -69,7 +69,9 @@ Page({
   async fetchUserLocationFromDB() {
     try {
       const db = wx.cloud.database();
-      const res = await db.collection('users').where({ _openid: '{openid}' }).get();
+      const res = await db.collection('users').where({
+        _openid: '{openid}'
+      }).get();
       if (res.data.length > 0 && res.data[0].location) {
         const location = res.data[0].location;
         app.globalData.userLocation = location;
@@ -85,62 +87,92 @@ Page({
     this.setData({ loading: true });
     try {
       const db = wx.cloud.database();
+      // 提高limit到1000，确保获取全部记录
       const [scenicRes, foodRes] = await Promise.all([
-        db.collection('sceneries').limit(500).get(),
-        db.collection('foods').limit(500).get()
+        db.collection('sceneries').limit(1000).get(),
+        db.collection('foods').limit(1000).get()
       ]);
 
       let allSceneries = scenicRes.data;
       let allFoods = foodRes.data;
 
-      // ----- 新增：提取所有图片 fileID，调用云函数换取临时链接 -----
-      // 收集所有包含 image 字段的 fileID（过滤掉空值和非 cloud:// 开头的）
+      console.log(`📊 从数据库获取：景区 ${allSceneries.length} 条，美食 ${allFoods.length} 条`);
+
+      // ----- 关键修改：分批换取图片临时链接 -----
+      // 1. 收集所有有效的 image_url（仅 cloud:// 开头）
       const fileIds = [];
-      [...allSceneries, ...allFoods].forEach(item => {
-        if (item.image && typeof item.image === 'string' && item.image.startsWith('cloud://')) {
-          fileIds.push(item.image);
+      const allItems = [...allSceneries, ...allFoods];
+      allItems.forEach(item => {
+        if (item.image_url && typeof item.image_url === 'string' && item.image_url.startsWith('cloud://')) {
+          fileIds.push(item.image_url);
         }
       });
 
-      if (fileIds.length > 0) {
-        try {
-          // 调用云函数 getImages
-          const res = await wx.cloud.callFunction({
-            name: 'getImages',
-            data: { fileList: fileIds }
-          });
+      // 去重（避免重复调用）
+      const uniqueFileIds = [...new Set(fileIds)];
+      console.log(`🖼️ 共发现 ${uniqueFileIds.length} 个唯一图片 fileID`);
 
-          if (res.result && res.result.fileList) {
-            // 构建 fileID -> tempFileURL 的映射
-            const urlMap = {};
-            res.result.fileList.forEach(item => {
-              urlMap[item.fileID] = item.tempFileURL;
-            });
-
-            // 替换 allSceneries 中的 image 为临时链接
-            allSceneries = allSceneries.map(item => {
-              if (item.image && urlMap[item.image]) {
-                return { ...item, image: urlMap[item.image] };
-              }
-              return item;
-            });
-
-            // 替换 allFoods 中的 image 为临时链接
-            allFoods = allFoods.map(item => {
-              if (item.image && urlMap[item.image]) {
-                return { ...item, image: urlMap[item.image] };
-              }
-              return item;
-            });
-
-            console.log('✅ 图片临时链接换取成功，共处理', fileIds.length, '个');
-          }
-        } catch (err) {
-          console.error('❌ 调用云函数 getImages 失败：', err);
-          // 失败时保留原始 fileID，页面可能会显示占位图或空白
+      if (uniqueFileIds.length > 0) {
+        // 2. 分批调用云函数（每批最多50个）
+        const BATCH_SIZE = 50;
+        const batches = [];
+        for (let i = 0; i < uniqueFileIds.length; i += BATCH_SIZE) {
+          batches.push(uniqueFileIds.slice(i, i + BATCH_SIZE));
         }
+
+        console.log(`📦 分为 ${batches.length} 批获取临时链接`);
+
+        // 存储所有批次结果的映射
+        const urlMap = {};
+
+        // 逐批调用，使用 Promise.all 并行（但注意云函数并发限制，建议串行或限制并发）
+        // 这里采用串行，避免触发云函数并发限制
+        for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+          const batch = batches[batchIndex];
+          try {
+            const res = await wx.cloud.callFunction({
+              name: 'getImages',
+              data: { fileList: batch }
+            });
+
+            if (res.result && res.result.fileList) {
+              res.result.fileList.forEach(item => {
+                if (item.fileID && item.tempFileURL) {
+                  urlMap[item.fileID] = item.tempFileURL;
+                }
+              });
+              console.log(`✅ 第 ${batchIndex + 1}/${batches.length} 批获取成功，共 ${batch.length} 个`);
+            } else {
+              console.warn(`⚠️ 第 ${batchIndex + 1} 批返回异常：`, res);
+            }
+          } catch (err) {
+            console.error(`❌ 第 ${batchIndex + 1} 批调用云函数失败：`, err);
+          }
+        }
+
+        console.log(`✅ 总共获取到 ${Object.keys(urlMap).length} 个临时链接`);
+
+        // 3. 替换 allSceneries 中的 image_url
+        allSceneries = allSceneries.map(item => {
+          if (item.image_url && urlMap[item.image_url]) {
+            return { ...item, image_url: urlMap[item.image_url] };
+          }
+          return item;
+        });
+
+        // 替换 allFoods 中的 image_url
+        allFoods = allFoods.map(item => {
+          if (item.image_url && urlMap[item.image_url]) {
+            return { ...item, image_url: urlMap[item.image_url] };
+          }
+          return item;
+        });
+
+        console.log('✅ 所有图片临时链接替换完成');
+      } else {
+        console.log('⚠️ 没有找到任何有效的 image_url 字段');
       }
-      // ----- 新增部分结束 -----
+      // ----- 修改结束 -----
 
       this.setData({ allSceneries, allFoods });
 
@@ -181,17 +213,22 @@ Page({
           defaultCity = this.data.userLocation.city;
         }
       }
+
       if (!defaultCity && cityList.length > 0) {
         defaultCity = cityList[0];
       }
 
       if (defaultCity) {
         const idx = cityList.indexOf(defaultCity);
-        this.setData({ selectedCityIndex: idx, selectedCity: defaultCity });
+        this.setData({
+          selectedCityIndex: idx,
+          selectedCity: defaultCity
+        });
         this.filterData();
       } else {
         wx.showToast({ title: '未匹配到有效城市', icon: 'none' });
       }
+
     } catch (err) {
       console.error('加载失败', err);
       wx.showToast({ title: '加载数据失败，请检查网络', icon: 'none' });
@@ -204,6 +241,7 @@ Page({
   filterData() {
     const { allSceneries, allFoods, selectedCity } = this.data;
     if (!selectedCity) return;
+
     const aliases = CITY_ALIAS_MAP[selectedCity] || [selectedCity];
 
     let filteredSceneries = allSceneries
@@ -222,11 +260,13 @@ Page({
   updateDisplayList() {
     const { activeTab, filteredSceneries, filteredFoods, selectedList } = this.data;
     const selectedIds = new Set(selectedList.map(item => item._id));
+
     let list = activeTab === 'scenic' ? filteredSceneries : filteredFoods;
     list = list.map(item => ({
       ...item,
       checked: selectedIds.has(item._id)
     }));
+
     this.setData({ displayList: list });
   },
 
@@ -235,7 +275,10 @@ Page({
     const index = parseInt(e.detail.value);
     const city = this.data.cityList[index];
     if (!city) return;
-    this.setData({ selectedCityIndex: index, selectedCity: city });
+    this.setData({
+      selectedCityIndex: index,
+      selectedCity: city
+    });
     this.filterData();
   },
 
@@ -307,6 +350,7 @@ Page({
       wx.showToast({ title: '请至少选择一个项目', icon: 'none' });
       return;
     }
+
     const grouped = {};
     let globalIndex = 1;
     selectedList.forEach(item => {
@@ -314,10 +358,12 @@ Page({
       if (!grouped[city]) grouped[city] = [];
       grouped[city].push({ ...item, planIndex: globalIndex++ });
     });
+
     const planData = Object.keys(grouped).map(city => ({
       city,
       items: grouped[city]
     }));
+
     this.setData({ planData });
     wx.showToast({ title: `已生成 ${planData.length} 个城市的行程`, icon: 'success' });
   },
@@ -328,7 +374,7 @@ Page({
     const plan = this.data.planData[index];
     if (!plan) return;
     wx.showModal({
-      title: ` ${plan.city}`,
+      title: `📍 ${plan.city}`,
       content: plan.items.map(item => `• ${item.name}`).join('\\n'),
       showCancel: false,
       confirmText: '知道了'

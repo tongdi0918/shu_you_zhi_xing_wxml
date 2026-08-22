@@ -1,5 +1,4 @@
 /* pages/recommend/recommend.wxss */
-
 .recommend-container {
   padding: 20rpx 30rpx 180rpx;
   background: #f5f7fa;
@@ -244,7 +243,7 @@
 }
 
 /* ============================================================
-   行程方案区域（重构后 —— 按城市分组 + 彩色小矩形块）
+   行程方案区域（按城市分组 + 彩色小矩形块）
    ============================================================ */
 .plan-section {
   margin-top: 30rpx;
@@ -313,7 +312,7 @@
 /* 每个小矩形块 — 统一尺寸与风格 */
 .plan-item {
   position: relative;
-  width: calc(33.33% - 12rpx);   /* 一行3个，适配间隙 */
+  width: calc(33.33% - 12rpx); /* 一行3个，适配间隙 */
   min-width: 140rpx;
   height: 120rpx;
   border-radius: 16rpx;
