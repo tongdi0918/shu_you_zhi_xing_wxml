@@ -1,20 +1,20 @@
 <!-- pages/home/home.wxml -->
 <view class="home-container">
-  <!-- 顶部标题 -->
+  <!-- 头部 -->
   <view class="header">
-    <text class="title">🏞️ 蜀游智行</text>
+    <text class="title">🏔️ 蜀游智行</text>
     <text class="subtitle">探索四川之美</text>
   </view>
 
-  <!-- 景区区域 -->
+  <!-- 热门景区 -->
   <view class="section">
     <view class="section-header">
       <text class="section-title">🏛️ 热门景区</text>
-      <text class="section-more" bindtap="refreshSceneries">🔄 换一批</text>
+      <text class="section-more" bindtap="refreshSceneries">换一批</text>
     </view>
-    <view class="card-grid">
-      <view class="card" wx:for="{{sceneries}}" wx:key="id" bindtap="goToScenic" data-id="{{item._id || item.id}}">
-        <image class="card-image" src="bg.jpg" mode="aspectFill"></image>
+    <view class="card-grid" wx:if="{{!loadingSceneries && sceneries.length > 0}}">
+      <view class="card" wx:for="{{sceneries}}" wx:key="_id" bindtap="goToScenic" data-id="{{item._id}}">
+        <image class="card-image" src="{{item.image_url || ''}}" mode="aspectFill" lazy-load></image>
         <view class="card-body">
           <text class="card-name">{{item.name}}</text>
           <view class="card-tags">
@@ -28,18 +28,19 @@
         </view>
       </view>
     </view>
-    <view wx:if="{{loadingSceneries}}" class="loading-tip">加载中...</view>
+    <view class="loading-tip" wx:elif="{{loadingSceneries}}">⏳ 加载景区中...</view>
+    <view class="loading-tip" wx:elif="{{sceneries.length === 0}}">{{sceneryTip || '暂无景区数据'}}</view>
   </view>
 
-  <!-- 美食区域 -->
+  <!-- 特色美食 -->
   <view class="section">
     <view class="section-header">
       <text class="section-title">🍜 特色美食</text>
-      <text class="section-more" bindtap="refreshFoods">🔄 换一批</text>
+      <text class="section-more" bindtap="refreshFoods">换一批</text>
     </view>
-    <view class="card-grid">
-      <view class="card" wx:for="{{foods}}" wx:key="id" bindtap="goToFood" data-id="{{item._id || item.id}}">
-        <image class="card-image" src="bg.jpg" mode="aspectFill"></image>
+    <view class="card-grid" wx:if="{{!loadingFoods && foods.length > 0}}">
+      <view class="card" wx:for="{{foods}}" wx:key="_id" bindtap="goToFood" data-id="{{item._id}}">
+        <image class="card-image" src="{{item.image_url || ''}}" mode="aspectFill" lazy-load></image>
         <view class="card-body">
           <text class="card-name">{{item.name}}</text>
           <view class="card-tags">
@@ -53,6 +54,7 @@
         </view>
       </view>
     </view>
-    <view wx:if="{{loadingFoods}}" class="loading-tip">加载中...</view>
+    <view class="loading-tip" wx:elif="{{loadingFoods}}">⏳ 加载美食中...</view>
+    <view class="loading-tip" wx:elif="{{foods.length === 0}}">{{foodTip || '暂无美食数据'}}</view>
   </view>
 </view>
