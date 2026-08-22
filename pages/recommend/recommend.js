@@ -37,9 +37,9 @@ Object.keys(CITY_ALIAS_MAP).forEach(full => {
 Page({
   data: {
     userLocation: { city: '未设置', latitude: 0, longitude: 0 },
-    cityList: [],                // 下拉选项：从数据库提取的有数据的城市列表
+    cityList: [],
     selectedCityIndex: 0,
-    selectedCity: '',            // 选中的标准全称
+    selectedCity: '',
     activeTab: 'scenic',
     allSceneries: [],
     allFoods: [],
@@ -47,7 +47,7 @@ Page({
     filteredFoods: [],
     displayList: [],
     selectedList: [],
-    planData: [],                // 行程方案数据 [{ city, items }]
+    planData: [],
     loading: false
   },
 
@@ -89,8 +89,59 @@ Page({
         db.collection('sceneries').limit(500).get(),
         db.collection('foods').limit(500).get()
       ]);
-      const allSceneries = scenicRes.data;
-      const allFoods = foodRes.data;
+
+      let allSceneries = scenicRes.data;
+      let allFoods = foodRes.data;
+
+      // ----- 新增：提取所有图片 fileID，调用云函数换取临时链接 -----
+      // 收集所有包含 image 字段的 fileID（过滤掉空值和非 cloud:// 开头的）
+      const fileIds = [];
+      [...allSceneries, ...allFoods].forEach(item => {
+        if (item.image && typeof item.image === 'string' && item.image.startsWith('cloud://')) {
+          fileIds.push(item.image);
+        }
+      });
+
+      if (fileIds.length > 0) {
+        try {
+          // 调用云函数 getImages
+          const res = await wx.cloud.callFunction({
+            name: 'getImages',
+            data: { fileList: fileIds }
+          });
+
+          if (res.result && res.result.fileList) {
+            // 构建 fileID -> tempFileURL 的映射
+            const urlMap = {};
+            res.result.fileList.forEach(item => {
+              urlMap[item.fileID] = item.tempFileURL;
+            });
+
+            // 替换 allSceneries 中的 image 为临时链接
+            allSceneries = allSceneries.map(item => {
+              if (item.image && urlMap[item.image]) {
+                return { ...item, image: urlMap[item.image] };
+              }
+              return item;
+            });
+
+            // 替换 allFoods 中的 image 为临时链接
+            allFoods = allFoods.map(item => {
+              if (item.image && urlMap[item.image]) {
+                return { ...item, image: urlMap[item.image] };
+              }
+              return item;
+            });
+
+            console.log('✅ 图片临时链接换取成功，共处理', fileIds.length, '个');
+          }
+        } catch (err) {
+          console.error('❌ 调用云函数 getImages 失败：', err);
+          // 失败时保留原始 fileID，页面可能会显示占位图或空白
+        }
+      }
+      // ----- 新增部分结束 -----
+
       this.setData({ allSceneries, allFoods });
 
       // 直接从数据中提取所有不重复的 city 字段
@@ -136,10 +187,7 @@ Page({
 
       if (defaultCity) {
         const idx = cityList.indexOf(defaultCity);
-        this.setData({
-          selectedCityIndex: idx,
-          selectedCity: defaultCity
-        });
+        this.setData({ selectedCityIndex: idx, selectedCity: defaultCity });
         this.filterData();
       } else {
         wx.showToast({ title: '未匹配到有效城市', icon: 'none' });
@@ -156,7 +204,6 @@ Page({
   filterData() {
     const { allSceneries, allFoods, selectedCity } = this.data;
     if (!selectedCity) return;
-
     const aliases = CITY_ALIAS_MAP[selectedCity] || [selectedCity];
 
     let filteredSceneries = allSceneries
@@ -188,10 +235,7 @@ Page({
     const index = parseInt(e.detail.value);
     const city = this.data.cityList[index];
     if (!city) return;
-    this.setData({
-      selectedCityIndex: index,
-      selectedCity: city
-    });
+    this.setData({ selectedCityIndex: index, selectedCity: city });
     this.filterData();
   },
 
@@ -263,40 +307,28 @@ Page({
       wx.showToast({ title: '请至少选择一个项目', icon: 'none' });
       return;
     }
-
-    // 按城市分组，并赋予全局顺序编号
     const grouped = {};
     let globalIndex = 1;
     selectedList.forEach(item => {
       const city = item.city || '未知城市';
       if (!grouped[city]) grouped[city] = [];
-      grouped[city].push({
-        ...item,
-        planIndex: globalIndex++   // 全局顺序编号
-      });
+      grouped[city].push({ ...item, planIndex: globalIndex++ });
     });
-
-    // 转换为数组，城市按出现顺序或字母排序
     const planData = Object.keys(grouped).map(city => ({
       city,
       items: grouped[city]
     }));
-
     this.setData({ planData });
-
-    wx.showToast({
-      title: `已生成 ${planData.length} 个城市的行程`,
-      icon: 'success'
-    });
+    wx.showToast({ title: `已生成 ${planData.length} 个城市的行程`, icon: 'success' });
   },
 
-  // ===== 查看行程方案详情（保留原功能） =====
+  // ===== 查看行程方案详情 =====
   viewPlanDetail(e) {
     const index = e.currentTarget.dataset.index;
     const plan = this.data.planData[index];
     if (!plan) return;
     wx.showModal({
-      title: `📌 ${plan.city}`,
+      title: ` ${plan.city}`,
       content: plan.items.map(item => `• ${item.name}`).join('\\n'),
       showCancel: false,
       confirmText: '知道了'

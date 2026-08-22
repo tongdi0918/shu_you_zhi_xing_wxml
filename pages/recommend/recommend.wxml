@@ -34,7 +34,7 @@
       </view>
     </view>
     <view class="card-content">
-      <image class="card-img" src="{{item.image || ''}}" mode="aspectFill" lazy-load></image>
+      <image class="card-img" src="{{item.image}}" mode="aspectFill" ></image>
       <view class="card-info">
         <text class="card-name">{{item.name}}</text>
         <text class="card-city">{{item.city}}</text>
