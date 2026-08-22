@@ -10,7 +10,7 @@
   </view>
 
   <view wx:for="{{list}}" wx:key="_id" class="grid-card mgr-item">
-    <image class="mgr-thumb" src="{{item.thumbnail || '/images/default.jpg'}}" mode="aspectFill"></image>
+    <image class="mgr-thumb" src="{{item.thumbnail || '/images/meishi.png'}}" mode="aspectFill"></image>
     <view class="mgr-info">
       <text class="mgr-name">{{item.name}}</text>
       <text class="mgr-desc">{{item.city || ''}} · {{item.category || ''}}</text>

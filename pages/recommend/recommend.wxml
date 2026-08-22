@@ -33,8 +33,7 @@
         <text wx:if="{{item.checked}}">✓</text>
       </view>
     </view>
-    <view class="card-content">
-      <!-- 使用 image_url 字段 -->
+    <view class="card-content">  
       <image class="card-img" src="{{item.image_url}}" mode="aspectFill"></image>
       <view class="card-info">
         <text class="card-name">{{item.name}}</text>
@@ -70,7 +69,7 @@
 <!-- ===== 行程方案区域（按城市分组 + 彩色小矩形块） ===== -->
 <view class="plan-section" wx:if="{{planData.length > 0}}">
   <view class="plan-header">
-    <text class="plan-title">🗋 专属行程规划</text>
+    <text class="plan-title">🏆 专属行程规划</text>
     <text class="plan-hint">共 {{planData.length}} 个城市</text>
   </view>
 

@@ -1,101 +1,87 @@
 <!-- pages/profile/profile.wxml -->
 <view class="profile-container">
-
-<!-- ===== 用户信息卡片 ===== -->
-<view class="user-card">
-  <view class="avatar-wrapper">
-    <image class="avatar" src="{{userInfo.avatarUrl || '/images/default_avatar.png'}}" mode="aspectFill"></image>
-  </view>
-  <view wx:if="{{isLoggedIn}}" class="user-name">{{userInfo.nickName || '用户'}}</view>
-  <view wx:else class="login-register-row">
-    <text class="login-btn" bindtap="goToLogin">登录</text>
-    <text class="divider">|</text>
-    <text class="register-btn" bindtap="goToRegister">注册</text>
-  </view>
-  <view class="user-city">
-    <text class="city-label">📍 所在城市：</text>
-    <text class="city-value">{{userCity}}</text>
-    <text class="city-edit" bindtap="setCity">[点击设置]</text>
-  </view>
-  <view wx:if="{{isAdmin}}" class="admin-badge">管理员</view>
-</view>
-
-<!-- ===== 功能菜单 ===== -->
-<view class="menu-grid">
-  <view class="menu-item" bindtap="goToFavorites">
-    <text class="menu-icon">⭐</text>
-    <text class="menu-text">我的收藏</text>
-  </view>
-  <view class="menu-item" bindtap="goToHistory">
-    <text class="menu-icon">📖</text>
-    <text class="menu-text">浏览历史</text>
-  </view>
-  <view wx:if="{{isAdmin}}" class="menu-item" bindtap="goToAdmin">
-    <text class="menu-icon">⚙️</text>
-    <text class="menu-text">管理后台</text>
-  </view>
-  <view class="menu-item" bindtap="showAbout">
-    <text class="menu-icon">ℹ️</text>
-    <text class="menu-text">产品介绍</text>
-  </view>
-  <view wx:if="{{isLoggedIn}}" class="menu-item" bindtap="logout">
-    <text class="menu-icon">🚪</text>
-    <text class="menu-text">退出登录</text>
-  </view>
-</view>
-
-<!-- ===== 成就打卡区域 ===== -->
-<view class="achievement-section">
-  <!-- 标题 -->
-  <view class="section-header">
-    <text class="section-title">🏆 蜀游成就打卡</text>
-    <text class="section-subtitle">点击方块标记你已实地到访的景点和美食吧！</text>
-  </view>
-
-  <!-- 统计总数 -->
-  <view class="stats-row">
-    <text class="stats-text">已打卡 <text class="stats-number">{{totalCheckedCount}}</text> 个地点</text>
-  </view>
-
-  <!-- 标签页 -->
-  <view class="tabs">
-    <view class="tab {{currentTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
-      🏞️ 景点打卡 <text class="tab-count">{{scenicCheckedCount}}</text>
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <view class="avatar-wrapper">
+      <image class="avatar" src="{{userInfo.avatarUrl || '/images/default.png'}}" mode="aspectFill"></image>
     </view>
-    <view class="tab {{currentTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
-      🍜 美食打卡 <text class="tab-count">{{foodCheckedCount}}</text>
+    <view wx:if="{{isLoggedIn}}" class="user-name">{{userInfo.nickName || '用户'}}</view>
+    <view wx:else class="login-register-row">
+      <text class="login-btn" bindtap="goToLogin">登录</text>
+      <text class="divider">|</text>
+      <text class="register-btn" bindtap="goToRegister">注册</text>
+    </view>
+    <view class="user-city">
+      <text class="city-label">所在城市：</text>
+      <text class="city-value">{{userCity}}</text>
+      <text class="city-edit" bindtap="editCity">[点击设置]</text>
+    </view>
+    <view wx:if="{{isAdmin}}" class="admin-badge">管理员</view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-grid">
+    <view class="menu-item" bindtap="goToFavorites">
+      <text class="menu-icon">⭐</text>
+      <text class="menu-text">我的收藏</text>
+    </view>
+    <view class="menu-item" bindtap="goToHistory">
+      <text class="menu-icon">📜</text>
+      <text class="menu-text">浏览历史</text>
+    </view>
+    <view wx:if="{{isAdmin}}" class="menu-item" bindtap="goToDashboard">
+      <text class="menu-icon">⚙️</text>
+      <text class="menu-text">管理后台</text>
+    </view>
+    <view class="menu-item" bindtap="showAbout">
+      <text class="menu-icon">ℹ️</text>
+      <text class="menu-text">产品介绍</text>
+    </view>
+    <view wx:if="{{isLoggedIn}}" class="menu-item" bindtap="logout">
+      <text class="menu-icon">🚪</text>
+      <text class="menu-text">退出登录</text>
     </view>
   </view>
 
-  <!-- 加载状态 -->
-  <view wx:if="{{loading}}" class="loading-text">加载中...</view>
+  <!-- 蜀游成就打卡 -->
+  <view class="achievement-section">
+    <view class="achievement-header">
+      <text class="achievement-title">🏆 蜀地游记成就打卡</text>
+      <text class="achievement-sub">点击方块标记你已实地到访的景点和美食吧~</text>
+      <text class="achievement-count">已打卡 {{totalCheckedCount}} 个地点</text>
+    </view>
 
-  <!-- 卡片网格 -->
-  <view wx:else class="card-grid">
-    <!-- 景点列表 -->
-    <block wx:if="{{currentTab === 0}}">
-      <view wx:for="{{scenicList}}" wx:key="_id" class="card" bindtap="toggleCheckin" data-id="{{item._id}}" data-type="scenic">
-        <image class="card-image" src="{{item.image_url || ''}}" mode="aspectFill"></image>
-        <view class="card-name">{{item.name}}</view>
-        <view class="card-check {{item.checked ? 'checked' : ''}}">
-          <text wx:if="{{item.checked}}" class="check-icon">✓</text>
-        </view>
+    <!-- 标签切换 -->
+    <view class="tab-bar">
+      <view class="tab-item {{currentTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-tab="0">
+        景点打卡 <text class="tab-badge">{{scenicCheckedCount}}</text>
       </view>
-      <view wx:if="{{scenicList.length === 0}}" class="empty-text">暂无景点数据，请先添加</view>
-    </block>
+      <view class="tab-item {{currentTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-tab="1">
+        美食打卡 <text class="tab-badge">{{foodCheckedCount}}</text>
+      </view>
+    </view>
+
+    <!-- 加载中 -->
+    <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+
+    <!-- 景点列表 -->
+    <view wx:elif="{{currentTab === 0}}" class="card-grid">
+      <view wx:for="{{scenicList}}" wx:key="_id" class="card-item {{item.checked ? 'checked' : ''}}" bindtap="toggleCheckin" data-type="scenic" data-id="{{item._id}}">
+        <image class="card-image" src="{{item.imageUrl || '/images/fengjing.png'}}" mode="aspectFill"></image>
+        <text class="card-name">{{item.name}}</text>
+        <view wx:if="{{item.checked}}" class="check-mark">✓</view>
+      </view>
+      <view wx:if="{{scenicList.length === 0}}" class="empty-tip">暂无景点数据，请先添加</view>
+    </view>
 
     <!-- 美食列表 -->
-    <block wx:if="{{currentTab === 1}}">
-      <view wx:for="{{foodList}}" wx:key="_id" class="card" bindtap="toggleCheckin" data-id="{{item._id}}" data-type="food">
-        <image class="card-image" src="{{item.image_url}}" mode="aspectFill"></image>
-        <view class="card-name">{{item.name}}</view>
-        <view class="card-check {{item.checked ? 'checked' : ''}}">
-          <text wx:if="{{item.checked}}" class="check-icon">✓</text>
-        </view>
+    <view wx:elif="{{currentTab === 1}}" class="card-grid">
+      <view wx:for="{{foodList}}" wx:key="_id" class="card-item {{item.checked ? 'checked' : ''}}" bindtap="toggleCheckin" data-type="food" data-id="{{item._id}}">
+        <image class="card-image" src="{{item.imageUrl || '/images/meishi.png'}}" mode="aspectFill"></image>
+        <text class="card-name">{{item.name}}</text>
+        <view wx:if="{{item.checked}}" class="check-mark">✓</view>
       </view>
-      <view wx:if="{{foodList.length === 0}}" class="empty-text">暂无美食数据，请先添加</view>
-    </block>
+      <view wx:if="{{foodList.length === 0}}" class="empty-tip">暂无美食数据，请先添加</view>
+    </view>
   </view>
-</view>
-
 </view>

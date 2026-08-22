@@ -2,7 +2,7 @@
 <view class="home-container">
   <!-- 头部 -->
   <view class="header">
-    <text class="title">🏔️ 蜀游智行</text>
+    <text class="title">🏔️ 蜀地游记小工具</text>
     <text class="subtitle">探索四川之美</text>
   </view>
 
@@ -14,7 +14,7 @@
     </view>
     <view class="card-grid" wx:if="{{!loadingSceneries && sceneries.length > 0}}">
       <view class="card" wx:for="{{sceneries}}" wx:key="_id" bindtap="goToScenic" data-id="{{item._id}}">
-        <image class="card-image" src="{{item.image_url || ''}}" mode="aspectFill" lazy-load></image>
+        <image class="card-image" src="{{item.image_url || '/images/fengjing.png'}}" mode="aspectFill" lazy-load></image>
         <view class="card-body">
           <text class="card-name">{{item.name}}</text>
           <view class="card-tags">
@@ -40,7 +40,7 @@
     </view>
     <view class="card-grid" wx:if="{{!loadingFoods && foods.length > 0}}">
       <view class="card" wx:for="{{foods}}" wx:key="_id" bindtap="goToFood" data-id="{{item._id}}">
-        <image class="card-image" src="{{item.image_url || ''}}" mode="aspectFill" lazy-load></image>
+        <image class="card-image" src="{{item.image_url || '/images/meishi.png'}}" mode="aspectFill" lazy-load></image>
         <view class="card-body">
           <text class="card-name">{{item.name}}</text>
           <view class="card-tags">
