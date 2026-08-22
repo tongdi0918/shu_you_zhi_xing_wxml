@@ -5,12 +5,9 @@ const db = wx.cloud.database();
 Page({
   data: {
     food: {},
+    imageList: [],
     isFavorite: false,
-    foodId: null,
-    defaultImages: [
-      'https://picsum.photos/800/400?random=26',
-      '/images/default.png'
-    ]
+    foodId: null
   },
 
   onLoad(options) {
@@ -19,7 +16,6 @@ Page({
       this.setData({ foodId: id });
       this.loadFood(id);
       this.checkFavorite(id);
-      // ✅ 记录浏览历史
       this.recordHistory(id, 'food');
     } else {
       wx.showToast({ title: '参数错误', icon: 'none' });
@@ -29,19 +25,40 @@ Page({
   // ===== 加载美食数据 =====
   async loadFood(id) {
     try {
+      wx.showLoading({ title: '加载中...' });
       const res = await db.collection('foods').doc(id).get();
       if (res.data) {
         const data = res.data;
-        if (!data.images || data.images.length === 0) {
-          data.images = this.data.defaultImages;
+        // 处理图片：调用云函数获取临时链接
+        let imageList = [];
+        if (data.image_url) {
+          const fileList = Array.isArray(data.image_url) ? data.image_url : [data.image_url];
+          try {
+            const cloudRes = await wx.cloud.callFunction({
+              name: 'getImages',
+              data: { fileList }
+            });
+            if (cloudRes.result && cloudRes.result.fileList) {
+              imageList = cloudRes.result.fileList.map(item => item.tempFileURL || item.fileID);
+            }
+          } catch (err) {
+            console.error('获取图片临时链接失败', err);
+            imageList = fileList;
+          }
         }
-        this.setData({ food: data });
+        this.setData({
+          food: data,
+          imageList: imageList.length > 0 ? imageList : []
+        });
         wx.setNavigationBarTitle({ title: data.name || '美食详情' });
       } else {
         wx.showToast({ title: '未找到该美食', icon: 'none' });
       }
     } catch (err) {
       console.error('加载美食失败', err);
+      wx.showToast({ title: '加载失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
     }
   },
 
@@ -100,18 +117,16 @@ Page({
     }
   },
 
-  // ===== ✅ 记录浏览历史 =====
+  // ===== 记录浏览历史 =====
   async recordHistory(targetId, type) {
     if (!app.globalData.isLoggedIn) return;
     const userId = app.globalData.userInfo._id;
     try {
-      // 先删除同一条目的旧记录
       await db.collection('histories').where({
         userId: userId,
         targetId: targetId,
         type: type
       }).remove();
-      // 插入新记录
       await db.collection('histories').add({
         data: {
           userId: userId,
@@ -125,15 +140,19 @@ Page({
     }
   },
 
-  // ===== 跳转路线规划 =====
-  goToRoute() {
-    wx.switchTab({ url: '/pages/route/route' });
-  },
-
-  // ===== 跳转携程订餐 =====
-  goToCtrip() {
-    wx.navigateTo({
-      url: `/pages/webview/webview?url=https://m.ctrip.com`
+  // ===== 定位至该地点 =====
+  goToLocation() {
+    const { food } = this.data;
+    if (!food.longitude || !food.latitude) {
+      wx.showToast({ title: '该地点暂无位置信息', icon: 'none' });
+      return;
+    }
+    wx.openLocation({
+      latitude: parseFloat(food.latitude),
+      longitude: parseFloat(food.longitude),
+      name: food.name,
+      address: food.address || food.city || '',
+      scale: 15
     });
   }
 });

@@ -1,13 +1,13 @@
-<!-- pages/scenic/scenic.wxml -->
+<!--pages/scenic/scenic.wxml-->
 <view class="container" wx:if="{{scenic.name}}">
-  <!-- 图片轮播 -->
-  <swiper class="image-swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="3000" circular="{{true}}">
-    <swiper-item wx:for="{{scenic.images || defaultImages}}" wx:key="index">
-      <image class="swiper-image" src="{{item}}" mode="aspectFill"></image>
+  <!-- ===== 图片轮播 ===== -->
+  <swiper class="image-swiper" indicator-dots="{{true}}" autoplay="{{true}}" circular="{{true}}" indicator-color="rgba(255,255,255,0.6)" indicator-active-color="#ffffff">
+    <swiper-item wx:for="{{imageList}}" wx:key="index">
+      <image class="swiper-image" src="{{item}}" mode="aspectFill" />
     </swiper-item>
   </swiper>
 
-  <!-- 基本信息卡片 -->
+  <!-- ===== 卡片1: 名称/评分/等级/地点 ===== -->
   <view class="card info-card">
     <view class="title-row">
       <text class="name">{{scenic.name}}</text>
@@ -15,54 +15,50 @@
     </view>
     <view class="rating-row">
       <text class="rating">⭐ {{scenic.rating || '4.5'}} 分</text>
-      <text class="city">{{scenic.city || '四川'}}</text>
+      <text class="location">{{scenic.city || ''}}{{scenic.address ? ' · ' + scenic.address : ''}}</text>
     </view>
   </view>
 
-  <!-- 门票与开放时间卡片（双列布局） -->
+  <!-- ===== 卡片2: 门票/开放时间/最佳季节 ===== -->
   <view class="card row-card">
     <view class="row-item">
       <text class="row-label">🎫 门票</text>
-      <text class="row-value">¥{{scenic.ticket_price || '0'}} / 人</text>
+      <text class="row-value">¥{{scenic.ticket_price || '0'}}</text>
     </view>
     <view class="row-divider"></view>
     <view class="row-item">
       <text class="row-label">🕐 开放时间</text>
-      <text class="row-value">{{scenic.open_time || '08:00 - 18:00'}}</text>
+      <text class="row-value">{{scenic.open_time || '暂无'}}</text>
+    </view>
+    <view class="row-divider"></view>
+    <view class="row-item">
+      <text class="row-label">🌸 最佳季节</text>
+      <text class="row-value">{{scenic.best_season || '全年'}}</text>
     </view>
   </view>
 
-  <!-- 景区介绍卡片 -->
+  <!-- ===== 卡片3: 景区介绍 ===== -->
   <view class="card text-card">
     <text class="card-title">📖 景区介绍</text>
     <text class="card-content">{{scenic.description || '暂无介绍'}}</text>
   </view>
 
-  <!-- 背后的故事卡片 -->
-  <view class="card text-card story-card">
-    <text class="card-title">📜 背后的故事</text>
-    <text class="card-content">{{scenic.story || '暂无故事'}}</text>
-  </view>
-
-  <!-- 标签卡片 -->
-  <view class="card tags-card">
+  <!-- ===== 卡片4: 标签 ===== -->
+  <view class="card tags-card" wx:if="{{scenic.tags && scenic.tags.length > 0}}">
     <text class="card-title">🏷️ 标签</text>
     <view class="tags-wrap">
-      <text class="tag" wx:for="{{scenic.tags || ['自然风光', '历史文化', '摄影圣地']}}" wx:key="index">{{item}}</text>
+      <text class="tag" wx:for="{{scenic.tags}}" wx:key="index">{{item}}</text>
     </view>
   </view>
 
-  <!-- 操作按钮组 -->
+  <!-- ===== 底部操作栏 ===== -->
   <view class="action-bar">
     <button class="btn-favorite {{isFavorite ? 'active' : ''}}" bindtap="toggleFavorite">
       {{isFavorite ? '❤️ 已收藏' : '🤍 收藏'}}
     </button>
-    <button class="btn-ctrip" bindtap="goToCtrip">✈️ 携程订票</button>
-  </view>
-
-  <!-- 路线规划按钮 -->
-  <view class="route-wrap">
-    <button class="btn-route" bindtap="goToRoute">🗺️ 路线规划</button>
+    <button class="btn-location" bindtap="goToLocation">
+      📍定位至该地点
+    </button>
   </view>
 </view>
 

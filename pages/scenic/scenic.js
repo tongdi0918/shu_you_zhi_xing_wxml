@@ -5,12 +5,9 @@ const db = wx.cloud.database();
 Page({
   data: {
     scenic: {},
+    imageList: [],
     isFavorite: false,
-    scenicId: null,
-    defaultImages: [
-      'https://picsum.photos/800/400?random=29',
-      '/images/default.png'
-    ]
+    scenicId: null
   },
 
   onLoad(options) {
@@ -19,7 +16,6 @@ Page({
       this.setData({ scenicId: id });
       this.loadScenic(id);
       this.checkFavorite(id);
-      // ✅ 记录浏览历史
       this.recordHistory(id, 'scenic');
     } else {
       wx.showToast({ title: '参数错误', icon: 'none' });
@@ -29,19 +25,41 @@ Page({
   // ===== 加载景区数据 =====
   async loadScenic(id) {
     try {
+      wx.showLoading({ title: '加载中...' });
       const res = await db.collection('sceneries').doc(id).get();
       if (res.data) {
         const data = res.data;
-        if (!data.images || data.images.length === 0) {
-          data.images = this.data.defaultImages;
+        // 处理图片：调用云函数获取临时链接
+        let imageList = [];
+        if (data.image_url) {
+          const fileList = Array.isArray(data.image_url) ? data.image_url : [data.image_url];
+          try {
+            const cloudRes = await wx.cloud.callFunction({
+              name: 'getImages',
+              data: { fileList }
+            });
+            if (cloudRes.result && cloudRes.result.fileList) {
+              imageList = cloudRes.result.fileList.map(item => item.tempFileURL || item.fileID);
+            }
+          } catch (err) {
+            console.error('获取图片临时链接失败', err);
+            // 降级：直接使用 fileID（可能无法显示，但不会报错）
+            imageList = fileList;
+          }
         }
-        this.setData({ scenic: data });
+        this.setData({
+          scenic: data,
+          imageList: imageList.length > 0 ? imageList : []
+        });
         wx.setNavigationBarTitle({ title: data.name || '景区详情' });
       } else {
         wx.showToast({ title: '未找到该景区', icon: 'none' });
       }
     } catch (err) {
       console.error('加载景区失败', err);
+      wx.showToast({ title: '加载失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
     }
   },
 
@@ -100,18 +118,16 @@ Page({
     }
   },
 
-  // ===== ✅ 记录浏览历史 =====
+  // ===== 记录浏览历史 =====
   async recordHistory(targetId, type) {
     if (!app.globalData.isLoggedIn) return;
     const userId = app.globalData.userInfo._id;
     try {
-      // 先删除同一条目的旧记录（避免重复）
       await db.collection('histories').where({
         userId: userId,
         targetId: targetId,
         type: type
       }).remove();
-      // 插入新记录
       await db.collection('histories').add({
         data: {
           userId: userId,
@@ -125,15 +141,19 @@ Page({
     }
   },
 
-  // ===== 跳转路线规划 =====
-  goToRoute() {
-    wx.switchTab({ url: '/pages/route/route' });
-  },
-
-  // ===== 跳转携程订票 =====
-  goToCtrip() {
-    wx.navigateTo({
-      url: `/pages/webview/webview?url=https://m.ctrip.com`
+  // ===== 定位至该地点 =====
+  goToLocation() {
+    const { scenic } = this.data;
+    if (!scenic.longitude || !scenic.latitude) {
+      wx.showToast({ title: '该地点暂无位置信息', icon: 'none' });
+      return;
+    }
+    wx.openLocation({
+      latitude: parseFloat(scenic.latitude),
+      longitude: parseFloat(scenic.longitude),
+      name: scenic.name,
+      address: scenic.address || scenic.city || '',
+      scale: 15
     });
   }
 });
