@@ -37,7 +37,7 @@
 
   <!-- 卡片3: 美食介绍 -->
   <view class="card text-card">
-    <text class="card-title">📖 美食介绍</text>
+    <text class="card-title">📖 背后的故事</text>
     <text class="card-content">{{food.description || '暂无介绍'}}</text>
   </view>
 

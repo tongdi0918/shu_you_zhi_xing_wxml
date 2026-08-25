@@ -236,7 +236,7 @@ Page({
   showAbout() {
     wx.showModal({
       title: '产品介绍',
-      content: '蜀地游记 —— 你的四川旅行记录者\n@ 202608 李字雄 for 2.0.2 ',
+      content: ' @览迹 —— 你的专属川蜀旅行记录者    in 202608 李字雄 for 2.3.0 ',
       showCancel: false
     });
   },

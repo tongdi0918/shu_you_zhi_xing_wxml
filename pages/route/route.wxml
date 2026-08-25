@@ -51,7 +51,7 @@
         <view class="step-number">{{index + 1}}</view>
         <view class="step-content">
           <text class="step-instruction">{{item.instruction}}</text>
-          <text class="step-road"> 道路：{{item.road}}</text>
+          <!--text class="step-road"> 道路：{{item.road}}</text-->
           <text class="step-distance"> 距离：{{item.distance}} km</text>
         </view>
       </view>

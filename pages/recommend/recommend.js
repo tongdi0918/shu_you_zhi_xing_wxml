@@ -36,7 +36,7 @@ Object.keys(CITY_ALIAS_MAP).forEach(full => {
 
 Page({
   data: {
-    userLocation: { city: '未设置', latitude: 0, longitude: 0 },
+    userLocation: { city: '', latitude: 0, longitude: 0 },
     cityList: [],
     selectedCityIndex: 0,
     selectedCity: '',

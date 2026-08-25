@@ -3,7 +3,7 @@
   <!-- 用户信息卡片 -->
   <view class="user-card">
     <view class="avatar-wrapper">
-      <image class="avatar" src="{{userInfo.avatarUrl || '/images/default.png'}}" mode="aspectFill"></image>
+      <image class="avatar" src="{{ isLoggedIn ? '/images/default.png' : '/images/default_avatar.png' }}"  mode="aspectFill"></image>
     </view>
     <view wx:if="{{isLoggedIn}}" class="user-name">{{userInfo.nickName || '用户'}}</view>
     <view wx:else class="login-register-row">
@@ -46,7 +46,7 @@
   <!-- 蜀游成就打卡 -->
   <view class="achievement-section">
     <view class="achievement-header">
-      <text class="achievement-title">🏆 蜀地游记成就打卡</text>
+      <text class="achievement-title">🏆 览迹 -成就打卡</text>
       <text class="achievement-sub">点击方块标记你已实地到访的景点和美食吧~</text>
       <text class="achievement-count">已打卡 {{totalCheckedCount}} 个地点</text>
     </view>

@@ -2,7 +2,7 @@
 <view class="home-container">
   <!-- 头部 -->
   <view class="header">
-    <text class="title">🏔️ 蜀地游记小工具</text>
+    <text class="title"> 览迹🏔️记录者</text>
     <text class="subtitle">探索四川之美</text>
   </view>
 

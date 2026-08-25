@@ -47,7 +47,7 @@ page {
 
 /* ===== 卡片通用样式 ===== */
 .card {
-  background: #ffffff;
+  background: #f1507e74;
   border-radius: 24rpx;
   padding: 30rpx 32rpx;
   margin-bottom: 24rpx;
@@ -91,7 +91,7 @@ page {
 }
 
 .info-card .location {
-  color: #999;
+  color: #1d1c1c;
 }
 
 /* ===== 卡片2: 双列信息 ===== */
@@ -110,7 +110,7 @@ page {
 
 .row-label {
   font-size: 24rpx;
-  color: #999;
+  color: #534f4f;
   margin-bottom: 8rpx;
 }
 
@@ -186,7 +186,7 @@ page {
 
 /* 收藏按钮 */
 .btn-favorite {
-  background: #f0f0f0;
+  background: #ff6b35;
   color: #333;
   flex: 0.5;
 }
