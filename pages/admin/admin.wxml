@@ -79,7 +79,7 @@
         <input class="dialog-input" placeholder="{{activeTab === 'scenic' ? '地点' : '店铺'}}" value="{{activeTab === 'scenic' ? formData.location : formData.shop}}" bindinput="onFormInput" data-field="{{activeTab === 'scenic' ? 'location' : 'shop'}}" />
         <input class="dialog-input" placeholder="描述" value="{{formData.description}}" bindinput="onFormInput" data-field="description" />
         <input class="dialog-input" placeholder="图片URL" value="{{formData.image}}" bindinput="onFormInput" data-field="image" />
-        <input class="dialog-input" placeholder="{{activeTab === 'scenic' ? '价格' : '参考价格'}}" value="{{formData.price}}" bindinput="onFormInput" data-field="price" />
+        <input class="dialog-input" placeholder="{{activeTab === 'scenic' ? '价格' : '参考价格'}}" value="{{formData.avg_price}}" bindinput="onFormInput" data-field="avg_price" />
       </view>
       <view class="dialog-actions">
         <button class="dialog-cancel" bindtap="closeDialog">取消</button>

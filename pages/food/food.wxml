@@ -26,7 +26,7 @@
   <view class="card row-card">
     <view class="row-item">
       <text class="row-label">参考价格</text>
-      <text class="row-value">¥{{food.price || '0'}}</text>
+      <text class="row-value">¥{{food.avg_price || '0'}}</text>
     </view>
     <view class="row-divider"></view>
     <view class="row-item">

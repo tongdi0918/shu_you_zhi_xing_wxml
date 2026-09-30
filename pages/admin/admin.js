@@ -51,21 +51,21 @@ Page({
   switchTab: function (e) {
     const tab = e.currentTarget.dataset.tab;
     this.setData({ activeTab: tab });
-    if (tab === 'scenic') this.loadScenics();
+    if (tab === 'scenic') this.loadsceneries();
     else if (tab === 'food') this.loadFoods();
     else if (tab === 'user') this.loadUsers();
   },
 
   // 加载所有数据
   loadData: function () {
-    this.loadScenics();
+    this.loadsceneries();
     this.loadFoods();
     this.loadUsers();
   },
 
   // 加载景区
-  loadScenics: function () {
-    db.collection('scenics').get().then(res => {
+  loadsceneries: function () {
+    db.collection('sceneries').get().then(res => {
       this.setData({ scenicList: res.data });
     }).catch(err => console.log('加载景区失败', err));
   },
@@ -88,7 +88,7 @@ Page({
   loadStats: function () {
     const that = this;
     Promise.all([
-      db.collection('scenics').count(),
+      db.collection('sceneries').count(),
       db.collection('foods').count(),
       db.collection('users').count(),
       db.collection('favorites').count(),
@@ -152,7 +152,7 @@ Page({
   // 保存（添加或更新）
   saveItem: function () {
     const { activeTab, dialogType, formData, dialogData } = this.data;
-    const collection = activeTab === 'scenic' ? 'scenics' : 'foods';
+    const collection = activeTab === 'scenic' ? 'sceneries' : 'foods';
 
     // 简单验证
     if (!formData.name) {
@@ -201,7 +201,7 @@ Page({
   // 删除
   deleteItem: function (e) {
     const id = e.currentTarget.dataset.id;
-    const collection = this.data.activeTab === 'scenic' ? 'scenics' : 'foods';
+    const collection = this.data.activeTab === 'scenic' ? 'sceneries' : 'foods';
 
     wx.showModal({
       title: '提示',
