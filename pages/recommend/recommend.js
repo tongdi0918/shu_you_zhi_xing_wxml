@@ -82,101 +82,26 @@ Page({
     }
   },
 
-  // ===== 加载数据并构建城市列表 =====
+  // ===== 加载全部数据（调用云函数，突破100条限制） =====
   async loadAllData() {
     this.setData({ loading: true });
     try {
-      const db = wx.cloud.database();
-      // 提高limit到1000，确保获取全部记录
-      const [scenicRes, foodRes] = await Promise.all([
-        db.collection('sceneries').limit(1000).get(),
-        db.collection('foods').limit(1000).get()
-      ]);
-
-      let allSceneries = scenicRes.data;
-      let allFoods = foodRes.data;
-
-      console.log(`📊 从数据库获取：景区 ${allSceneries.length} 条，美食 ${allFoods.length} 条`);
-
-      // ----- 关键修改：分批换取图片临时链接 -----
-      // 1. 收集所有有效的 image_url（仅 cloud:// 开头）
-      const fileIds = [];
-      const allItems = [...allSceneries, ...allFoods];
-      allItems.forEach(item => {
-        if (item.image_url && typeof item.image_url === 'string' && item.image_url.startsWith('cloud://')) {
-          fileIds.push(item.image_url);
-        }
+      // 调用云函数一次性获取全部数据（已处理好图片临时链接）
+      const res = await wx.cloud.callFunction({
+        name: 'loadAllTourData'
       });
 
-      // 去重（避免重复调用）
-      const uniqueFileIds = [...new Set(fileIds)];
-      console.log(`🖼️ 共发现 ${uniqueFileIds.length} 个唯一图片 fileID`);
-
-      if (uniqueFileIds.length > 0) {
-        // 2. 分批调用云函数（每批最多50个）
-        const BATCH_SIZE = 50;
-        const batches = [];
-        for (let i = 0; i < uniqueFileIds.length; i += BATCH_SIZE) {
-          batches.push(uniqueFileIds.slice(i, i + BATCH_SIZE));
-        }
-
-        console.log(`📦 分为 ${batches.length} 批获取临时链接`);
-
-        // 存储所有批次结果的映射
-        const urlMap = {};
-
-        // 逐批调用，使用 Promise.all 并行（但注意云函数并发限制，建议串行或限制并发）
-        // 这里采用串行，避免触发云函数并发限制
-        for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-          const batch = batches[batchIndex];
-          try {
-            const res = await wx.cloud.callFunction({
-              name: 'getImages',
-              data: { fileList: batch }
-            });
-
-            if (res.result && res.result.fileList) {
-              res.result.fileList.forEach(item => {
-                if (item.fileID && item.tempFileURL) {
-                  urlMap[item.fileID] = item.tempFileURL;
-                }
-              });
-              console.log(`✅ 第 ${batchIndex + 1}/${batches.length} 批获取成功，共 ${batch.length} 个`);
-            } else {
-              console.warn(`⚠️ 第 ${batchIndex + 1} 批返回异常：`, res);
-            }
-          } catch (err) {
-            console.error(`❌ 第 ${batchIndex + 1} 批调用云函数失败：`, err);
-          }
-        }
-
-        console.log(`✅ 总共获取到 ${Object.keys(urlMap).length} 个临时链接`);
-
-        // 3. 替换 allSceneries 中的 image_url
-        allSceneries = allSceneries.map(item => {
-          if (item.image_url && urlMap[item.image_url]) {
-            return { ...item, image_url: urlMap[item.image_url] };
-          }
-          return item;
-        });
-
-        // 替换 allFoods 中的 image_url
-        allFoods = allFoods.map(item => {
-          if (item.image_url && urlMap[item.image_url]) {
-            return { ...item, image_url: urlMap[item.image_url] };
-          }
-          return item;
-        });
-
-        console.log('✅ 所有图片临时链接替换完成');
-      } else {
-        console.log('⚠️ 没有找到任何有效的 image_url 字段');
+      if (!res.result || !res.result.success) {
+        throw new Error(res.result?.error || '数据加载失败');
       }
-      // ----- 修改结束 -----
 
+      const allSceneries = res.result.sceneries;
+      const allFoods = res.result.foods;
+
+      console.log(`📊 从云函数获取：景区 ${allSceneries.length} 条，美食 ${allFoods.length} 条`);
       this.setData({ allSceneries, allFoods });
 
-      // 直接从数据中提取所有不重复的 city 字段
+      // 从全量数据中提取所有不重复的城市
       const citySet = new Set();
       [...allSceneries, ...allFoods].forEach(item => {
         if (item.city && typeof item.city === 'string') {
@@ -375,7 +300,7 @@ Page({
     if (!plan) return;
     wx.showModal({
       title: `📍 ${plan.city}`,
-      content: plan.items.map(item => `• ${item.name}`).join('\\n'),
+      content: plan.items.map(item => `• ${item.name}`).join('\n'),
       showCancel: false,
       confirmText: '知道了'
     });
